@@ -23,3 +23,8 @@ Use a dated X.Y.Z heading only after release approval. Keep an Unreleased sectio
 - Added pinned Ruff, mypy, YAML and actionlint checks, with checksum verification of the actionlint archive and retained source/tool evidence.
 - Enforced portable filenames, tracked documentation links and structured source provenance.
 - Added negative fixtures for invalid configuration, provenance, paths and workflows.
+
+### Repository settings (#9)
+
+- Corrected About wording to setup-stage capabilities and added prepayment topics.
+- Aligned feature/merge settings and documented main protection, exact integrity check context and the decision to defer release branches.

@@ -10,7 +10,9 @@ The trusted-default-branch metadata workflow handles events and a daily sweep, s
 
 Current branch: **main**. No release branch exists. Initial bootstrap establishes checks and documentation. Subsequent changes use focused task PRs, reviewer sign-off and green checks. Do not create a release branch solely to copy NMD's current version. If the owner chooses one later, align Dependabot, milestone guides and rules.
 
-This document states policy, not proof of GitHub enforcement. Issue #9 tracks settings/protections. Verify saved rules before claiming enforcement. Do not bypass failing checks or rewrite published history.
+Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Main accepts merge commits, as in NMD. Do not bypass failing checks or rewrite published history.
+
+See [repository settings](REPOSITORY_SETTINGS.md) for the comparison and deliberate differences. The saved GitHub ruleset is authoritative; an issue is not complete until it has been read back and verified.
 
 ## Definition of done
 

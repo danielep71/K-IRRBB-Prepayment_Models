@@ -1,8 +1,8 @@
 # Release guide
 
-No versions, tags or workbook artifacts have been released. main is the bootstrap branch; no release branch has been approved. Completing v0.1.0 - Repo setup does not publish a release.
+No versions, tags or workbook artifacts have been released. main is the default integration branch; no release branch has been approved. Completing v0.1.0 - Repo setup does not publish a release.
 
-After bootstrap, integrate reviewed PRs with green checks. If the owner later chooses a release branch, document its merge methods and checks, and align Dependabot/milestone automation. Never rewrite published history.
+Integrate reviewed PRs through the protected main branch, with the `integrity` check passing on an up-to-date branch and all review conversations resolved. If the owner later chooses a release branch, document its merge methods and checks, and align Dependabot/milestone automation. Never rewrite published history.
 
 ## Future gates
 
