@@ -17,7 +17,10 @@
         ".github/ISSUE_TEMPLATE/feature.yml",
         ".github/ISSUE_TEMPLATE/documentation.yml",
         ".github/workflows/daily-traffic.yml",
-        "docs/TRAFFIC.md"
+        "docs/TRAFFIC.md",
+        "docs/assets/README.md",
+        "docs/assets/prepayment-social-preview.svg",
+        "docs/assets/prepayment-social-preview.png"
       ]
     },
     {

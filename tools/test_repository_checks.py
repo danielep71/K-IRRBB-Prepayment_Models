@@ -26,6 +26,19 @@ class IntegrityTests(unittest.TestCase):
             for expected in ('missing/unsafe link', 'unpinned action', 'Unapproved binary'):
                 self.assertTrue(any(expected in error for error in errors), errors)
 
+    def test_branding_exception_rejects_changed_or_unlisted_binary(self):
+        from check import APPROVED_IMAGES
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            name = next(iter(APPROVED_IMAGES))
+            path = root / name
+            path.parent.mkdir(parents=True)
+            path.write_bytes(b'\x89PNG\r\n\x1a\nchanged')
+            (root / 'unapproved.png').write_bytes(path.read_bytes())
+            errors = inspect(root, [name, 'unapproved.png'])
+            self.assertTrue(any('Unreviewed image content' in e for e in errors))
+            self.assertTrue(any('Non-UTF-8 source: unapproved.png' in e for e in errors))
+
     def test_valid_baseline(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
