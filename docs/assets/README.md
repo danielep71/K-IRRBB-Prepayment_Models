@@ -24,8 +24,9 @@ Visual reference: K-IRRBB-NMDs at immutable commit
 `docs/assets/IRRBB_social_preview.html`, `docs/assets/IRRBB_social_preview.png`
 and `docs/assets/README.md`. No NMD figures, regulatory caps, model curves,
 backtest results or validation claims were imported. See the structured
-[provenance register](../provenance.json). The ownership review in issue #4
-remains separate from completion of this branding task.
+[provenance register](../provenance.json). The ownership confirmation for the inspected material was recorded on
+2026-10-20 in [the review record](../reviews/2026-10-20-ownership-history.md)
+for issue #4. It remains separate from model validation and release approval.
 
 ## Edit and export
 
