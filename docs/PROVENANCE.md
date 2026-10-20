@@ -15,3 +15,5 @@ Setup follows [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs), inspec
 Original work: copyright 2026 Daniele Penza. The root [LICENSE](../LICENSE) supplies the MPL-2.0 notice for original content; third-party rights/attribution remain the contributor's responsibility.
 
 Issue #4 tracks final ownership/distribution review and full-history inspection. No employer, client or vendor approval is asserted. Confidentiality requirements apply regardless of visibility.
+
+The machine-checked [register](provenance.json) records immutable reference revisions and paths for imported setup material. Revisions identify the reference inspected, not a byte-for-byte identity guarantee. New adaptations must update the register; ownership approval remains a separate review.

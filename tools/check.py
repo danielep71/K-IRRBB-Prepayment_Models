@@ -1,18 +1,21 @@
 """Offline setup checks; no Excel or model validation."""
 import ast
 import json
-from pathlib import Path
 import re
 import subprocess
 import sys
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+from check_source import inspect_source
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ('README.md', 'LICENSE', 'SECURITY.md', 'CONTRIBUTING.md',
-            'docs/PROVENANCE.md', 'docs/GOVERNANCE.md', 'INSTALLATION.md')
+            'docs/PROVENANCE.md', 'docs/provenance.json', 'docs/GOVERNANCE.md', 'INSTALLATION.md',
+            'src/README.md', 'tests/README.md', 'examples/README.md', 'tools/README.md')
 
 
-def inspect(root, names):
+def inspect(root: Path, names: list[str]) -> list[str]:
     """Return actionable errors for the tracked working-tree files."""
     errors = [f'Missing required file: {p}' for p in REQUIRED if p not in names]
     for name in names:
@@ -47,7 +50,7 @@ def inspect(root, names):
                 parsed = urlsplit(target)
                 if not parsed.scheme and parsed.path:
                     dest = (path.parent / unquote(parsed.path)).resolve()
-                    if not dest.is_relative_to(root.resolve()) or not dest.exists():
+                    if not dest.is_relative_to(root.resolve()) or dest.relative_to(root.resolve()).as_posix() not in names:
                         errors.append(f'{name}: missing/unsafe link {target}')
         if name.startswith('.github/workflows/'):
             for action in re.findall(r'^\s*-?\s*uses:\s*([^\s#]+)', text, re.M):
@@ -56,9 +59,10 @@ def inspect(root, names):
     return errors
 
 
-def main():
+def main() -> int:
     names = subprocess.check_output(['git', 'ls-files', '-z'], cwd=ROOT).decode().split('\0')
-    errors = inspect(ROOT, [name for name in names if name])
+    tracked = [name for name in names if name]
+    errors = inspect(ROOT, tracked) + inspect_source(ROOT, tracked)
     if errors:
         print('\n'.join(errors), file=sys.stderr)
         return 1

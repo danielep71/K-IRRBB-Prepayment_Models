@@ -12,7 +12,7 @@ cd K-IRRBB-Prepayment_Models
 python tools/check.py
 ```
 
-The command validates repository files/configuration, runs metadata regression tests and label-script self-tests. Comprehensive workflow validation remains tracked in issue #8. See [tooling](tools/README.md).
+The command validates repository files/configuration, runs metadata regression tests and label-script self-tests. The full CI gate also validates YAML/workflows and runs Python lint/type checks; its pinned-tool installation is documented in the tooling guide. See [tooling](tools/README.md).
 
 ## Intended Excel support
 

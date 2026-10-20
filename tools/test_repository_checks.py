@@ -1,7 +1,8 @@
 """Negative fixtures for the repository integrity boundary."""
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
+
 from check import REQUIRED, inspect
 
 
@@ -31,5 +32,33 @@ class IntegrityTests(unittest.TestCase):
             for name in REQUIRED:
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text('# Fixture\n', encoding='utf-8')
+                path.write_text('{}\n' if path.suffix == '.json' else '# Fixture\n', encoding='utf-8')
             self.assertEqual(inspect(root, list(REQUIRED)), [])
+
+
+class SourceTests(unittest.TestCase):
+    def test_bad_names_and_missing_provenance(self):
+        from check_source import inspect_source
+        with tempfile.TemporaryDirectory() as tmp:
+            errors = inspect_source(Path(tmp), ['A.md', 'a.md', 'bad name.md', 'CON.txt'])
+            for expected in ('collision', 'Non-portable', 'Invalid provenance'):
+                self.assertTrue(any(expected in error for error in errors), errors)
+
+    def test_untracked_link_target_is_not_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'README.md').write_text('[Local only](not-committed.md)\n')
+            (root / 'not-committed.md').write_text('Exists locally\n')
+            self.assertTrue(any('missing/unsafe link' in e for e in inspect(root, ['README.md'])))
+
+    def test_invalid_reference_revision(self):
+        import json
+
+        from check_source import inspect_source
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'docs').mkdir()
+            register = {'schema_version': 1, 'sources': [{'repository': 'https://github.com/owner/repo',
+                        'reference_revision': 'main', 'treatment': 'adapted', 'files': ['README.md']}]}
+            (root / 'docs/provenance.json').write_text(json.dumps(register))
+            self.assertTrue(any('full commit SHA' in e for e in inspect_source(root, ['README.md'])))

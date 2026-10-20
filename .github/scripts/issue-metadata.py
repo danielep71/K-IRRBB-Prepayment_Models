@@ -93,8 +93,8 @@ def main():
     else:
         pages = api(f"repos/{repository}/issues?state=all&per_page=100", paginate=True)
         numbers = [issue["number"] for page in pages for issue in page if "pull_request" not in issue]
-    for number in numbers:
-        reconcile(repository, number, milestone)
+    for issue_number in numbers:
+        reconcile(repository, issue_number, milestone)
     return 0
 
 

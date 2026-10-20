@@ -17,3 +17,9 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 ## Version rules
 
 Use a dated X.Y.Z heading only after release approval. Keep an Unreleased section for later work and record actual dates/evidence rather than planned releases as completed.
+
+### CI hardening (#8)
+
+- Added pinned Ruff, mypy, YAML and actionlint checks, with checksum verification of the actionlint archive and retained source/tool evidence.
+- Enforced portable filenames, tracked documentation links and structured source provenance.
+- Added negative fixtures for invalid configuration, provenance, paths and workflows.

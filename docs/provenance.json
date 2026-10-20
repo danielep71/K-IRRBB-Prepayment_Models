@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "repository": "https://github.com/danielep71/K-IRRBB-NMDs",
+      "reference_revision": "973501c82f2f9011acfdc9d741ab2af0132cb96c",
+      "treatment": "Reference baseline; adapted to prepayment scope. Not a claim of byte identity or ownership approval.",
+      "files": [
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        "LICENSE",
+        ".github/scripts/issue-metadata.py",
+        "tools/test_issue_metadata.py",
+        ".github/workflows/issue-metadata.yml",
+        ".github/ISSUE_TEMPLATE/bug.yml",
+        ".github/ISSUE_TEMPLATE/feature.yml",
+        ".github/ISSUE_TEMPLATE/documentation.yml"
+      ]
+    },
+    {
+      "repository": "https://github.com/danielep71/VBA-SACCR-Toolkit",
+      "reference_revision": "7ad778c54cc917396b7e690eaf7ddfefb6a56009",
+      "treatment": "Label catalogue and workflow reference baseline; repository-specific policy path retained.",
+      "files": [
+        ".github/labels.json",
+        ".github/label-policy.json",
+        ".github/scripts/labels-sync.mjs",
+        ".github/scripts/labels-drift.mjs",
+        ".github/workflows/labels-sync.yml",
+        ".github/workflows/labels-drift.yml"
+      ]
+    }
+  ]
+}
