@@ -1,6 +1,6 @@
 # Security policy
 
-This project is pre-release and currently contains documentation and automation, not a model workbook. No release carries production support. Reports against main are handled best-effort.
+Main is pre-release and currently contains setup documentation, automation and branding, not a model workbook. A separate prototype branch contains experimental VBA and tooling; it is not an accepted or supported release. No release carries production support. Reports against main are handled best-effort.
 
 ## Reporting
 
@@ -10,9 +10,9 @@ Include exact SHA, affected file, impact, prerequisites and a minimal synthetic 
 
 ## Boundaries
 
-Static checks and drift detection are read-only. Label reconciliation and issue metadata automation use issue-write permissions on trusted events. Pull-request code must not receive write credentials. Actions use SHA pins; checkouts do not persist credentials. This batch needs no traffic token.
+Static checks and drift detection are read-only. Label reconciliation and issue metadata automation use issue-write permissions on trusted events. Pull-request code must not receive write credentials. Actions use SHA pins; checkouts do not persist credentials. The daily traffic workflow alone requests the main-only `analytics` environment and its `TRAFFIC_TOKEN` to read GitHub traffic. Its built-in token writes isolated traffic history and conditional alert issues. The environment uses `deployment: false`; see [traffic controls](docs/TRAFFIC.md).
 
-No VBA runtime, importer or binary exists yet. Future executable code must preserve approved macro controls and document any new file/network/COM access. Never weaken Excel security automatically.
+Main has no VBA runtime or importer; its only approved binary is a digest-pinned branding PNG. Prototype and future executable code must preserve approved macro controls and document any new file/network/COM access. Never weaken Excel security automatically.
 
 Use synthetic data only. No borrower histories, client/employer records, proprietary methods or vendor source belong in this public repository. Static checks are not a secret scanner or confidentiality guarantee.
 
