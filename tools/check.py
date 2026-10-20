@@ -1,5 +1,6 @@
 """Offline setup checks; no Excel or model validation."""
 import ast
+import hashlib
 import json
 import re
 import subprocess
@@ -8,6 +9,12 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from check_source import inspect_source
+
+# Deliberate binary exception: reviewed branding export only (see docs/assets/README.md).
+APPROVED_IMAGES = {
+    'docs/assets/prepayment-social-preview.png':
+        'acf98fd10b85db9796f233df0ddce48f0a554368163fe8f030684f68b7f7ec18',
+}
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ('README.md', 'LICENSE', 'SECURITY.md', 'CONTRIBUTING.md',
@@ -22,6 +29,10 @@ def inspect(root: Path, names: list[str]) -> list[str]:
         path = root / name
         if not path.is_file():
             errors.append(f'Missing tracked file: {name}')
+            continue
+        if name in APPROVED_IMAGES:
+            if hashlib.sha256(path.read_bytes()).hexdigest() != APPROVED_IMAGES[name]:
+                errors.append(f'Unreviewed image content: {name}')
             continue
         if path.suffix.lower() in {'.xlsx', '.xlsm', '.xlsb', '.xls', '.exe', '.zip'}:
             errors.append(f'Unapproved binary: {name}')

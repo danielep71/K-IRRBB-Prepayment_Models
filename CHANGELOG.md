@@ -8,6 +8,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Prepayment-specific blue/violet social preview and README image, editable SVG source and documented provenance (#12); planned scope and setup status remain explicit.
+
 - SACCR-aligned 20-label catalogue, synchronisation and drift workflows.
 - Setup milestone and 16 issues with owner, priority and milestone.
 - Source-first architecture, directory guides, developer setup and future VBA conventions.
