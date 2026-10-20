@@ -40,7 +40,7 @@ identities. Its badge JSON files can therefore back shields.io endpoint badges.
 Traffic does not require GitHub Pages.
 
 After at least two snapshots, qualifying traffic spikes, increases in stars or
-forks, or new referrers create a `P3` issue assigned to `danielep71` in the
+forks, or new referrers create a `repository` / `P3` issue assigned to `danielep71` in the
 milestone selected by repository variable `ISSUE_MILESTONE_NUMBER`, which
 names the active milestone. There is no fallback: if the variable is unset,
 the run fails with a message naming it. The selected milestone must exist and be open;

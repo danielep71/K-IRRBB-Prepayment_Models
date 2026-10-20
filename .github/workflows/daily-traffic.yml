@@ -730,6 +730,8 @@ jobs:
                   "danielep71",
                   "--label",
                   "P3",
+                  "--label",
+                  "repository",
                   "--milestone",
                   milestone,
                   "--body",
