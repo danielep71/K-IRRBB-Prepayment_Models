@@ -4,6 +4,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ## [Unreleased]
 
+- Add daily traffic history, idempotent snapshots, badges and milestone-bound alerts (#11). Use a main-only analytics environment without deployment records; live activation requires TRAFFIC_TOKEN. Upgrade pinned actionlint to 1.7.12 for current environment syntax.
+
 ### Added
 
 - SACCR-aligned 20-label catalogue, synchronisation and drift workflows.

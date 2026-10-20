@@ -19,7 +19,7 @@ python -m venv .venv-quality
 .venv-quality/bin/python tools/quality.py
 ```
 
-Install **actionlint 1.7.7** from its [official release](https://github.com/rhysd/actionlint/releases/tag/v1.7.7) and put it on PATH before the last command. Choose the archive for your operating system and verify its release checksum. CI uses the Linux amd64 archive with a literal SHA-256 checksum. No downloaded installer script is executed.
+Install **actionlint 1.7.12** from its [official release](https://github.com/rhysd/actionlint/releases/tag/v1.7.12) and put it on PATH before the last command. Choose the archive for your operating system and verify its release checksum. CI uses the Linux amd64 archive with a literal SHA-256 checksum. No downloaded installer script is executed.
 
 The full gate includes the portable baseline, duplicate-key-safe YAML parsing, issue form labels/priorities/assignee/field IDs, Dependabot branch/labels, Ruff lint/import checks, mypy checking (including bodies of unannotated legacy functions), and actionlint workflow syntax/expression validation. Negative fixtures verify invalid configuration and an invalid workflow actually fail. Ruff's selected correctness/import rules and mypy coverage are explicit in `pyproject.toml`; this is not strict typing of every legacy boundary. Actionlint's optional ShellCheck and Pyflakes integrations are disabled for consistent local/CI behaviour; Python is checked separately.
 
