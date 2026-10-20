@@ -15,7 +15,9 @@
         ".github/workflows/issue-metadata.yml",
         ".github/ISSUE_TEMPLATE/bug.yml",
         ".github/ISSUE_TEMPLATE/feature.yml",
-        ".github/ISSUE_TEMPLATE/documentation.yml"
+        ".github/ISSUE_TEMPLATE/documentation.yml",
+        ".github/workflows/daily-traffic.yml",
+        "docs/TRAFFIC.md"
       ]
     },
     {

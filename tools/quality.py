@@ -10,10 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     actionlint = shutil.which('actionlint')
     if actionlint is None:
-        raise SystemExit('actionlint 1.7.7 is required; see tools/README.md')
+        raise SystemExit('actionlint 1.7.12 is required; see tools/README.md')
     version = subprocess.check_output([actionlint, '-version'], text=True).splitlines()[0]
-    if version.lstrip('v') != '1.7.7':
-        raise SystemExit(f'Expected actionlint v1.7.7, found {version}')
+    if version.lstrip('v') != '1.7.12':
+        raise SystemExit(f'Expected actionlint v1.7.12, found {version}')
     commands = [
         [sys.executable, 'tools/check.py'],
         [sys.executable, 'tools/check_config.py'],

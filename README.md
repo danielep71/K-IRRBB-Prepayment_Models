@@ -8,6 +8,8 @@
 
 [![Repository integrity](https://github.com/danielep71/K-IRRBB-Prepayment_Models/actions/workflows/static-checks.yml/badge.svg)](https://github.com/danielep71/K-IRRBB-Prepayment_Models/actions/workflows/static-checks.yml)
 
+[![Clones](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdanielep71%2FK-IRRBB-Prepayment_Models%2Ftraffic-history%2Fdata%2Fbadges%2Fclones.json)](docs/TRAFFIC.md) [![Visitors (14d)](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdanielep71%2FK-IRRBB-Prepayment_Models%2Ftraffic-history%2Fdata%2Fbadges%2Fvisitors.json)](docs/TRAFFIC.md) [![Visits](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdanielep71%2FK-IRRBB-Prepayment_Models%2Ftraffic-history%2Fdata%2Fbadges%2Fvisits.json)](docs/TRAFFIC.md)
+
 **Source-first · Synthetic examples · Explicit assumptions · Reproducible evidence**
 
 ## Purpose and status
@@ -38,6 +40,7 @@ This repository does not currently calculate EVE, NII, supervisory outlier tests
 | [Contributing](CONTRIBUTING.md) | How to propose and verify changes |
 | [Labels](docs/LABELS.md) | Priorities and catalogue automation |
 | [VBA style](docs/VBA_HOUSE_STYLE.md) | Future implementation conventions |
+| [Traffic analytics](docs/TRAFFIC.md) | Aggregate traffic history and badge definitions |
 | [Tooling](tools/README.md) | Static checks and their limits |
 | [Security](SECURITY.md) | Private reporting and data handling |
 | [Conduct](CODE_OF_CONDUCT.md) | Participation and reporting |
