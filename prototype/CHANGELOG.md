@@ -6,6 +6,16 @@ All notable changes to **K-PREPAY** are documented here, following
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject a zero parallel shock before model output is written.
+- Return `#NUM!` for negative worksheet shock magnitudes.
+- Make the headless runner fail on compile probes, driver errors, missing
+  results, incomplete reference-test success or worksheet-function failures;
+  clear old driver statuses before each invocation.
+
+These fixes still require real Excel validation.
+
 ## [0.1.0] - 2026-10-20
 
 ### Added
