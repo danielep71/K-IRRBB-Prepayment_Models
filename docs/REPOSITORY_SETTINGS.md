@@ -24,4 +24,4 @@ NMD's check is named `Repository integrity`; this repository's actual job/check 
 
 Keep main as the only long-lived development branch during setup. The owner has not requested a release branch. Short-lived task branches support PR integration; automatically remove them after merging. Do not copy NMD's release version, bypass exceptions or historical release branch names.
 
-Configure release-branch and tag protections before introducing those artifacts in an explicitly approved release scope. This setup does not publish a release, grant access, create credentials or change repository visibility. Issue #4 remains the ownership/distribution review; #11 covers traffic and #12 branding.
+Configure release-branch and tag protections before introducing those artifacts in an explicitly approved release scope. This setup does not publish a release, grant access, create credentials or change repository visibility. Issue #4 records the ownership/distribution review and owner confirmation for the inspected snapshots; #11 records traffic setup and #12 branding.

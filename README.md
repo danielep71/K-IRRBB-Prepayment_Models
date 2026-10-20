@@ -59,4 +59,4 @@ Git, Python 3.10+ and Node.js 22+ are needed for the offline checks. Excel is no
 
 Every issue needs **danielep71**, a milestone and **one priority label**. Track [v0.1.0 - Repo setup](https://github.com/danielep71/K-IRRBB-Prepayment_Models/milestone/1). Use synthetic examples only: no borrower, bank, client or vendor data, credentials or proprietary models.
 
-Original content uses [MPL-2.0](LICENSE). See [provenance](docs/PROVENANCE.md) for adaptations and the pending ownership review.
+Original content uses [MPL-2.0](LICENSE). See [provenance](docs/PROVENANCE.md) for adaptations and the recorded ownership review.

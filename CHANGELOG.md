@@ -8,7 +8,9 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
-- Recorded reachable-history secret scan and provenance inspection for #4, including the separate prototype branch; owner distribution confirmation remains pending. Corrected security-policy descriptions for live traffic credentials and branding assets.
+- Recorded the owner’s confirmation of ownership/publication permission and clarified that the prototype uses SACCR only as a visual reference (#4). Existing setup-source attributions remain in place.
+
+- Recorded reachable-history secret scan and provenance inspection for #4, including the separate prototype branch; owner distribution confirmation was recorded on 2026-10-20. Corrected security-policy descriptions for live traffic credentials and branding assets.
 
 - Prepayment-specific blue/violet social preview and README image, editable SVG source and documented provenance (#12); planned scope and setup status remain explicit.
 

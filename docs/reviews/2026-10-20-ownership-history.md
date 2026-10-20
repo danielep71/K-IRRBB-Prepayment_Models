@@ -1,7 +1,7 @@
 # Ownership and history inspection — 2026-10-20
 
-Issue #4. Technical inspection completed; owner distribution confirmation is
-**pending**. This record does not approve a model, a release, or third-party
+Issue #4. Technical inspection completed; owner distribution confirmation
+**recorded on 2026-10-20**. This record does not approve a model, a release, or third-party
 rights. Scope is the immutable Git snapshots below, not subsequent changes.
 
 ## Scope
@@ -67,7 +67,7 @@ reports outside the public repository until inspected and sanitized.
 | Traffic history | Aggregate counts, referrers and paths only; no visitor identities. Public storage is documented. |
 | Prototype | Separate branch at the SHA above; its reference model generates loans with `random.Random(20261020)` and history with `random.Random(7)`, using synthetic IDs such as `L0001`. No workbook is committed. This supports the synthetic-data description; it does not prove authorship or validate calculations. |
 | Prototype sources | Methodology names BCBS d368 and Regulation (EU) 2024/856. This inspection does not verify regulatory accuracy or adoption of the prototype's methodology; #14 and #15 remain separate. |
-| Attribution limitation | The prototype refers to SACCR template styling without an immutable source revision for that adaptation. Owner must identify any actual imported source and confirm rights; a same-account repository is not proof of ownership. |
+| Prototype visual reference | On 2026-10-20 the owner clarified that SACCR was only a visual reference for the prototype: no SACCR code or template content was copied for it. This clarification does not change the separately recorded SACCR-derived setup scripts/catalogue. |
 
 A heuristic sweep of the 106 UTF-8 blobs found only public documentation,
 repository, badge and standards URL hosts, and the already-public maintainer
@@ -77,23 +77,34 @@ module state-ownership headings, methodology language or empty workbook
 properties. This is a limited content review, not a guarantee that text or
 model logic cannot be confidential.
 
-## Owner confirmation required
+## Owner confirmation — 2026-10-20
 
-Issue #4 explicitly requires an ownership/distribution review. The maintainer
-must confirm, for the snapshots above:
+Daniele Penza was asked whether he owns, or has permission to publish, the
+original and adapted material, including the prototype, under the stated
+licence; and whether SACCR was only a visual reference or code/template
+content had been copied. He replied in the project conversation:
 
-1. Original source, documentation, synthetic generators and artwork are owned
-   by the contributor or authorised for public distribution under the stated
-   project licence.
-2. Imported/adapted material has compatible rights and adequate attribution;
-   identify any missing source provenance, including the prototype's SACCR
-   styling reference, before marking this review complete.
-3. No employer/client/vendor confidential material or unapproved proprietary
-   code is included; any necessary third-party approval has been obtained.
+> Yes. Only visual reference
 
-A scan cannot establish these facts. Work authorisation is not an ownership
-attestation. Record the owner's actual confirmation and any qualifications;
-do not infer employer approval or reuse an approval from NMD/SACCR.
+This records the owner's confirmation of ownership or publication permission
+for the inspected material and that the prototype's SACCR reference is visual
+only. No copied prototype code/template source revision is therefore asserted.
+The existing NMD and SACCR setup adaptations remain attributed in the register;
+this clarification does not erase them.
+
+Issue #4 records this owner confirmation alongside the technical inspection.
+This is an owner statement, not independent legal verification, employer
+approval, numerical validation or release approval. The technical scan retains
+its original scope and limits; new material still requires provenance review.
+
+The confidentiality requirement is unchanged: no employer/client/vendor
+confidential material or unapproved proprietary code may be included, and any
+necessary third-party permission must exist before publication. The owner
+confirmed ownership or permission to publish the inspected material; the quoted
+answer is not expanded into a separate confidentiality attestation, an employer
+approval, or proof that the scanner can establish those facts. See
+[contribution requirements](../../CONTRIBUTING.md) and
+[security policy](../../SECURITY.md).
 
 ## Limits
 

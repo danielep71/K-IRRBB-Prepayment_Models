@@ -20,4 +20,4 @@ Satisfy the issue contract, name the exact source/evidence, cover applicable tes
 
 ## Provenance
 
-Only independent work and synthetic examples belong here. Document source/permissions. [Provenance](PROVENANCE.md) records adaptations. Issue #4 stays open for the owner's ownership/distribution review; adopting the reference licence does not establish employer/client/vendor rights or copy an earlier project's approval.
+Only independent work and synthetic examples belong here. Document source/permissions. [Provenance](PROVENANCE.md) records adaptations. Issue #4 records the owner's dated ownership/publication confirmation for the inspected snapshots; adopting the reference licence alone does not establish employer/client/vendor rights or copy an earlier project's approval. New contributions still require appropriate permissions and must exclude confidential or unapproved proprietary material.
