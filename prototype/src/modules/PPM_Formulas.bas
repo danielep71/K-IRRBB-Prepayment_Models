@@ -225,7 +225,8 @@ Public Function PPM_Shock( _
         If Not (IsNumeric(T) And IsNumeric(ShockParallel) And IsNumeric(ShockShort) And IsNumeric(ShockLong) And _
                 IsNumeric(Decay)) Then GoTo Failed
         Index = ScenarioIndex(CStr(Scenario))
-        If Index = 0 Or T < 0 Or Decay <= 0 Then
+        If Index = 0 Or T < 0 Or Decay <= 0 Or _
+           ShockParallel < 0 Or ShockShort < 0 Or ShockLong < 0 Then
             PPM_Shock = CVErr(xlErrNum)
             Exit Function
         End If
