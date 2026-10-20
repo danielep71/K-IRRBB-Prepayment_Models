@@ -99,6 +99,21 @@ def module_name(code: str) -> str:
     return m.group(1)
 
 
+def require_driver_success(statuses, ops=False):
+    """Fail closed on a driver error, missing output or failed reference test."""
+    if statuses.get("AA3", "").strip():
+        raise RuntimeError(statuses["AA3"])
+    required = ("AA4", "AA5", "AA6", "AA7", "AA8") if ops else ("AA1", "AA2")
+    for cell in required:
+        value = statuses.get(cell, "")
+        if ":" not in value or not value.split(":", 1)[1].strip():
+            raise RuntimeError("Missing driver result in " + cell)
+    if not ops:
+        match = re.search(r": (\d+) of (\d+) PASS(?: [|] |$)", statuses["AA2"])
+        if not match or int(match[2]) == 0 or int(match[1]) != int(match[2]):
+            raise RuntimeError("Reference tests failed or summary missing: " + statuses["AA2"])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", default=None)
@@ -167,16 +182,21 @@ def main():
             if sheet.getCellRangeByName("AB1").getString() != name:
                 bad.append(name)
         if bad:
-            print("COMPILE FAILURE in modules:", bad)
+            raise RuntimeError("COMPILE FAILURE in modules: " + ", ".join(bad))
+        for row in range(1, 9):
+            sheet.getCellRangeByName("AA%d" % row).setString("")
         t0 = time.time()
         entry = "ZZ_Ops" if args.ops else "ZZ_Drive"
         sp.getScript("vnd.sun.star.script:Standard.ZZ_Driver.%s?language=Basic&location=document" % entry).invoke(
             (), (), ())
         print("driver %.1f s" % (time.time() - t0))
+        statuses = {}
         for a in ("AA1", "AA2", "AA3", "AA4", "AA5", "AA6", "AA7", "AA8"):
             s = sheet.getCellRangeByName(a).getString()
+            statuses[a] = s
             if s:
                 print(a, s)
+        require_driver_success(statuses, args.ops)
         doc.calculateAll()
         # LibreOffice does not bind the PPM_* formulas of the template to the
         # Basic functions, so call each one directly with the inputs of its
@@ -200,6 +220,8 @@ def main():
         for r in range(1, 400):
             if sheet.getCellByPosition(2, r).getString() == "#" and sheet.getCellByPosition(3, r).getString() == "Function":
                 hdr = r
+        if hdr is None:
+            raise RuntimeError("Worksheet-function test table missing")
         passed = 0
         for i, (fn, argf) in enumerate(unit_calls):
             row = hdr + 1 + i
@@ -212,6 +234,8 @@ def main():
             if not ok:
                 print("UNIT FAIL", fn, a, b, c, exp, got)
         print("unit tests of the worksheet functions: %d of %d PASS" % (passed, len(unit_calls)))
+        if passed != len(unit_calls):
+            raise RuntimeError("Worksheet-function tests failed")
         doc.storeToURL("file://" + args.out, (pv("FilterName", "Calc MS Excel 2007 XML"),))
         doc.close(True)
     finally:
