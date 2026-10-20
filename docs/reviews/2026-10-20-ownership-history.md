@@ -92,10 +92,19 @@ only. No copied prototype code/template source revision is therefore asserted.
 The existing NMD and SACCR setup adaptations remain attributed in the register;
 this clarification does not erase them.
 
-The review requirement in issue #4 is satisfied for the inspected snapshots.
+Issue #4 records this owner confirmation alongside the technical inspection.
 This is an owner statement, not independent legal verification, employer
 approval, numerical validation or release approval. The technical scan retains
 its original scope and limits; new material still requires provenance review.
+
+The confidentiality requirement is unchanged: no employer/client/vendor
+confidential material or unapproved proprietary code may be included, and any
+necessary third-party permission must exist before publication. The owner
+confirmed ownership or permission to publish the inspected material; the quoted
+answer is not expanded into a separate confidentiality attestation, an employer
+approval, or proof that the scanner can establish those facts. See
+[contribution requirements](../../CONTRIBUTING.md) and
+[security policy](../../SECURITY.md).
 
 ## Limits
 
