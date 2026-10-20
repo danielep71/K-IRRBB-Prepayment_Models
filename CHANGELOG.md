@@ -8,6 +8,7 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Unreviewed K-PREPAY 0.1.0 prototype under `prototype/` (behavioural CPR S-curve, six IRRBB shocks, EVE sensitivity, BCBS gap, calibration, Python reference and 52 reference tests). Not yet compiled or run in Excel; it departs from `docs/REPOSITORY_STRUCTURE.md` as listed in `prototype/README.md`.
 - SACCR-aligned 20-label catalogue, synchronisation and drift workflows.
 - Setup milestone and 16 issues with owner, priority and milestone.
 - Source-first architecture, directory guides, developer setup and future VBA conventions.
