@@ -309,6 +309,7 @@ Private Function ReadParams( _
             Ok = BadParam(Checks, PRM_MODE, MODE_BEHAVIOURAL & " or " & MODE_BCBS_SA)
         End If
         If Not NumberParam(Checks, PRM_PARALLEL, 0, 1, Prm.ShockParallel) Then Ok = False
+        If Prm.ShockParallel = 0# Then Ok = BadParam(Checks, PRM_PARALLEL, "strictly greater than zero")
         If Not NumberParam(Checks, PRM_SHORT, 0, 1, Prm.ShockShort) Then Ok = False
         If Not NumberParam(Checks, PRM_LONG, 0, 1, Prm.ShockLong) Then Ok = False
         If Not NumberParam(Checks, PRM_DECAY, 0.000001, 1000, Prm.Decay) Then Ok = False
