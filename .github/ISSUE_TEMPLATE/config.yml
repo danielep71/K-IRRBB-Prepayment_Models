@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security reports
+    url: https://github.com/danielep71/K-IRRBB-Prepayment_Models/security/policy
+    about: Do not post sensitive data publicly.
+  - name: Developer setup
+    url: https://github.com/danielep71/K-IRRBB-Prepayment_Models/blob/main/INSTALLATION.md
+    about: Prerequisites, checks and planned Excel support.

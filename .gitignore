@@ -1,0 +1,335 @@
+#==============================================================================
+# Canonical VBA project template .gitignore
+#------------------------------------------------------------------------------
+# PURPOSE
+#   Keep the repository source-first, reviewable, reproducible, and safe to
+#   clone. Ignore workstation state, generated output, secrets, caches, and
+#   unintended Office packages while preserving authoritative source and
+#   repository evidence.
+#
+# REPOSITORY POLICY
+#   - Exported VBA source and UserForm companions are version-controlled.
+#   - Generated Office packages are ignored unless an exact path is approved.
+#   - Repository configuration, documentation, tests, tools, and visual assets are source.
+#   - Python, Node, and R development caches are excluded without hiding manifests.
+#
+# SAFETY RULE
+#   Never add broad rules for exported VBA source, documentation, repository
+#   automation, or evidence directories. Exceptions for intentional Office
+#   packages must use exact rooted paths.
+#==============================================================================
+
+
+#------------------------------------------------------------------------------
+# MICROSOFT OFFICE TEMPORARY / LOCK / RECOVERY FILES
+#------------------------------------------------------------------------------
+~$*
+.~lock.*#
+*.laccdb
+*.ldb
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.xlk
+*.asd
+*.wbk
+
+
+#------------------------------------------------------------------------------
+# GENERATED OFFICE PACKAGES
+#------------------------------------------------------------------------------
+# Office packages are generated or release artifacts by default. These global
+# rules prevent an accidental workbook saved anywhere in the tree from becoming
+# source. Re-include an intentional package only by its exact rooted path.
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.xlt
+*.xltx
+*.xltm
+*.xla
+*.xlam
+*.xll
+*.xlw
+
+*.docm
+*.dotm
+*.pptm
+*.potm
+*.ppsm
+*.accdb
+*.accde
+*.accdr
+*.mdb
+*.mde
+*.ade
+
+# Example for a deliberately version-controlled workbook:
+# !/examples/Project-demo.xlsm
+
+# No workbook exception is approved during repository setup.
+
+
+#------------------------------------------------------------------------------
+# RELEASE / BUILD STAGING
+#------------------------------------------------------------------------------
+# Root anchoring prevents a generated-directory name from hiding an
+# authoritative nested source or evidence directory.
+/release-assets/
+/build/
+/out/
+/output/
+/outputs/
+/dist/
+
+
+#------------------------------------------------------------------------------
+# LOCAL DATA, EXTRACTS AND MODEL EXPORTS
+#------------------------------------------------------------------------------
+# Only synthetic data belongs in Git (CONTRIBUTING.md, "Data, confidentiality
+# and provenance"). Keep real or client data, extracts, snapshots and
+# calibration or parameter exports in these rooted local folders, which are
+# never committed. Synthetic fixtures belong under tests/ or examples/.
+/private/
+/local-data/
+/extracts/
+/snapshots/
+/exports/
+/parameter-exports/
+
+# Binary data, statistical-package and archive formats are not reviewable
+# source and commonly carry extracts. Re-include a reviewed synthetic file only
+# by its exact rooted path. CSV stays trackable for synthetic fixtures, so
+# review every added CSV for provenance.
+*.parquet
+*.feather
+*.arrow
+*.avro
+*.orc
+*.sas7bdat
+*.xpt
+*.dta
+*.sav
+*.rds
+*.rda
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.mat
+*.db
+*.sqlite
+*.sqlite3
+*.zip
+*.7z
+*.rar
+*.tar
+*.tgz
+*.tar.gz
+
+
+#------------------------------------------------------------------------------
+# LOCAL TEST / CERTIFICATION OUTPUT
+#------------------------------------------------------------------------------
+/test-output/
+/test-results/
+/coverage/
+/htmlcov/
+
+.coverage
+.coverage.*
+coverage.xml
+
+.pytest_cache/
+.hypothesis/
+.tox/
+.nox/
+
+
+#------------------------------------------------------------------------------
+# LOCAL TEMPORARY DIRECTORIES
+#------------------------------------------------------------------------------
+/temp/
+/tmp/
+/.cache/
+
+
+#------------------------------------------------------------------------------
+# WINDOWS FILE-SYSTEM / SHELL METADATA
+#------------------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+System Volume Information/
+*.stackdump
+
+# Reserved-name artifact occasionally created by shell redirection mistakes.
+nul
+
+
+#------------------------------------------------------------------------------
+# MACOS / NETWORK / UNIX METADATA
+#------------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Trashes
+.Spotlight-V100
+.fseventsd
+
+.directory
+.fuse_hidden*
+.nfs*
+
+
+#------------------------------------------------------------------------------
+# EDITOR / IDE / LOCAL ASSISTANT STATE
+#------------------------------------------------------------------------------
+# Project-wide configuration belongs in the repository; personal workspaces do
+# not. Re-include a specific shared editor file explicitly if one is introduced.
+.vscode/
+.idea/
+.vs/
+.history/
+.fleet/
+
+*.code-workspace
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+*~
+
+*.nppBackup
+session.xml
+
+.claude/
+.cursor/
+.aider*
+.continue/
+
+
+#------------------------------------------------------------------------------
+# MERGE / PATCH / CONFLICT ARTIFACTS
+#------------------------------------------------------------------------------
+*.orig
+*.rej
+*.patch.tmp
+
+
+#------------------------------------------------------------------------------
+# LOGS / CRASH DUMPS
+#------------------------------------------------------------------------------
+*.log
+*.dmp
+*.dump
+
+
+#------------------------------------------------------------------------------
+# LOCAL ENVIRONMENT / SECRET / SIGNING MATERIAL
+#------------------------------------------------------------------------------
+# Sanitized examples remain trackable.
+.env
+.env.*
+!.env.example
+
+*.pfx
+*.p12
+*.pvk
+*.key
+*.pem
+*.ppk
+*.jks
+*.keystore
+*.kdbx
+id_rsa
+id_rsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+.netrc
+.pgpass
+credentials.json
+client_secret*.json
+
+
+#------------------------------------------------------------------------------
+# PYTHON CACHE / LOCAL ENVIRONMENTS
+#------------------------------------------------------------------------------
+# Source, manifests, lock files, and requirements remain trackable.
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.ipynb_checkpoints/
+
+.venv/
+venv/
+
+
+#------------------------------------------------------------------------------
+# NODE / JAVASCRIPT LOCAL DEPENDENCIES
+#------------------------------------------------------------------------------
+# Package manifests and lock files remain trackable. Only installed dependencies,
+# machine caches, and diagnostic logs are ignored.
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.yarn/build-state.yml
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+#------------------------------------------------------------------------------
+# R SESSION / LOCAL LIBRARY STATE
+#------------------------------------------------------------------------------
+# R source, project files, renv.lock, and benchmark evidence remain trackable.
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+renv/library/
+renv/staging/
+renv/local/
+
+
+#------------------------------------------------------------------------------
+# AUTHORITATIVE CONTENT THAT MUST REMAIN TRACKABLE
+#------------------------------------------------------------------------------
+# These are documentation guardrails, not negation rules:
+#   *.bas, *.cls, *.frm, *.frx, *.xml
+#   src/**, examples/**, tests/**, tools/**
+#   demo/**, test/** only for documented legacy/profile alternatives
+#   docs/**, benchmark/**, evidence/**
+#   *.md, *.txt, *.yml, *.yaml, *.json, *.csv
+#   assets/**, images/**, .github/**
+#   .editorconfig, .gitattributes, .gitignore
+#
+# Do not ignore exported VBA extensions or authoritative source, documentation,
+# benchmark, evidence, asset, or .github directories.
+#==============================================================================

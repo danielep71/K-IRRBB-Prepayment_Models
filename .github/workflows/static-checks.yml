@@ -1,0 +1,27 @@
+name: Repository integrity
+on:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check repository and automation regressions
+        run: |
+          mkdir -p test-results
+          set -o pipefail
+          python3 tools/check.py 2>&1 | tee test-results/integrity.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: repository-integrity
+          path: test-results/
+          retention-days: 14
