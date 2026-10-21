@@ -14,6 +14,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Updated the foundation closeout (#16): #14 and #15 closed, release integrated into main (#34) and levelled (#35), successor milestone reported. Added the step to open successor-milestone issues for every deferred gap before closing milestone 1.
+
 - Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.
 
 - Foundation closeout record for milestone 1 (#16): gate status, issue dispositions and the final comparison with K-IRRBB-NMDs, with each gap kept, deferred or left to an owner decision. The milestone is not closed; integration into main, final checks and a successor milestone remain.
