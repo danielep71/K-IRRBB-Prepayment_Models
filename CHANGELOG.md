@@ -6,6 +6,10 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 - Add daily traffic history, idempotent snapshots, badges and milestone-bound alerts (#11). Use a main-only analytics environment without deployment records; live activation requires TRAFFIC_TOKEN. Upgrade pinned actionlint to 1.7.12 for current environment syntax.
 
+### Fixed
+
+- Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered atomic-import/stale-result and window-boundary tests (#26). Tests remain registered only; remaining methodological review findings stay tracked in #14 and #15.
+
 ### Added
 
 - Owner accepted all validation and Excel evidence decisions (V1-V6, E1-E3) as proposed on 2026-10-21 (#15). Nothing is executed; every case remains registered only. Recorded the owner's report that `release/0.1.0` is protected; the saved rules are not read back.
