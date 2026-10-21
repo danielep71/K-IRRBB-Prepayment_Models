@@ -10,7 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
-- Proposed EVE sensitivity and repricing-gap contracts (#72): decisions M12–M18 and D10, source `REG-5`, validation rows and registered cases. Not accepted; nothing implemented.
+- Proposed EVE sensitivity and repricing-gap contracts (#72): decisions M12–M18 and D10, source `REG-5`, validation rows and registered cases. Not accepted; nothing implemented. Review follow-up defines FIXED-only WAL with explicit exclusions for reset-truncated projections, and computes EVE, worst scenarios and other measures separately per labelled CPR layer.
 - Source-first architecture, directory guides, developer installation and future VBA conventions (#2, #13).
 - Editing and Git rules with no approved workbook exception (#3).
 - Contribution, security, conduct, governance, provenance and release guides; MPL-2.0 text (#4, #5, #16).
