@@ -14,6 +14,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Opened #38–#45 in milestone v0.2.0 - Prototype setup for every deferred gap of the foundation closeout (#16) and linked them from the closeout record.
+
 - Updated the foundation closeout (#16): #14 and #15 closed, release integrated into main (#34) and levelled (#35), successor milestone reported. Added the step to open successor-milestone issues for every deferred gap before closing milestone 1.
 
 - Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.

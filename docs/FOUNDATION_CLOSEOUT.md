@@ -12,7 +12,7 @@ First recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6
 | Final NMD gap comparison with a disposition per gap | **Done.** Recorded [below](#comparison-with-k-irrbb-nmds); the owner accepted every disposition on 2026-10-21 | — |
 | Integration of `release/0.1.0` into `main`; governance, settings and milestone documents reconciled | **Done.** #34 merged the release branch into `main` at `f43107a` on the owner's instruction; #35 levelled `release/0.1.0` with `main` at `d0114c1`. This update reaches `main` only with the next integration | Owner integrates this update |
 | Required checks and issue metadata verified on the final closeout commit | **Partly done.** `integrity` and the Dependabot configuration check passed on `main` at `f43107a`. They must be repeated on the commit that brings this update to `main` | Repeat after the next integration |
-| Successor milestone selected; `ISSUE_MILESTONE_NUMBER` updated and read back | **Reported done.** The owner reported on 2026-10-21 that the successor milestone exists and `ISSUE_MILESTONE_NUMBER` points to it. Not read back in this record | Owner confirms the read-back |
+| Successor milestone selected; `ISSUE_MILESTONE_NUMBER` updated and read back | **Reported done.** The owner created milestone 2, v0.2.0 - Prototype setup, on 2026-10-21 and reported that `ISSUE_MILESTONE_NUMBER` points to it. The milestone was confirmed by creating #38 in it; the variable is not read back in this record | Owner confirms the read-back |
 
 Interim evidence:
 
@@ -58,18 +58,18 @@ Reference: K-IRRBB-NMDs at `f703c7ab6bff207b5ce5917af8368cb24ea23f13`, inspected
 
 ### Gaps and dispositions
 
-| NMD has | Here | Disposition |
-| --- | --- | --- |
-| `docs/WORKBOOK_CONTRACT.md` | Absent | Deferred to the workbook milestone; no workbook exists |
-| `docs/PUBLIC_API.txt` | Absent | Deferred; introduced with the first facade, as [repository structure](REPOSITORY_STRUCTURE.md) requires |
-| Milestone guides v0.2.0–v1.0.0 and an approved roadmap | Only v0.1.0 | **Owner decision.** A successor milestone is required before milestone 1 closes |
-| VBA source, harness and modules under `src/` and `tests/` | Guides only | Deferred; implementation needs its own milestones |
-| Built fixtures and expected files for the data contract | Cases registered only | Deferred; listed as future scope in the [validation plan](methodology/VALIDATION_PLAN.md#future-scope) |
-| Workbook builder, export/compare and development tooling under `tools/` | Static checks only | Deferred; same future-scope list |
-| Example module under `examples/` | Guide only | Deferred until a public facade exists |
-| Sources verified against official texts (`REG-1`, `REG-3` for NMD provisions) | No source verified for prepayments | Deferred; any regulatory overlay waits for verification ([source register](methodology/SOURCES.md)) |
+| NMD has | Here | Disposition | Issue |
+| --- | --- | --- | --- |
+| `docs/WORKBOOK_CONTRACT.md` | Absent | Deferred to the workbook milestone; no workbook exists | #38 |
+| `docs/PUBLIC_API.txt` | Absent | Deferred; introduced with the first facade, as [repository structure](REPOSITORY_STRUCTURE.md) requires | #39 |
+| Milestone guides v0.2.0–v1.0.0 and an approved roadmap | Only v0.1.0 | Successor milestone v0.2.0 - Prototype setup created by the owner on 2026-10-21; its guide is deferred | #40 |
+| VBA source, harness and modules under `src/` and `tests/` | Guides only | Deferred; implementation needs its own milestones | #42 |
+| Built fixtures and expected files for the data contract | Cases registered only | Deferred; listed as future scope in the [validation plan](methodology/VALIDATION_PLAN.md#future-scope) | #41 |
+| Workbook builder, export/compare and development tooling under `tools/` | Static checks only | Deferred; same future-scope list | #43 |
+| Example module under `examples/` | Guide only | Deferred until a public facade exists | #44 |
+| Sources verified against official texts (`REG-1`, `REG-3` for NMD provisions) | No source verified for prepayments | Deferred; any regulatory overlay waits for verification ([source register](methodology/SOURCES.md)) | #45 |
 
-No gap is resolved by copying NMD content. Every deferred item needs a future issue in a successor milestone. The owner accepted these dispositions on 2026-10-21.
+No gap is resolved by copying NMD content. Every deferred item has an issue in milestone v0.2.0 - Prototype setup, created on 2026-10-21 with owner `danielep71` and one priority. The owner accepted these dispositions on 2026-10-21.
 
 ## Closeout steps
 
@@ -77,6 +77,6 @@ No gap is resolved by copying NMD content. Every deferred item needs a future is
 2. ~~Owner accepts the dispositions above~~: accepted on 2026-10-21.
 3. ~~Owner integrates `release/0.1.0` into `main` and levels the release branch~~: #34 and #35 on 2026-10-21.
 4. ~~Owner creates the successor milestone; `ISSUE_MILESTONE_NUMBER` is updated~~: reported on 2026-10-21; read-back to be confirmed.
-5. Create one issue in the successor milestone, with owner and one priority, for each deferred gap [above](#gaps-and-dispositions), and link them here.
+5. ~~Create one issue in the successor milestone for each deferred gap~~: #38–#45 in v0.2.0 - Prototype setup, 2026-10-21.
 6. Integrate this record into `main` and re-run the gates on that commit: `integrity`, issue metadata, label drift.
 7. Close #16 with this record and the final evidence, then close milestone 1.
