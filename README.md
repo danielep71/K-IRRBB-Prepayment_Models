@@ -39,6 +39,7 @@ This repository does not currently calculate EVE, NII, supervisory outlier tests
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
 | [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
+| [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and remaining owner steps |
 | [Setup milestone](docs/Milestones/v0.1.0.md) | Issues, dependencies and completion criteria |
 | [Governance](docs/GOVERNANCE.md) | Metadata, review and closure rules |
 | [Contributing](CONTRIBUTING.md) | How to propose and verify changes |
