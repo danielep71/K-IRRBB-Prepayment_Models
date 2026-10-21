@@ -1,70 +1,43 @@
 # Changelog
 
-All work is unreleased. The setup milestone does not imply a version tag or GitHub Release.
+All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 2026-10-21 did not create a version tag or GitHub Release.
 
 ## [Unreleased]
 
-- Add daily traffic history, idempotent snapshots, badges and milestone-bound alerts (#11). Use a main-only analytics environment without deployment records; live activation requires TRAFFIC_TOKEN. Upgrade pinned actionlint to 1.7.12 for current environment syntax.
+### Added
+
+- Source-first architecture, directory guides, developer installation and future VBA conventions (#2, #13).
+- Editing and Git rules with no approved workbook exception (#3).
+- Contribution, security, conduct, governance, provenance and release guides; MPL-2.0 text (#4, #5, #16).
+- Reachable-history secret scan, provenance inspection and the owner's ownership and publication confirmation of 2026-10-20, including the separate prototype branch, which uses SACCR only as a visual reference (#4). Existing setup-source attributions remain in place.
+- 20-label catalogue adapted from VBA-SACCR-Toolkit, with synchronisation and drift workflows (#5).
+- Issue forms, PR template, issue-metadata enforcement and offline regression tests (#6, #7).
+- Portable integrity checks and static CI (#8): pinned Ruff, mypy, YAML and actionlint checks with checksum verification of the actionlint archive and retained source/tool evidence; portable filenames, tracked documentation links and structured source provenance; negative fixtures for invalid configuration, provenance, paths and workflows.
+- Weekly Dependabot updates for GitHub Actions, targeting the active release branch (#10).
+- Daily traffic history, idempotent snapshots, badges and milestone-bound alerts (#11). Uses a main-only analytics environment without deployment records; live activation requires `TRAFFIC_TOKEN`.
+- Prepayment-specific blue/violet social preview and README image, editable SVG source and documented provenance (#12).
+- Prepayment data contract, model contracts and source register under `docs/methodology`, accepted by the owner on 2026-10-21 with decisions D1–D9 and M1–M11 (#14). After review, positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected; M11 defines the predicted bucket value of the `PM1` fit. No source is verified and nothing is implemented.
+- Validation plan, numerical test-case register and Excel evidence requirements, accepted by the owner on 2026-10-21 with decisions V1–V6 and E1–E3 (#15). After review, only (origin, horizon) pairs with a complete horizon are scored and others are `INCOMPLETE`; later origins may follow 12 complete ones; zero realised prepayment uses absolute error and is excluded from the ±10 % test. Every case is registered only; no check, harness or Excel run has been executed.
+- Foundation closeout record (#16): closeout gates, issue dispositions and the final comparison with K-IRRBB-NMDs, accepted by the owner on 2026-10-21. Every deferred gap has an issue in v0.2.0 - Prototype setup (#38–#45).
+- Setup milestone v0.1.0 with 16 issues, each with owner, milestone and one priority; closed on 2026-10-21.
+
+### Changed
+
+- About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
+- Adopted `release/0.1.0`, created from main on 2026-10-21 at the owner's request, as the integration target for task PRs and Dependabot. Task PRs are squash-merged into it; the owner integrates it into main with a merge commit, and it is levelled with main after each integration. No release, tag or version is implied.
+- Upgraded pinned actionlint to 1.7.12 for current environment syntax (#11).
+- Brought the Markdown documentation in line with the closed setup milestone and removed setup-history comparisons with K-IRRBB-NMDs from the settings, governance and label guides (#53). Documentation only.
 
 ### Fixed
 
 - Tightened the #30 contract boundaries (#14): E15 rejects every positive excess of prepayment over exposure at input decimal precision, and RENEG requires nonnegative residual principal. Extended the registered boundary cases; no importer or Excel execution is claimed.
-
-- Brought the foundation closeout record in line with the final evidence (#16): integration (#47, #48), all three gates on `main` at `2bd2ecf` including label drift, and the owner's read-back of `ISSUE_MILESTONE_NUMBER = 2`. Documentation only.
-
-- Fixed four findings from the review of #34: forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive; decision M11 defines the predicted bucket value of the `PM1` fit; V1 now allows later origins with `INCOMPLETE` pairs after 12 complete ones; the Dependabot check enforces the exact active release branch.
-
-- Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
-
-### Added
-
-- Opened #38–#45 in milestone v0.2.0 - Prototype setup for every deferred gap of the foundation closeout (#16) and linked them from the closeout record.
-
-- Updated the foundation closeout (#16): #14 and #15 closed, release integrated into main (#34) and levelled (#35), successor milestone reported. Added the step to open successor-milestone issues for every deferred gap before closing milestone 1.
-
-- Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.
-
-- Foundation closeout record for milestone 1 (#16): gate status, issue dispositions and the final comparison with K-IRRBB-NMDs, with each gap kept, deferred or left to an owner decision. The milestone is not closed; integration into main, final checks and a successor milestone remain.
-
-- Amended data decisions D4 and D7 after review of #24 (#14): positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected. Registered `DATA-EXPO-01`.
-
-- Amended validation decisions V1 and V3 after review of #26 (#15): only (origin, horizon) pairs with a complete horizon are scored, others are `INCOMPLETE`; zero realised prepayment uses absolute error and is excluded from the ±10 % test. Registered `DATA-REJECT-01` for all-or-nothing import rejection.
-
-- Owner accepted all validation and Excel evidence decisions (V1-V6, E1-E3) as proposed on 2026-10-21 (#15). Nothing is executed; every case remains registered only. Recorded the owner's report that `release/0.1.0` is protected; the saved rules are not read back.
-
-- Proposed validation plan, numerical test-case register and Excel evidence requirements (#15). Not accepted; every case is registered only and no check, harness or Excel run has been executed.
-
-- Owner accepted all data and model contract decisions (D1-D9, M1-M10) as proposed on 2026-10-21 (#14). Sources remain unverified and nothing is implemented or validated.
-
-- Proposed prepayment data contract, model contracts and source register under docs/methodology (#14). Specifications only, not accepted; every decision is listed as open and no source is verified for this repository.
-
-- Adopted `release/0.1.0`, created from main on 2026-10-21 at the owner's request, as the integration target for task PRs and Dependabot. Documented squash merges into it, owner integration into main and levelling after each integration. No release, tag or version is implied.
-
-- Recorded the owner’s confirmation of ownership/publication permission and clarified that the prototype uses SACCR only as a visual reference (#4). Existing setup-source attributions remain in place.
-
-- Recorded reachable-history secret scan and provenance inspection for #4, including the separate prototype branch; owner distribution confirmation was recorded on 2026-10-20. Corrected security-policy descriptions for live traffic credentials and branding assets.
-
-- Prepayment-specific blue/violet social preview and README image, editable SVG source and documented provenance (#12); planned scope and setup status remain explicit.
-
-- SACCR-aligned 20-label catalogue, synchronisation and drift workflows.
-- Setup milestone and 16 issues with owner, priority and milestone.
-- Source-first architecture, directory guides, developer setup and future VBA conventions.
-- Editing/Git rules with no approved workbook exception.
-- Contribution, security, conduct, governance, provenance and release guides; MPL-2.0 text.
-- Issue forms, PR template, metadata enforcement and offline regression tests.
-- Portable integrity checks, static CI and weekly dependency updates.
+- Forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive (review of #34).
+- The Dependabot check enforces the exact active release branch (review of #34).
+- Aligned the structure guide with the accepted contracts (#25), made the chronological test-window rule explicit in the model contract (#24) and registered a window-boundary test.
+- Corrected security-policy descriptions of live traffic credentials and branding assets (#4).
+- Brought the foundation closeout record in line with the final evidence (#16).
+- Governance and traffic guides give `ISSUE_MILESTONE_NUMBER` as 2 (v0.2.0 - Prototype setup), not 1 (#53).
 
 ## Version rules
 
 Use a dated X.Y.Z heading only after release approval. Keep an Unreleased section for later work and record actual dates/evidence rather than planned releases as completed.
-
-### CI hardening (#8)
-
-- Added pinned Ruff, mypy, YAML and actionlint checks, with checksum verification of the actionlint archive and retained source/tool evidence.
-- Enforced portable filenames, tracked documentation links and structured source provenance.
-- Added negative fixtures for invalid configuration, provenance, paths and workflows.
-
-### Repository settings (#9)
-
-- Corrected About wording to setup-stage capabilities and added prepayment topics.
-- Aligned feature/merge settings and documented main protection, exact integrity check context and the decision to defer release branches.

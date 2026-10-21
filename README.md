@@ -4,7 +4,7 @@
 
 ### Transparent loan-prepayment assumptions in Excel/VBA
 
-[![Status](https://img.shields.io/badge/Status-Repository_setup-6e7781?style=for-the-badge)](docs/Milestones/v0.1.0.md)
+[![Status](https://img.shields.io/badge/Status-Specifications_only-6e7781?style=for-the-badge)](docs/Milestones/README.md)
 [![Target](https://img.shields.io/badge/Target-Excel_Windows_64--bit-217346?style=for-the-badge)](INSTALLATION.md)
 [![License](https://img.shields.io/badge/License-MPL--2.0-2ea44f?style=for-the-badge)](LICENSE)
 
@@ -18,7 +18,7 @@
 
 This project is intended to provide transparent tools for developing and independently challenging loan-prepayment assumptions used in IRRBB and ALM. The intended Excel/VBA workflow covers input checks, behavioural assumptions, calibration, scenarios, backtesting and controlled export of parameters or behavioural cash flows.
 
-**Current status: repository setup only.** No prepayment model, VBA engine, workbook, calibration routine or validated numerical output is delivered. These are development objectives, not implemented features.
+**Current status: specifications only.** Repository setup (v0.1.0) closed on 2026-10-21 with accepted data, model and validation contracts; prototype setup (v0.2.0) is the open milestone. No prepayment model, VBA engine, workbook, calibration routine or validated numerical output is delivered. These are development objectives, not implemented features.
 
 ## Scope and boundaries
 
@@ -39,8 +39,8 @@ This repository does not currently calculate EVE, NII, supervisory outlier tests
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
 | [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
-| [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and remaining owner steps |
-| [Setup milestone](docs/Milestones/v0.1.0.md) | Issues, dependencies and completion criteria |
+| [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and deferred gaps |
+| [Milestones](docs/Milestones/README.md) | Closed setup milestone and the open successor |
 | [Governance](docs/GOVERNANCE.md) | Metadata, review and closure rules |
 | [Contributing](CONTRIBUTING.md) | How to propose and verify changes |
 | [Labels](docs/LABELS.md) | Priorities and catalogue automation |
@@ -60,6 +60,6 @@ python tools/check.py
 
 Git, Python 3.10+ and Node.js 22+ are needed for the offline checks. Excel is not needed. Passing them does not establish VBA compilation, Excel execution or model validity.
 
-Every issue needs **danielep71**, a milestone and **one priority label**. Track [v0.1.0 - Repo setup](https://github.com/danielep71/K-IRRBB-Prepayment_Models/milestone/1). Use synthetic examples only: no borrower, bank, client or vendor data, credentials or proprietary models.
+Every issue needs **danielep71**, a milestone and **one priority label**. Track [v0.2.0 - Prototype setup](https://github.com/danielep71/K-IRRBB-Prepayment_Models/milestone/2). Use synthetic examples only: no borrower, bank, client or vendor data, credentials or proprietary models.
 
 Original content uses [MPL-2.0](LICENSE). See [provenance](docs/PROVENANCE.md) for adaptations and the recorded ownership review.

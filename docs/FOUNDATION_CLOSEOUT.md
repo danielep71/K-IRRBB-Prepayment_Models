@@ -1,8 +1,8 @@
 # v0.1.0 foundation closeout
 
-Status: **complete.** Every closeout gate of issue #16 was met on 2026-10-21; milestone 1 (v0.1.0 - Repo setup) closes once this record is integrated into `main`. This record collects the closeout gates of issue #16 and the final comparison with K-IRRBB-NMDs. It does not authorize a tag, a GitHub Release, a workbook or any model use; see [releasing](../RELEASING.md).
+Status: **complete.** Every closeout gate of issue #16 was met on 2026-10-21; #16 and milestone 1 (v0.1.0 - Repo setup) were closed on 2026-10-21. This record collects the closeout gates of issue #16 and the final comparison with K-IRRBB-NMDs. It does not authorize a tag, a GitHub Release, a workbook or any model use; see [releasing](../RELEASING.md).
 
-First recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d4305e469a91`. Final state on 2026-10-21: all setup work integrated into `main` at `2bd2ecf377e4ef87445ccecf6916db4613321634` (#47), with `release/0.1.0` levelled at `776015032633b6c2a9f5a1edf2ed916503b9b72d` (#48). Later changes are not covered.
+First recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d4305e469a91`. Final state on 2026-10-21: all setup work integrated into `main` at `2bd2ecf377e4ef87445ccecf6916db4613321634` (#47), with `release/0.1.0` levelled at `776015032633b6c2a9f5a1edf2ed916503b9b72d` (#48). The correction of this record (#50) reached `main` at `b2161af33783d2a5a6a21e05ce4ad3196cf32af9` (#51) and was levelled (#52). Later changes are not covered.
 
 ## Gates
 
@@ -27,7 +27,7 @@ Supporting evidence:
 | #1–#13 | README, layout, Git hygiene, policies, governance, templates, metadata enforcement, static CI, settings, Dependabot, traffic, branding, installation | Closed | Each issue body; commits up to `3461d89` on `main` |
 | #14 | Data and model contracts | Closed as completed, 2026-10-21 | #24, acceptance #25, review fixes #29 and #30 |
 | #15 | Validation plan, test cases, Excel evidence | Closed as completed, 2026-10-21 | #26, acceptance #27, review fixes #28, #29 and #30 |
-| #16 | Changelog, release guide, closeout | Closes when this record is integrated into `main` | #32, #33, #36, #46 and this change |
+| #16 | Changelog, release guide, closeout | Closed as completed, 2026-10-21 | #32, #33, #36, #46 and #50 |
 
 Prototype PR #19 is separate future implementation work. It is neither setup evidence nor a release requirement.
 
@@ -79,4 +79,4 @@ No gap is resolved by copying NMD content. Every deferred item has an issue in m
 4. ~~Owner creates the successor milestone; `ISSUE_MILESTONE_NUMBER` is updated~~: milestone 2 created and `ISSUE_MILESTONE_NUMBER = 2` read back by the owner, 2026-10-21.
 5. ~~Create one issue in the successor milestone for each deferred gap~~: #38–#45 in v0.2.0 - Prototype setup, 2026-10-21.
 6. ~~Integrate the closeout into `main` and re-run the gates~~: #47 and #48; all three gates passed on `2bd2ecf`, 2026-10-21.
-7. Integrate this documentation correction into `main`, then close #16 and milestone 1.
+7. ~~Integrate this documentation correction into `main`, then close #16 and milestone 1~~: #50 and #51; #16 and milestone 1 closed on 2026-10-21.

@@ -4,15 +4,15 @@
 
 Every open and closed issue must include **danielep71**, a milestone, exactly one of **P1/P2/P3**, suitable type labels and verifiable acceptance criteria. Titles describe the change; versions belong in milestones. Close issues only with evidence, preserving the record when work is deferred.
 
-The trusted-default-branch metadata workflow handles events and a daily sweep, skips pull requests, and reads back saved metadata. It preserves existing milestones and other assignees/type labels. Missing priority becomes P3; conflicts retain highest severity. Missing milestones use `ISSUE_MILESTONE_NUMBER`, intended to be **1** for setup, with no fallback. Change the variable to an open successor before closing the configured milestone.
+The trusted-default-branch metadata workflow handles events and a daily sweep, skips pull requests, and reads back saved metadata. It preserves existing milestones and other assignees/type labels. Missing priority becomes P3; conflicts retain highest severity. Missing milestones use `ISSUE_MILESTONE_NUMBER`, currently **2** (v0.2.0 - Prototype setup), with no fallback. Change the variable to an open successor before closing the configured milestone.
 
 ## Branches and review
 
-Default branch: **main**. Active release branch: **release/0.1.0**, created from main on 2026-10-21 at the owner's request. Subsequent changes use focused task PRs into the release branch, reviewer sign-off and green checks. The owner integrates the release branch into main and levels it with main afterwards. Dependabot targets the release branch. Do not copy NMD's release version or historical release branch names.
+Default branch: **main**. Active release branch: **release/0.1.0**, created from main on 2026-10-21 at the owner's request. Subsequent changes use focused task PRs into the release branch, reviewer sign-off and green checks. The owner integrates the release branch into main and levels it with main afterwards. Dependabot targets the release branch.
 
-Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Main accepts merge commits, as in NMD. Do not bypass failing checks or rewrite published history.
+Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Integration into main uses merge commits. Do not bypass failing checks or rewrite published history.
 
-See [repository settings](REPOSITORY_SETTINGS.md) for the comparison and deliberate differences. The saved GitHub ruleset is authoritative; an issue is not complete until it has been read back and verified.
+See [repository settings](REPOSITORY_SETTINGS.md) for the settings baseline and the release-branch rules. The saved GitHub ruleset is authoritative; an issue is not complete until it has been read back and verified.
 
 ## Definition of done
 
