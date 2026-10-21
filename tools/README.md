@@ -25,6 +25,6 @@ The full gate includes the portable baseline, duplicate-key-safe YAML parsing, i
 
 `Repository integrity` runs on main, all PRs and future release branches. Its stable job ID is `integrity`. Logs include the exact source SHA, tool versions and check output and are retained for 14 days. Runner OS patch levels are managed by GitHub; action revisions, Python packages (including transitive dependencies) and the actionlint archive are pinned. Update pins deliberately and run the full gate. Passing checks is not Excel or model certification.
 
-Dependabot checks GitHub Actions weekly on Monday, targets main, assigns danielep71 and applies ci/P3. At most five dependency PRs remain open; updates require review and passing checks, never automatic merge. Python/tool pins are maintained through reviewed changes to the requirements file and workflow.
+Dependabot checks GitHub Actions weekly on Monday, targets the active release branch (`release/0.1.0`), assigns danielep71 and applies ci/P3. At most five dependency PRs remain open; updates require review and passing checks, never automatic merge. Python/tool pins are maintained through reviewed changes to the requirements file and workflow.
 
 Metadata tests mock GitHub; normal local checks do not write issues. The live metadata workflow uses GitHub's scoped token and the explicit `ISSUE_MILESTONE_NUMBER` repository variable. See [governance](../docs/GOVERNANCE.md).
