@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.**
+Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-proposed-72) test decisions proposed in #72 and not accepted.
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -86,6 +86,17 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `SCN-FLOOR-01` | Post-shock floor `min(observed, min(0, -150bp + 3bp x m))` | Hand computation with synthetic shock sizes | `abs 1e-12` | Registered |
 | `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)`; provisional until `REG-1` is verified | Hand computation | `abs 1e-12` | Registered |
 | `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |
+
+### EVE sensitivity and repricing gap (proposed, #72)
+
+| ID | Checks | Reference | Tolerance | Status |
+| --- | --- | --- | --- | --- |
+| `EVE-PV-01` | PV of hand-built cash flows on a two-tenor zero curve: linear interpolation, flat extrapolation, `k/12` grid | Independent script | `rel 1e-12` | Registered |
+| `EVE-DELTA-01` | ΔEVE sign, worst over the six supervisory scenarios, `CONTRACT` and user shocks excluded, currencies never added | Hand computation | `rel 1e-12` | Registered |
+| `EVE-RATIO-01` | Ratio and indicator at exactly 0.15 (not raised) and just above (raised); Tier 1 in another currency gives no ratio; invalid Tier 1 stops the run | Hand construction | `exact` | Registered |
+| `GAP-BUCKET-01` | Cash flows at each bucket's upper bound fall in that bucket; reset balances fall in the bucket of the next reset | Hand construction | `exact` | Registered |
+| `GAP-CONS-01` | Sum over buckets equals the outstanding balance at the as-of date for `CONTRACT`, `BASE` and every scenario | Identity | `abs 0.005` | Registered |
+| `MEAS-01` | Weighted average life, effective duration and projected CPR over 12 months and over the projection | Hand computation | `abs 1e-12` | Registered |
 
 ### Common
 
