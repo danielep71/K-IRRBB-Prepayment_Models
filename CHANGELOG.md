@@ -8,6 +8,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Owner accepted all validation and Excel evidence decisions (V1-V6, E1-E3) as proposed on 2026-10-21 (#15). Nothing is executed; every case remains registered only. Recorded the owner's report that `release/0.1.0` is protected; the saved rules are not read back.
+
 - Proposed validation plan, numerical test-case register and Excel evidence requirements (#15). Not accepted; every case is registered only and no check, harness or Excel run has been executed.
 
 - Owner accepted all data and model contract decisions (D1-D9, M1-M10) as proposed on 2026-10-21 (#14). Sources remain unverified and nothing is implemented or validated.

@@ -26,6 +26,6 @@ At the owner's request, `release/0.1.0` was created on 2026-10-21 from main at `
 
 After each integration into main, level the release branch with main: the owner fast-forwards it, or the main merge commit is merged into a release branch opened before the integration. Short-lived task branches support PR integration; automatically remove them after merging. Do not copy NMD's release version, bypass exceptions or historical release branch names.
 
-Release-branch protection is configured by the owner and is not verified by this file. Recommended baseline: require PRs and the **integrity** check, block deletion and force pushes, allow squash merges. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).
+On 2026-10-21 the owner reported that `release/0.1.0` is protected. The saved rules have not been read back into this record; until they are, this is the intended baseline: require PRs and the **integrity** check, block deletion and force pushes, allow squash merges. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).
 
 Configure tag protections before introducing tags in an explicitly approved release scope. This setup does not publish a release, grant access, create credentials or change repository visibility. Issue #4 records the ownership/distribution review and owner confirmation for the inspected snapshots; #11 records traffic setup and #12 branding.

@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **proposed in issue #15, not accepted. Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.**
+Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.**
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
