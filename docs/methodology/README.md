@@ -7,8 +7,10 @@ Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every decision
 | [Data contract](DATA_CONTRACT.md) | Input datasets, fields, units, loan events, validation codes, censoring and lineage |
 | [Model contracts](MODEL_CONTRACTS.md) | CPR/SMM conventions, candidate models, rate incentive, estimation, outputs and the regulatory overlay |
 | [Source register](SOURCES.md) | External sources relied on, and whether each has been verified |
+| [Validation plan](VALIDATION_PLAN.md) | Evidence layers, out-of-time validation, leakage, segmentation, edge cases and scenario checks (proposed, #15) |
+| [Test cases](TEST_CASES.md) | Registered numerical cases with reference provenance and tolerances (proposed, #15) |
 
-Validation and Excel evidence requirements belong to issue #15; these contracts only name what each model must report so that #15 can test it.
+Real-host evidence is defined in [Excel evidence](../EXCEL_EVIDENCE.md) (proposed, #15). The validation documents are not yet accepted, and nothing in them has been executed.
 
 ## Scope
 

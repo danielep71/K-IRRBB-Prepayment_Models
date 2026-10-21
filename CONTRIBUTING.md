@@ -14,6 +14,6 @@ Future Office assets require inspection of hidden sheets, names, cached data, li
 
 ## Evidence
 
-Static checks establish repository integrity only. Future calculations need independent expected values and tolerances; Excel changes need real compile/run evidence on the candidate SHA with host version/bitness. An empty test suite or Python pass is not a substitute.
+Static checks establish repository integrity only. Future calculations need independent expected values and tolerances; Excel changes need real compile/run evidence on the candidate SHA with host version/bitness. An empty test suite or Python pass is not a substitute. See the [validation plan](docs/methodology/VALIDATION_PLAN.md) and [Excel evidence](docs/EXCEL_EVIDENCE.md).
 
 Original contributions use [MPL-2.0](LICENSE). Report vulnerabilities privately via [security policy](SECURITY.md) and follow [conduct rules](CODE_OF_CONDUCT.md).

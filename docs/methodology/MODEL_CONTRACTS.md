@@ -2,7 +2,7 @@
 
 Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified.
 
-This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence belong to issue #15.
+This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence are in the [validation plan](VALIDATION_PLAN.md).
 
 Notation: `t` is a month end; loan-month `(i, t)` runs from `t-1` to `t`; amounts are in currency units; rates are decimals per annum unless marked monthly; `T` is a remaining term in years.
 
@@ -114,7 +114,7 @@ Whether `PM1` fits total SMM or separate curves for partial and full prepayment 
 
 ### Diagnostics reported
 
-Observed vs fitted SMM and CPR by incentive bucket; weighted R²; residuals by age, calendar month and origination cohort; the `PM0` comparison; optimiser status, iterations and objective; and, for the test window, bias and mean absolute error of monthly SMM and the cumulative prepaid amount, per horizon. Pass/fail thresholds are set by issue #15.
+Observed vs fitted SMM and CPR by incentive bucket; weighted R²; residuals by age, calendar month and origination cohort; the `PM0` comparison; optimiser status, iterations and objective; and, for the test window, bias and mean absolute error of monthly SMM and the cumulative prepaid amount, per horizon. Pass/fail thresholds are decision V3 of the [validation plan](VALIDATION_PLAN.md#decisions).
 
 ## Behavioural cash-flow projection
 
@@ -160,7 +160,7 @@ A **scenario result** names its parameter set and holds, per segment, currency, 
 
 ## Independent validation
 
-Each model needs independent expected values with stated tolerances, an out-of-time backtest with frozen parameters, and real Excel compile and run evidence on the candidate commit. These requirements, their thresholds and the numerical reference cases are owned by issue #15. Nothing in this document is validated.
+Each model needs independent expected values with stated tolerances, an out-of-time backtest with frozen parameters, and real Excel compile and run evidence on the candidate commit. These requirements are in the [validation plan](VALIDATION_PLAN.md), the [case register](TEST_CASES.md) and [Excel evidence](../EXCEL_EVIDENCE.md). Nothing in this document is validated.
 
 ## Decisions
 
