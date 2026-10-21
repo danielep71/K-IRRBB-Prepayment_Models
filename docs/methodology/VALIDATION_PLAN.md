@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** No harness, fixture, reference script, workbook or Excel record exists; every check below is planned.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** No harness, fixture, reference script, workbook or Excel record exists; every check below is planned. Rows marked "proposed, #72" depend on decisions not yet accepted.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
@@ -33,6 +33,7 @@ Calibration, independent challenge and acceptance are distinct and identifiable:
 | `PM1` | Formula evaluation at fixed parameters; fit against an independent optimiser; constraints; failure and minimum-sample handling; recovery of a known generating process (a statistical check, not a tolerance test) |
 | Cash-flow projection | Annuity, linear and bullet schedules; payment frequency; re-amortisation after prepayment; repricing at reset; monthly and lifetime conservation |
 | Scenarios and overlay | Zero shock reproduces `BASE`; sign and monotonicity of the CPR response; post-shock floor; multiplier overlay; overlays change no fitted parameter |
+| EVE and repricing gap (proposed, #72) | PV against an independent discounting script; ΔEVE sign and worst scenario; ratio and indicator at the threshold and in another currency; bucket boundaries; gap conservation; CPR layers kept separate; weighted average repricing time, effective duration and projected CPR |
 | Common | Leakage, parameter freeze, segment isolation, repeatability, units, failures that withdraw stale outputs |
 
 ## Out-of-time validation
@@ -77,7 +78,8 @@ Each needs at least one case with a hand-derived or independently computed resul
 - loans past maturity, gaps, censored disappearances and loans in their first month;
 - `RENEG` chains, `DEFAULT` and `SALE` exits;
 - non-zero `other_change`;
-- very small and very large balances within the parse limits; leap years and month ends.
+- very small and very large balances within the parse limits; leap years and month ends;
+- Tier 1 in a currency other than the loans, `PV_BASE <= 0` for duration, and cash flows exactly on a bucket boundary (proposed, #72).
 
 ## Scenario sensitivity
 
@@ -86,6 +88,7 @@ Each needs at least one case with a hand-derived or independently computed resul
 - The post-shock floor is applied before the incentive is computed.
 - The standardised multiplier overlay gives `min(1, gamma x CPR_BASE)` and changes no fitted parameter. It stays provisional until `REG-1` is verified.
 - Projected cash flows conserve balance in every scenario.
+- Each scenario discounts with its own shocked and floored curve, and `CONTRACT` never enters the worst ΔEVE (proposed, #72).
 
 ## Evidence protocol
 

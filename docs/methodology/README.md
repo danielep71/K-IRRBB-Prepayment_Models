@@ -1,11 +1,11 @@
 # Prepayment methodology contracts
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. The EVE sensitivity and repricing-gap extension is proposed in issue #72 and not accepted. Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
 
 | Document | Authoritative for |
 | --- | --- |
 | [Data contract](DATA_CONTRACT.md) | Input datasets, fields, units, loan events, validation codes, censoring and lineage |
-| [Model contracts](MODEL_CONTRACTS.md) | CPR/SMM conventions, candidate models, rate incentive, estimation, outputs and the regulatory overlay |
+| [Model contracts](MODEL_CONTRACTS.md) | CPR/SMM conventions, candidate models, rate incentive, estimation, EVE sensitivity and repricing gap (proposed), outputs and the regulatory overlay |
 | [Source register](SOURCES.md) | External sources relied on, and whether each has been verified |
 | [Validation plan](VALIDATION_PLAN.md) | Evidence layers, out-of-time validation, leakage, segmentation, edge cases and scenario checks |
 | [Test cases](TEST_CASES.md) | Registered numerical cases with reference provenance and tolerances |
@@ -14,7 +14,7 @@ Real-host evidence is defined in [Excel evidence](../EXCEL_EVIDENCE.md). The val
 
 ## Scope
 
-Loan prepayments in the banking book: partial and full early repayments of amortising or bullet loans, distinguished from scheduled principal, maturity and default. Deposits, decay and rate pass-through are out of scope and belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). EVE/NII aggregation, the supervisory outlier test, option pricing and model approval are outside the toolkit.
+Loan prepayments in the banking book: partial and full early repayments of amortising or bullet loans, distinguished from scheduled principal, maturity and default. Deposits, decay and rate pass-through are out of scope and belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). The loan book's contribution to EVE and its repricing gap are proposed for scope in #72 ([model contracts](MODEL_CONTRACTS.md#eve-sensitivity-and-repricing-gap)). NII, aggregation across the balance sheet, the bank-level supervisory outlier test, option pricing and model approval stay outside the toolkit.
 
 ## Three layers, kept apart
 
