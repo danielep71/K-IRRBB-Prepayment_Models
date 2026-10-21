@@ -12,6 +12,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Foundation closeout record for milestone 1 (#16): gate status, issue dispositions and the final comparison with K-IRRBB-NMDs, with each gap kept, deferred or left to an owner decision. The milestone is not closed; integration into main, final checks and a successor milestone remain.
+
 - Amended data decisions D4 and D7 after review of #24 (#14): positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected. Registered `DATA-EXPO-01`.
 
 - Amended validation decisions V1 and V3 after review of #26 (#15): only (origin, horizon) pairs with a complete horizon are scored, others are `INCOMPLETE`; zero realised prepayment uses absolute error and is excluded from the ±10 % test. Registered `DATA-REJECT-01` for all-or-nothing import rejection.
