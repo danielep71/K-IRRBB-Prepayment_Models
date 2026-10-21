@@ -1,4 +1,4 @@
-"""Setup-stage filename and provenance rules, independent of model source."""
+"""Filename and provenance rules, independent of model source."""
 import json
 import re
 from pathlib import Path, PurePosixPath

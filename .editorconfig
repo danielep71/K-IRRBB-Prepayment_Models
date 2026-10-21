@@ -2,8 +2,8 @@
 # .editorconfig
 #------------------------------------------------------------------------------
 # PURPOSE
-#   Provide a portable editing baseline for Excel/VBA projects created from
-#   this template.
+#   Provide a portable editing baseline for this Excel/VBA repository,
+#   adapted from the K-IRRBB-NMDs baseline (see docs/provenance.json).
 #
 # POLICY
 #   - Exported VBA source uses CRLF and 4-space indentation.
@@ -22,8 +22,9 @@
 #   classification, merge and diff behavior, Linguist, and release archives.
 #
 # CUSTOMIZATION
-#   Keep the VBA and repository-control rules. Optional tooling sections may be
-#   removed when a project does not use the corresponding file type.
+#   Keep the VBA and repository-control rules. Sections for file types this
+#   repository does not use yet (for example R or RibbonX) are kept as
+#   safeguards and may be removed in a reviewed change.
 #==============================================================================
 
 root = true

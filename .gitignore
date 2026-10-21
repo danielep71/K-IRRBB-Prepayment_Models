@@ -1,5 +1,5 @@
 #==============================================================================
-# Canonical VBA project template .gitignore
+# .gitignore for K-IRRBB-Prepayment_Models
 #------------------------------------------------------------------------------
 # PURPOSE
 #   Keep the repository source-first, reviewable, reproducible, and safe to
@@ -70,7 +70,7 @@
 # Example for a deliberately version-controlled workbook:
 # !/examples/Project-demo.xlsm
 
-# No workbook exception is approved during repository setup.
+# No workbook exception is approved.
 
 
 #------------------------------------------------------------------------------

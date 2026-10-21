@@ -1,4 +1,4 @@
-"""Offline setup checks; no Excel or model validation."""
+"""Offline repository integrity checks; no Excel or model validation."""
 import ast
 import hashlib
 import json

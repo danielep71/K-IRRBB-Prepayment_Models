@@ -4,9 +4,8 @@
 #   Reads the GitHub traffic API for this repository and appends a daily
 #   snapshot to CSV files on the orphan `traffic-history` branch, which the
 #   first run creates. It also writes data/badges/clones.json, visitors.json
-#   and visits.json there: shields.io endpoints for README badges, usable only
-#   once the repository is public, because shields.io cannot read a private
-#   repository.
+#   and visits.json there: shields.io endpoints for README badges. shields.io
+#   can read them because the repository is public.
 #
 #   Adapted from K-IRRBB-NMDs at 973501c82f2f9011acfdc9d741ab2af0132cb96c.
 #
@@ -24,8 +23,9 @@
 #     That environment is not a workflow-identity boundary: any job declaring
 #     it may request access, subject to the configured environment protections.
 #
-#     Rotate it every 90 days, and immediately if this workflow is ever
-#     modified by someone other than the maintainer. See docs/TRAFFIC.md.
+#     Rotate it every 90 days, and immediately after suspected exposure,
+#     including any change to this workflow not made by the maintainer.
+#     See docs/TRAFFIC.md.
 #
 #   Scope
 #     This is repository analytics. It is not CI. It compiles nothing, runs no
@@ -529,7 +529,7 @@ jobs:
 
           # Explicit milestone number: other open milestones do not make alerts ambiguous.
           # No fallback, and checked before any early exit, so an unset variable fails
-          # every run instead of only the first one that raises an alert (#117).
+          # every run instead of only the first one that raises an alert.
           raw_milestone = os.environ.get("ISSUE_MILESTONE_NUMBER", "").strip()
           if not raw_milestone:
               raise RuntimeError("Repository variable ISSUE_MILESTONE_NUMBER is not set; "
