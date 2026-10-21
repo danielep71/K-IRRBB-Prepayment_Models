@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-ACTIVE_RELEASE_BRANCH = 'release/0.1.0'
+ACTIVE_RELEASE_BRANCH = 'release/0.2.0'
 
 
 class UniqueLoader(yaml.SafeLoader):

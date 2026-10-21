@@ -2,7 +2,7 @@
 
 Use a structured issue with the problem, component, acceptance criteria, exact SHA for defects and a minimal synthetic reproduction. Follow [metadata rules](docs/GOVERNANCE.md).
 
-Propose focused task PRs to the active release branch, `release/0.1.0`; the owner integrates it into main. Link the issue, explain behaviour, run `python tools/check.py`, record limitations and await review/green checks. Preserve history. Issue work does not authorize publishing a release.
+Propose focused task PRs to the active release branch, `release/0.2.0` for v0.2.0 - Prototype setup; the owner integrates it into main. Each milestone has its own release branch; see the [release guide](RELEASING.md). Link the issue, explain behaviour, run `python tools/check.py`, record limitations and await review/green checks. Preserve history. Issue work does not authorize publishing a release.
 
 Update authoritative docs and [changelog](CHANGELOG.md). Distinguish planned features from implemented ones. Version changes to data, units and numerical contracts; keep models separate from Excel glue.
 
