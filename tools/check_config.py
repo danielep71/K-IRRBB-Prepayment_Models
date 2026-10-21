@@ -6,6 +6,8 @@ from typing import Any
 
 import yaml
 
+ACTIVE_RELEASE_BRANCH = 'release/0.1.0'
+
 
 class UniqueLoader(yaml.SafeLoader):
     """Reject duplicate YAML keys instead of silently overwriting values."""
@@ -60,8 +62,8 @@ def inspect_config(root: Path) -> list[str]:
                 for update in data['updates']:
                     if set(update.get('labels', [])) - labels:
                         raise ValueError('unknown Dependabot label')
-                    if not re.fullmatch(r'release/\d+\.\d+\.\d+', str(update.get('target-branch'))):
-                        raise ValueError('Dependabot must target the active release branch')
+                    if update.get('target-branch') != ACTIVE_RELEASE_BRANCH:
+                        raise ValueError(f'Dependabot must target the active release branch {ACTIVE_RELEASE_BRANCH}')
         except (yaml.YAMLError, ValueError, KeyError, TypeError) as exc:
             errors.append(f'{path.relative_to(root)}: {exc}')
     return errors
