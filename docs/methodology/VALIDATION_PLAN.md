@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **proposed in issue #15, not accepted.** Open [decisions](#decisions) are listed at the end. **Nothing in this plan has been executed.** No harness, fixture, reference script, workbook or Excel record exists; every check below is planned.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** No harness, fixture, reference script, workbook or Excel record exists; every check below is planned.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
@@ -47,7 +47,7 @@ The estimation and test windows are set in the [model contracts](MODEL_CONTRACTS
    - the same scores for `PM0`, so `PM1` is always compared with the benchmark.
 4. Report every origin and horizon. Do not drop origins, average away a failing segment or pool currencies.
 
-Pass/fail thresholds are decision V3. Until they are accepted, out-of-time results are reported, not judged.
+Pass/fail thresholds are decision V3: a segment and currency passes only when both criteria hold; otherwise it fails and is reported with its scores.
 
 ## Leakage prevention
 
@@ -114,11 +114,11 @@ This plan does not build anything. The following work needs its own issues in a 
 
 ## Decisions
 
-| # | Decision | Proposed | Status |
+| # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| V1 | Test window | At least 12 month ends after the estimation window | Open |
-| V2 | Horizons | 1 to 12 months, plus the cumulative prepaid amount at 12 months | Open |
-| V3 | Out-of-time pass criteria | `PM1` MAE of monthly SMM no worse than `PM0` at every horizon, and cumulative prepaid error within ±10 % at 12 months, per segment and currency | Open |
-| V4 | Reference tooling | Python with pinned NumPy/SciPy, offline only, never a runtime dependency | Open |
-| V5 | `PM1` fit tolerance | Parameters `rel 1e-6` and objective `rel 1e-9` against the independent optimiser | Open |
-| V6 | Status vocabulary | The four statuses above | Open |
+| V1 | Test window | At least 12 month ends after the estimation window | Accepted 2026-10-21 |
+| V2 | Horizons | 1 to 12 months, plus the cumulative prepaid amount at 12 months | Accepted 2026-10-21 |
+| V3 | Out-of-time pass criteria | `PM1` MAE of monthly SMM no worse than `PM0` at every horizon, and cumulative prepaid error within ±10 % at 12 months, per segment and currency | Accepted 2026-10-21 |
+| V4 | Reference tooling | Python with pinned NumPy/SciPy, offline only, never a runtime dependency | Accepted 2026-10-21 |
+| V5 | `PM1` fit tolerance | Parameters `rel 1e-6` and objective `rel 1e-9` against the independent optimiser | Accepted 2026-10-21 |
+| V6 | Status vocabulary | The four statuses above | Accepted 2026-10-21 |

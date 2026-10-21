@@ -1,6 +1,6 @@
 # Excel evidence
 
-Status: **proposed in issue #15, not accepted. No Excel evidence exists.** There is no workbook, builder, test harness or export tool yet, so every stage below is currently `NOT_RUN`. Open [decisions](#decisions) are listed at the end.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** There is no workbook, builder, test harness or export tool yet, so every stage below is currently `NOT_RUN`.
 
 This document is authoritative for the Excel evidence record: what a build, compile and test run must capture, how it is bound to one commit, and which outcomes count. Numerical validation is separate and is defined in the [validation plan](methodology/VALIDATION_PLAN.md). Supported hosts are in [installation](../INSTALLATION.md); release gates are in [releasing](../RELEASING.md).
 
@@ -72,8 +72,8 @@ Evidence uses synthetic data only. Do not attach screenshots, workbooks or logs 
 
 ## Decisions
 
-| # | Decision | Proposed | Status |
+| # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| E1 | Execution | Manual, interactive; an automated runner (such as the prototype's headless script) counts only after a reviewed design shows it records the same bindings and outcomes | Open |
-| E2 | Required hosts | 64-bit Windows Excel all stages; 32-bit compile best effort | Open |
-| E3 | Where records live | Attached to the issue or pull request of the candidate; never committed with workbook content | Open |
+| E1 | Execution | Manual, interactive; an automated runner (such as the prototype's headless script) counts only after a reviewed design shows it records the same bindings and outcomes | Accepted 2026-10-21 |
+| E2 | Required hosts | 64-bit Windows Excel all stages; 32-bit compile best effort | Accepted 2026-10-21 |
+| E3 | Where records live | Attached to the issue or pull request of the candidate; never committed with workbook content | Accepted 2026-10-21 |

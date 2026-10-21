@@ -37,7 +37,7 @@ This repository does not currently calculate EVE, NII, supervisory outlier tests
 | --- | --- |
 | [Installation](INSTALLATION.md) | Current prerequisites and checks |
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
-| [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (proposed; none exists) |
+| [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
 | [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
 | [Setup milestone](docs/Milestones/v0.1.0.md) | Issues, dependencies and completion criteria |
 | [Governance](docs/GOVERNANCE.md) | Metadata, review and closure rules |
