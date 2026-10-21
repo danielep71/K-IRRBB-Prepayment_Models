@@ -1,6 +1,6 @@
 # Prepayment methodology contracts
 
-Status: **proposed in issue #14, not accepted.** These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
 
 | Document | Authoritative for |
 | --- | --- |
@@ -28,8 +28,8 @@ An overlay is applied after the fit and never changes fitted coefficients. A beh
 
 ## Relationship to the prototype
 
-The prototype in [danielep71/K-IRRBB-Prepayment_Models#19](https://github.com/danielep71/K-IRRBB-Prepayment_Models/pull/19) is a review draft, not an accepted design. Where it chose a convention, the [model contracts](MODEL_CONTRACTS.md) record that choice as a candidate or as an open decision; they do not adopt it by default.
+The prototype in [danielep71/K-IRRBB-Prepayment_Models#19](https://github.com/danielep71/K-IRRBB-Prepayment_Models/pull/19) is a review draft, not an accepted design. Where it chose a convention, the [model contracts](MODEL_CONTRACTS.md) record that choice as a candidate or as a decision; nothing was adopted from the prototype by default.
 
-## Open decisions
+## Decisions
 
-Each contract ends with its decision table. A decision marked **open** blocks the implementation that depends on it; nothing may silently pick one interpretation.
+Each contract ends with its decision table; all were accepted on 2026-10-21. Changing a decision needs an issue and a reviewed change to its table; nothing may silently pick another interpretation. Acceptance does not verify any source or validate any model.
