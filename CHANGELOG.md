@@ -30,6 +30,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Fixed
 
+- Tightened the #30 contract boundaries (#14): E15 rejects every positive excess of prepayment over exposure at input decimal precision, and RENEG requires nonnegative residual principal. Extended the registered boundary cases; no importer or Excel execution is claimed.
 - Forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive (review of #34).
 - The Dependabot check enforces the exact active release branch (review of #34).
 - Aligned the structure guide with the accepted contracts (#25), made the chronological test-window rule explicit in the model contract (#24) and registered a window-boundary test.
