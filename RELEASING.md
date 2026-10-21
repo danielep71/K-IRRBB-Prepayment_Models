@@ -9,7 +9,7 @@ Open task PRs into `release/0.1.0` and squash-merge them once the `integrity` ch
 1. Owner explicitly requests a release and scope is recorded.
 2. Ownership/licensing and distribution review in issue #4 is resolved.
 3. Freeze one candidate SHA, complete the changelog and run checks against it.
-4. For VBA/workbooks, record real Excel compile/run evidence and independent numerical references/tolerances.
+4. For VBA/workbooks, record real [Excel evidence](docs/EXCEL_EVIDENCE.md) and the independent numerical references and tolerances of the [case register](docs/methodology/TEST_CASES.md).
 5. Build from certified source, inspect and hash artifacts. Source changes invalidate affected evidence.
 6. Create an annotated vX.Y.Z tag and publish only approved artifacts; verify the result.
 

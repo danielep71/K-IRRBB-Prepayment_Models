@@ -46,6 +46,16 @@
         "docs/methodology/MODEL_CONTRACTS.md",
         "docs/methodology/SOURCES.md"
       ]
+    },
+    {
+      "repository": "https://github.com/danielep71/K-IRRBB-NMDs",
+      "reference_revision": "f703c7ab6bff207b5ce5917af8368cb24ea23f13",
+      "treatment": "Validation-plan, test-case register and Excel-evidence structure adapted to loan prepayments. Cases, checks and decisions written for this project; no NMD case values, evidence records or approvals copied.",
+      "files": [
+        "docs/methodology/VALIDATION_PLAN.md",
+        "docs/methodology/TEST_CASES.md",
+        "docs/EXCEL_EVIDENCE.md"
+      ]
     }
   ]
 }

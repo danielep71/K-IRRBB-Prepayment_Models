@@ -211,7 +211,7 @@ The same files, settings and commit give the same dataset, findings in the same 
 
 ## Synthetic fixtures
 
-None yet. Before an importer is implemented, hand-constructed fixtures must cover every event, error and warning code above, with hand-computed expected totals and outcomes and an independent reference reader. Fixture and evidence requirements are owned by issue #15.
+None yet. Before an importer is implemented, hand-constructed fixtures must cover every event, error and warning code above, with hand-computed expected totals and outcomes and an independent reference reader. The cases are registered in [TEST_CASES.md](TEST_CASES.md).
 
 ## Decisions
 
