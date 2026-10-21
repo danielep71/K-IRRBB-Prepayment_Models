@@ -24,7 +24,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 ### Changed
 
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
-- Adopted `release/0.1.0`, created from main on 2026-10-21 at the owner's request, as the integration target for task PRs and Dependabot. Task PRs are squash-merged into it; the owner integrates it into main with a merge commit, and it is levelled with main after each integration. No release, tag or version is implied.
+- Release branches follow milestones: one `release/<milestone version>` branch per milestone is the integration target for task PRs and Dependabot. Task PRs are squash-merged into it; the owner integrates it into main with a merge commit, and it is levelled with main after each integration. `release/0.1.0` served v0.1.0 - Repo setup and is retired; `release/0.2.0`, created from main at `14a45c8` on 2026-10-21, is active for v0.2.0 - Prototype setup (#59). No release, tag or version is implied.
 - Upgraded pinned actionlint to 1.7.12 for current environment syntax (#11).
 - Brought the Markdown documentation in line with the closed setup milestone and removed setup-history comparisons with K-IRRBB-NMDs from the settings, governance and label guides (#53). Documentation only.
 

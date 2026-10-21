@@ -8,7 +8,7 @@ The trusted-default-branch metadata workflow handles events and a daily sweep, s
 
 ## Branches and review
 
-Default branch: **main**. Active release branch: **release/0.1.0**, created from main on 2026-10-21 at the owner's request. Subsequent changes use focused task PRs into the release branch, reviewer sign-off and green checks. The owner integrates the release branch into main and levels it with main afterwards. Dependabot targets the release branch.
+Default branch: **main**. Active release branch: **release/0.2.0**, created from main on 2026-10-21 for v0.2.0 - Prototype setup. One release branch per milestone, named `release/<milestone version>`, is created from main when the milestone opens and retired after its final integration into main. Subsequent changes use focused task PRs into the release branch, reviewer sign-off and green checks. The owner integrates the release branch into main and levels it with main afterwards. Dependabot targets the release branch.
 
 Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Integration into main uses merge commits. Do not bypass failing checks or rewrite published history.
 
