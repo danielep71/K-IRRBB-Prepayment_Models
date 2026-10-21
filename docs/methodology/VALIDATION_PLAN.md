@@ -43,11 +43,12 @@ The estimation and test windows are set in the [model contracts](MODEL_CONTRACTS
 2. Each month end in the test window is a forecast origin. From each origin, project the loans in the point-in-time view with the frozen parameters and the market curve observed at the origin.
 3. Score per segment and currency, at horizons 1 to 12 months:
    - bias and mean absolute error of monthly pool SMM, balance-weighted;
-   - error of the cumulative prepaid amount over the horizon, as a share of the realised amount;
+   - error of the cumulative prepaid amount over the horizon, as a share of the realised amount; when the realised amount is zero, the absolute error in currency units instead, with the pair classified `ZERO_REALISED`;
    - the same scores for `PM0`, so `PM1` is always compared with the benchmark.
-4. Report every origin and horizon. Do not drop origins, average away a failing segment or pool currencies.
+4. Score an (origin, horizon) pair only when the month end `h` months after the origin lies inside the data window. Every other pair is classified `INCOMPLETE` and reported with its count; it is never scored and never silently dropped.
+5. Report every origin and horizon with its scores or classification. Do not drop origins, average away a failing segment or pool currencies.
 
-Pass/fail thresholds are decision V3: a segment and currency passes only when both criteria hold; otherwise it fails and is reported with its scores.
+Pass/fail thresholds are decision V3: a segment and currency passes only when both criteria hold; otherwise it fails and is reported with its scores. `INCOMPLETE` pairs enter neither criterion. `ZERO_REALISED` pairs are excluded from the ±10 % criterion and reported with their absolute error; the SMM criterion still applies to them.
 
 ## Leakage prevention
 
@@ -116,9 +117,9 @@ This plan does not build anything. The following work needs its own issues in a 
 
 | # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| V1 | Test window | At least 12 month ends after the estimation window | Accepted 2026-10-21 |
+| V1 | Test window | At least 12 forecast origins after the estimation window, each with a complete 12-month horizon inside the data window, so the data window extends at least 12 months past the last origin | Accepted 2026-10-21; amended 2026-10-21 after review of #26 |
 | V2 | Horizons | 1 to 12 months, plus the cumulative prepaid amount at 12 months | Accepted 2026-10-21 |
-| V3 | Out-of-time pass criteria | `PM1` MAE of monthly SMM no worse than `PM0` at every horizon, and cumulative prepaid error within ±10 % at 12 months, per segment and currency | Accepted 2026-10-21 |
+| V3 | Out-of-time pass criteria | `PM1` MAE of monthly SMM no worse than `PM0` at every horizon, and cumulative prepaid error within ±10 % at 12 months, per segment and currency; `INCOMPLETE` pairs excluded from both, `ZERO_REALISED` pairs from the ±10 % test | Accepted 2026-10-21; amended 2026-10-21 after review of #26 |
 | V4 | Reference tooling | Python with pinned NumPy/SciPy, offline only, never a runtime dependency | Accepted 2026-10-21 |
 | V5 | `PM1` fit tolerance | Parameters `rel 1e-6` and objective `rel 1e-9` against the independent optimiser | Accepted 2026-10-21 |
 | V6 | Status vocabulary | The four statuses above | Accepted 2026-10-21 |

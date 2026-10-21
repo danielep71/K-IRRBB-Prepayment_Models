@@ -66,7 +66,7 @@ Header:
 | `client_rate` | Decimal, up to 8 places | Decimal per annum | ✅ | Contractual rate in force at month end; −0.05 to 0.50 |
 | `scheduled_principal` | Decimal, up to 4 places | Currency units | ✅ | Scheduled (contractual) principal **received** in the month, ≥ 0 |
 | `prepaid_principal` | Decimal, up to 4 places | Currency units | ✅ | Principal received in the month **in excess of** the schedule, ≥ 0 |
-| `other_change` | Decimal, up to 4 places | Currency units | ✅ | Signed principal change not from repayment: further drawdowns, capitalised interest or fees. `0` when none |
+| `other_change` | Decimal, up to 4 places | Currency units | ✅ | Signed principal change not from repayment: further drawdowns, capitalised interest or fees; on a `RENEG` row, minus the principal transferred to the successor. `0` when none |
 | `event` | Code | — | ✅ | One of the [event codes](#loan-events) |
 
 The key is (`as_of_date`, `loan_id`). The currency of every amount is the loan's register currency.
@@ -92,7 +92,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 | `FULL` | Full prepayment before the maturity month, including external refinancing | `prepaid_principal > 0`; `balance = 0`; `as_of_date` before the month end of `maturity_date` | ✅ |
 | `MATURITY` | Final scheduled repayment | `balance = 0`; `as_of_date` is the month end of `maturity_date` | ✅ |
 | `DEFAULT` | Loan enters default | `prepaid_principal = 0`; `balance` is the defaulted principal | ✅ |
-| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `balance = 0`; the remaining principal moves to the successor | ✅ |
+| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `prepaid_principal = 0`; `balance = 0`; `other_change = -(balance(t-1) - scheduled_principal(t))`, the principal transferred to the successor | ✅ |
 | `SALE` | Sold or transferred out of the portfolio | `prepaid_principal = 0`; `balance` is the transferred principal | ✅ |
 
 - No row is dated after a terminal event (`E10`).
@@ -148,6 +148,7 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 | `E14` | Event inconsistent with its required flows or dates | Each row |
 | `E10` | Row dated after the loan's terminal event | Each row |
 | `E13` | Balance identity broken | The later row |
+| `E15` | **Prepayment above exposure**: `prepaid_principal` exceeds `balance(t-1) - scheduled_principal(t) + max(other_change(t), 0)` by more than 0.005 | The later row |
 | `E12` | **Missing extract**: a month end in the data window has no panel rows | Once per missing month end |
 
 | Code | Warning | Reported at |
@@ -220,9 +221,9 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D1 | Input granularity and route | Loan-level CSV files streamed by VBA file input; no segment-level input | Accepted 2026-10-21 |
 | D2 | Segment list | `MTG_FIX`, `MTG_RST`, `MTG_FLT`, `CON_FIX`, `SME_FIX` | Accepted 2026-10-21 |
 | D3 | Scheduled vs prepaid principal | Supplied by the source and checked by the balance identity; no toolkit derivation from the contractual schedule | Accepted 2026-10-21 |
-| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set | Accepted 2026-10-21 |
+| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set. When included, the transferred principal `-other_change` is the numerator | Accepted 2026-10-21; amended 2026-10-21 after review of #24 |
 | D5 | Default and sale in the SMM denominator | Excluded from numerator and denominator in their exit month (competing exits) | Accepted 2026-10-21 |
 | D6 | Contract modifications | End the loan with `RENEG` and continue under a new `loan_id` with `predecessor_id` | Accepted 2026-10-21 |
-| D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment | Accepted 2026-10-21 |
+| D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment. A positive `other_change` counts as exposure in the month, and prepayment above that exposure is rejected (`E15`) | Accepted 2026-10-21; amended 2026-10-21 after review of #24 |
 | D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Accepted 2026-10-21 |
 | D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Accepted 2026-10-21 |

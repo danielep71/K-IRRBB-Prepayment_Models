@@ -29,8 +29,10 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `DATA-VALID-01` | Totals per date, segment and currency; warnings `W01`–`W05`; all three files accepted | Hand computation from a small synthetic register and panel covering every event | `abs 0.005` amounts; `exact` counts and codes | Registered |
 | `DATA-INVALID-01` | First error per line for every error code, including file-level `E01` and `E12` | Hand construction, one invalid line per rule | `exact` | Registered |
+| `DATA-REJECT-01` | All-or-nothing import: one invalid row in any of the three files rejects all three; the previously accepted dataset stays unchanged and its outputs are marked stale | Hand construction: an accepted import followed by one rejected import per file | `exact` | Registered |
 | `DATA-EVENT-01` | Event/flow consistency (`E14`) for every event, at and around each boundary | Hand construction | `exact` | Registered |
 | `DATA-IDENT-01` | Balance identity (`E13`) accepted at a difference of 0.005 and rejected just above it | Hand construction | `exact` | Registered |
+| `DATA-EXPO-01` | Prepayment above exposure (`E15`): accepted at `P = A` including a same-month drawdown, rejected just above; the review example of #24 (opening 100, drawdown 100, prepayment 150) is accepted with `A = 200` and `SMM = 0.75` | Hand construction | `exact` | Registered |
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Registered |
 | `DATA-PIT-02` | Leakage: changing information after an origin leaves the point-in-time view at that origin unchanged; negative control without the filter | Property test | `exact` | Registered |
 | `DATA-RECON-01` | Reconciliation against user control totals; a mismatch rejects the import | Hand construction | `abs 0.005`; `exact` counts | Registered |
@@ -43,8 +45,8 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `RATE-CONV-01` | `SMM -> CPR -> SMM` and `CPR -> SMM -> CPR` round trips on a grid including 0, 1e-8, 0.02, 0.5, 0.999999 and 1 | Independent script using `log1p`/`expm1` | `rel 1e-12` | Registered |
 | `RATE-CONV-02` | The worked check of the model contracts: `A = 99,000`, `SMM = 2,000 / 99,000`, `CPR = 1 - (1 - SMM)^12` | Hand computation and independent script | `abs 1e-12` | Registered |
-| `RATE-POOL-01` | Pool SMM is `sum P / sum A`, not the mean of loan SMMs; `SMM = SMM_partial + SMM_full`; `A <= 0` excluded | Hand computation on three loans with different balances | `abs 1e-12` | Registered |
-| `RATE-POOL-02` | `DEFAULT` and `SALE` excluded from numerator and denominator; `RENEG` excluded by default and included when the run setting says so | Hand computation | `abs 1e-12` | Registered |
+| `RATE-POOL-01` | Pool SMM is `sum P / sum A`, not the mean of loan SMMs; `SMM = SMM_partial + SMM_full`; `A <= 0` excluded; a positive `other_change` counted in `A` | Hand computation on three loans with different balances | `abs 1e-12` | Registered |
+| `RATE-POOL-02` | `DEFAULT` and `SALE` excluded from numerator and denominator; `RENEG` excluded by default, and when the run setting includes it, `P = -other_change` reported as `SMM_reneg` | Hand computation | `abs 1e-12` | Registered |
 | `RATE-PERIOD-01` | Realised CPR over `n` months compounds monthly SMM; never the average of monthly CPRs | Hand computation over 3 and 12 months | `abs 1e-12` | Registered |
 
 ### Rate incentive
@@ -92,7 +94,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Registered |
 | `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
 | `OOS-LEAK-01` | A forecast from origin `t` is unchanged when data after `t` are altered; negative control | Property test | `exact` | Registered |
-| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case | Hand computation | `abs 1e-12` | Registered |
+| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation | `abs 1e-12` | Registered |
 | `SEG-ISO-01` | Altering one segment leaves other segments' parameters and forecasts unchanged; currencies never pooled | Property test | `exact` | Registered |
 | `REPEAT-01` | Same inputs, settings and commit give identical outputs and fingerprints | Two runs compared | `exact` | Registered |
 | `PARAM-01` | A parameter set is immutable; exporting never re-estimates | Property test | `exact` | Registered |
