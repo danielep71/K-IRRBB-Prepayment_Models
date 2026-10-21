@@ -83,7 +83,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `SCN-BASE-01` | A zero shock reproduces `BASE` cash flows exactly | Property test | `exact` | Registered |
 | `SCN-MONO-01` | Parallel up gives CPR no higher than `BASE` at every month; parallel down no lower | Property test on a synthetic book | `exact` (sign) | Registered |
-| `SCN-FLOOR-01` | Post-shock floor `min(observed, min(0, -150bp + 3bp x m))` | Hand computation with synthetic shock sizes | `abs 1e-12` | Registered |
+| `SCN-FLOOR-01` | Post-shock floor as a lower bound, `max(shocked, min(observed, min(0, -150bp + 3bp x m)))`: binding and non-binding cases, a positive shocked rate left unchanged | Hand computation with synthetic shock sizes | `abs 1e-12` | Registered |
 | `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)`; provisional until `REG-1` is verified | Hand computation | `abs 1e-12` | Registered |
 | `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |
 
@@ -96,7 +96,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `EVE-RATIO-01` | Ratio and indicator at exactly 0.15 (not raised) and just above (raised); Tier 1 in another currency gives no ratio; invalid Tier 1 stops the run | Hand construction | `exact` | Registered |
 | `GAP-BUCKET-01` | Cash flows at each bucket's upper bound fall in that bucket; reset balances fall in the bucket of the next reset | Hand construction | `exact` | Registered |
 | `GAP-CONS-01` | Sum over buckets equals the outstanding balance at the as-of date for `CONTRACT`, `BASE` and every scenario | Identity | `abs 0.005` | Registered |
-| `MEAS-01` | Weighted average repricing time (with `RESET` and `FLOAT` loans repricing at the next reset), effective duration and projected CPR over 12 months and over the projection | Hand computation | `abs 1e-12` | Registered |
+| `MEAS-01` | Weighted average repricing time (with `RESET` and `FLOAT` loans repricing at the next reset), effective duration and projected CPR over 12 months and over the projection, including a final month with zero exposure that is excluded from `n` | Hand computation | `abs 1e-12` | Registered |
 
 ### Common
 

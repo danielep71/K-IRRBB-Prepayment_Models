@@ -150,7 +150,7 @@ Overlays are applied after the fit, change no fitted parameter and are labelled 
 | Overlay | Rule | Source | Status |
 | --- | --- | --- | --- |
 | Supervisory scenarios | The six EVE scenarios and two NII scenarios named in `REG-3` Article 1 | `REG-3` | Scenario list verified in the NMD register; shock sizes per currency **not verified** |
-| Post-shock floor | `min(observed rate, min(0, -150bp + 3bp x m))` at maturity `m` years | `REG-3` Art. 3(7) | Verified in the NMD register |
+| Post-shock floor | A lower bound on the shocked rate: `floored = max(shocked rate, floor(m))` with `floor(m) = min(observed rate, min(0, -150bp + 3bp x m))` at maturity `m` years. The floor never replaces a shocked rate above it | `REG-3` Art. 3(7) | Verified in the NMD register |
 | Standardised prepayment multipliers | `CPR_s = min(1, gamma_s x CPR_BASE)` with `gamma_s = 0.8` for up, steepener and short-up and `1.2` for down, flattener and short-down, as reported by the prototype | `REG-1` | **Not verified**; provisional |
 | Supervisory expectations on behavioural assumptions | Governance of prepayment assumptions | `REG-2` | **Not verified** |
 | Loan-book ΔEVE indicator | Raised when `-worst dEVE / Tier1 > 0.15` | `REG-1`, `REG-5` | **Not verified**; provisional (M16, #72) |
@@ -225,7 +225,7 @@ Principal cash flows (scheduled, prepaid and repricing) are placed in the time b
 | --- | --- |
 | Weighted average repricing time | `sum_k (k/12) x principal_s(k) / sum_k principal_s(k)` in years, per scenario, where `principal_s(k)` includes the repricing principal of `RESET` and `FLOAT` loans at their next reset. For loans fixed to maturity it equals the weighted average life; it is never labelled as life for a book with resetting loans |
 | Effective duration | `(PV_PAR_DOWN - PV_PAR_UP) / (2 x PV_BASE x dr)`, with `dr` the nominal parallel shock size of the currency, also where the floor binds; not reported when `PV_BASE <= 0` |
-| Projected CPR | Pool SMM of each projected month, `sum prepaid / sum (opening - scheduled)`, compounded as `1 - (prod (1 - SMM))^(12/n)` over the first 12 months and over the projection; never an average of CPR values |
+| Projected CPR | Pool SMM of each projected month, `sum prepaid / sum (opening - scheduled)`, compounded as `1 - (prod (1 - SMM))^(12/n)` over the first 12 months and over the projection; never an average of CPR values. A month with `sum (opening - scheduled) <= 0` has no SMM, is left out of the product and does not count in `n`, as in the realised rate; when no month remains, the projected CPR is not reported |
 
 ## Parameter and scenario outputs
 
