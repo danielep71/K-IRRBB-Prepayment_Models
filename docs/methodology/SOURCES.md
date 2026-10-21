@@ -1,6 +1,6 @@
 # Source register
 
-Status: **proposed in issue #14.** This register is authoritative for which external sources the prepayment contracts rely on and whether each has been verified against its official text. Contracts cite sources by ID. Sources are cited by reference only; their text is never copied into the repository.
+Status: **adopted with the contracts on 2026-10-21 (issue #14); no entry is verified.** This register is authoritative for which external sources the prepayment contracts rely on and whether each has been verified against its official text. Contracts cite sources by ID. Sources are cited by reference only; their text is never copied into the repository.
 
 **No source has been verified for this repository.** `REG-3` provisions listed below were verified for [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs) on 2026-10-08 by the owner's research; that record is reused by reference and has not been re-checked here. A regulatory rule may be implemented only from a verified provision, recorded with its exact location and version.
 

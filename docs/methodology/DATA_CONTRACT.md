@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **proposed in issue #14, not accepted.** Open [decisions](#decisions) are listed at the end. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -117,7 +117,7 @@ The key is (`as_of_date`, `rate_id`). Which series form the refinancing curve, a
 
 ## Segmentation
 
-Proposed segment codes (decision D2):
+Segment codes (decision D2):
 
 | Code | Segment |
 | --- | --- |
@@ -191,7 +191,7 @@ Amounts in different currencies are never added together. Totals keep input prec
 
 ## Dataset size
 
-A worksheet holds at most 1,048,576 rows; 50,000 loans over 120 months already exceed it. The proposed route (decision D1) streams the CSV files with VBA file input into in-memory arrays and aggregates, keeping only summaries, parameters and results on worksheets. Reading a user-selected file is a file-system access that [SECURITY.md](../../SECURITY.md) requires to be agreed in an issue before implementation. Nothing about performance is claimed here.
+A worksheet holds at most 1,048,576 rows; 50,000 loans over 120 months already exceed it. The input route (decision D1) streams the CSV files with VBA file input into in-memory arrays and aggregates, keeping only summaries, parameters and results on worksheets. Reading a user-selected file is a file-system access that [SECURITY.md](../../SECURITY.md) requires to be agreed in an issue before implementation. Nothing about performance is claimed here.
 
 ## Lineage
 
@@ -215,14 +215,14 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 
 ## Decisions
 
-| # | Decision | Proposed | Status |
+| # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| D1 | Input granularity and route | Loan-level CSV files streamed by VBA file input; no segment-level input | Open |
-| D2 | Segment list | `MTG_FIX`, `MTG_RST`, `MTG_FLT`, `CON_FIX`, `SME_FIX` | Open |
-| D3 | Scheduled vs prepaid principal | Supplied by the source and checked by the balance identity; no toolkit derivation from the contractual schedule | Open |
-| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set | Open |
-| D5 | Default and sale in the SMM denominator | Excluded from numerator and denominator in their exit month (competing exits) | Open |
-| D6 | Contract modifications | End the loan with `RENEG` and continue under a new `loan_id` with `predecessor_id` | Open |
-| D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment | Open |
-| D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Open |
-| D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Open |
+| D1 | Input granularity and route | Loan-level CSV files streamed by VBA file input; no segment-level input | Accepted 2026-10-21 |
+| D2 | Segment list | `MTG_FIX`, `MTG_RST`, `MTG_FLT`, `CON_FIX`, `SME_FIX` | Accepted 2026-10-21 |
+| D3 | Scheduled vs prepaid principal | Supplied by the source and checked by the balance identity; no toolkit derivation from the contractual schedule | Accepted 2026-10-21 |
+| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set | Accepted 2026-10-21 |
+| D5 | Default and sale in the SMM denominator | Excluded from numerator and denominator in their exit month (competing exits) | Accepted 2026-10-21 |
+| D6 | Contract modifications | End the loan with `RENEG` and continue under a new `loan_id` with `predecessor_id` | Accepted 2026-10-21 |
+| D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment | Accepted 2026-10-21 |
+| D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Accepted 2026-10-21 |
+| D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Accepted 2026-10-21 |

@@ -8,6 +8,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Owner accepted all data and model contract decisions (D1-D9, M1-M10) as proposed on 2026-10-21 (#14). Sources remain unverified and nothing is implemented or validated.
+
 - Proposed prepayment data contract, model contracts and source register under docs/methodology (#14). Specifications only, not accepted; every decision is listed as open and no source is verified for this repository.
 
 - Adopted `release/0.1.0`, created from main on 2026-10-21 at the owner's request, as the integration target for task PRs and Dependabot. Documented squash merges into it, owner integration into main and levelling after each integration. No release, tag or version is implied.

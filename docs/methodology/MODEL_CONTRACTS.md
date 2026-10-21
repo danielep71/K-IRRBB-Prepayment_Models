@@ -1,6 +1,6 @@
 # Model contracts
 
-Status: **proposed in issue #14, not accepted.** Open [decisions](#decisions) are listed at the end. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified.
 
 This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence belong to issue #15.
 
@@ -11,7 +11,7 @@ Notation: `t` is a month end; loan-month `(i, t)` runs from `t-1` to `t`; amount
 - Every model runs per **segment × currency**. Loans in different currencies are never pooled.
 - A run declares an **estimation window** and an optional **test window**, both inside the data window. Parameters are estimated once on the estimation window and then **frozen**; nothing is re-estimated in the test window. A recalibration is a separate run that creates a new parameter set.
 - Each month end in the test window is a forecast origin. A forecast from origin `t` uses only the [point-in-time view](DATA_CONTRACT.md#point-in-time-availability) at `t`.
-- A segment and currency below the minimum sample is not estimated; the run reports it and produces no parameters for it. Proposed minimum (decision M9): 36 consecutive month ends and 5,000 risk-set loan-months, with at least 100 `FULL` events.
+- A segment and currency below the minimum sample is not estimated; the run reports it and produces no parameters for it. Minimum (decision M9): 36 consecutive month ends and 5,000 risk-set loan-months, with at least 100 `FULL` events.
 
 ## CPR and SMM
 
@@ -93,7 +93,7 @@ B = exp(-b x (1 - pool factor))
 Season(month): 12 factors with mean 1
 ```
 
-| Parameter | Meaning | Proposed layer (decision M7) |
+| Parameter | Meaning | Layer (decision M7) |
 | --- | --- | --- |
 | `c_min`, `c_max` | CPR at strongly negative and strongly positive incentive | Estimated; `0 <= c_min <= c_max <= 1` |
 | `k` | Steepness of the S-curve | Estimated; `k > 0` |
@@ -164,15 +164,15 @@ Each model needs independent expected values with stated tolerances, an out-of-t
 
 ## Decisions
 
-| # | Decision | Proposed | Status |
+| # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| M1 | First implemented model | `PM0` and `PM1`; `PM2` deferred | Open |
-| M2 | Partial vs full prepayment | One `PM1` curve on total SMM; partial and full SMM reported separately | Open |
-| M3 | Refinancing rate convention | Par swap rate for the remaining fixed term, linear interpolation, flat extrapolation | Open |
-| M4 | Incentive lag `L` | 1 month | Open |
-| M5 | New-business margin `m` | Behavioural assumption per segment, recorded in the parameter set | Open |
-| M6 | Annuity after partial prepayment | Re-amortise over the remaining term (keep maturity) | Open |
-| M7 | Estimated vs assumed `PM1` components | `c_min`, `c_max`, `k`, `x0` estimated; ramp, seasonality and burnout assumed unless identified with diagnostics | Open |
-| M8 | Incentive bucket width | 25 basis points | Open |
-| M9 | Minimum sample | 36 month ends, 5,000 loan-months, 100 `FULL` events | Open |
-| M10 | Export format | CSV with the parameter-set ID in every row | Open |
+| M1 | First implemented model | `PM0` and `PM1`; `PM2` deferred | Accepted 2026-10-21 |
+| M2 | Partial vs full prepayment | One `PM1` curve on total SMM; partial and full SMM reported separately | Accepted 2026-10-21 |
+| M3 | Refinancing rate convention | Par swap rate for the remaining fixed term, linear interpolation, flat extrapolation | Accepted 2026-10-21 |
+| M4 | Incentive lag `L` | 1 month | Accepted 2026-10-21 |
+| M5 | New-business margin `m` | Behavioural assumption per segment, recorded in the parameter set | Accepted 2026-10-21 |
+| M6 | Annuity after partial prepayment | Re-amortise over the remaining term (keep maturity) | Accepted 2026-10-21 |
+| M7 | Estimated vs assumed `PM1` components | `c_min`, `c_max`, `k`, `x0` estimated; ramp, seasonality and burnout assumed unless identified with diagnostics | Accepted 2026-10-21 |
+| M8 | Incentive bucket width | 25 basis points | Accepted 2026-10-21 |
+| M9 | Minimum sample | 36 month ends, 5,000 loan-months, 100 `FULL` events | Accepted 2026-10-21 |
+| M10 | Export format | CSV with the parameter-set ID in every row | Accepted 2026-10-21 |
