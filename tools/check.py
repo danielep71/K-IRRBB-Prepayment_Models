@@ -13,7 +13,7 @@ from check_source import inspect_source
 # Deliberate binary exception: reviewed branding export only (see docs/assets/README.md).
 APPROVED_IMAGES = {
     'docs/assets/prepayment-social-preview.png':
-        'acf98fd10b85db9796f233df0ddce48f0a554368163fe8f030684f68b7f7ec18',
+        'ad5b59d0219f2f53dae35005fca47450a92f47586208d06db2506bfba4790aa4',
 }
 
 ROOT = Path(__file__).resolve().parents[1]

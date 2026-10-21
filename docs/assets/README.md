@@ -11,7 +11,7 @@ as self-contained SVG; text and shapes remain editable. There are no external
 fonts, scripts, linked images, model curves or numerical results. It uses
 DejaVu Sans and DejaVu Sans Mono, with system fallbacks.
 
-All three panels describe **planned scope**. The status is **Repository setup**,
+All three panels describe **planned scope**. The status is **Specifications only**,
 and the footer explicitly says no model, workbook or validated outputs have
 been delivered. These labels must be reviewed when capabilities change.
 The graphic is project branding, not a model-validation statement or an
