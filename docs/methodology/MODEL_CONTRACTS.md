@@ -9,7 +9,7 @@ Notation: `t` is a month end; loan-month `(i, t)` runs from `t-1` to `t`; amount
 ## Common rules
 
 - Every model runs per **segment × currency**. Loans in different currencies are never pooled.
-- A run declares an **estimation window** and an optional **test window**, both inside the data window. Parameters are estimated once on the estimation window and then **frozen**; nothing is re-estimated in the test window. A recalibration is a separate run that creates a new parameter set.
+- A run declares an **estimation window** and an optional **test window**, both inside the data window. The test window must be disjoint from and strictly after the estimation window: `test_start > estimation_end`. Overlapping, equal or earlier test windows are rejected before estimation or scoring. Parameters are estimated once on the estimation window and then **frozen**; nothing is re-estimated in the test window. A recalibration is a separate run that creates a new parameter set.
 - Each month end in the test window is a forecast origin. A forecast from origin `t` uses only the [point-in-time view](DATA_CONTRACT.md#point-in-time-availability) at `t`.
 - A segment and currency below the minimum sample is not estimated; the run reports it and produces no parameters for it. Minimum (decision M9): 36 consecutive month ends and 5,000 risk-set loan-months, with at least 100 `FULL` events.
 

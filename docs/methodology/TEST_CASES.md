@@ -91,6 +91,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
+| `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Registered |
 | `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
 | `OOS-LEAK-01` | A forecast from origin `t` is unchanged when data after `t` are altered; negative control | Property test | `exact` | Registered |
 | `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation | `abs 1e-12` | Registered |
