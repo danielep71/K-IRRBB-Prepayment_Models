@@ -29,6 +29,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `DATA-VALID-01` | Totals per date, segment and currency; warnings `W01`–`W05`; all three files accepted | Hand computation from a small synthetic register and panel covering every event | `abs 0.005` amounts; `exact` counts and codes | Registered |
 | `DATA-INVALID-01` | First error per line for every error code, including file-level `E01` and `E12` | Hand construction, one invalid line per rule | `exact` | Registered |
+| `DATA-ATOMIC-01` | Begin with a successful import and current results. Introduce one error in each of the three input files in turn, including a late-row error after otherwise valid rows. Reject the entire replacement import: no subset of new data is retained, no success lineage is published, and prior results are stale and cannot be presented or exported as current. Repeat from an empty workbook. | Hand-constructed valid/invalid file sets and before/after state inspection | `exact` | Registered |
 | `DATA-EVENT-01` | Event/flow consistency (`E14`) for every event, at and around each boundary | Hand construction | `exact` | Registered |
 | `DATA-IDENT-01` | Balance identity (`E13`) accepted at a difference of 0.005 and rejected just above it | Hand construction | `exact` | Registered |
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Registered |
@@ -89,6 +90,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
+| `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Registered |
 | `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
 | `OOS-LEAK-01` | A forecast from origin `t` is unchanged when data after `t` are altered; negative control | Property test | `exact` | Registered |
 | `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case | Hand computation | `abs 1e-12` | Registered |
