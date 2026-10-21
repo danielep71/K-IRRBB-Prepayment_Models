@@ -1,6 +1,6 @@
 # K-IRRBB Prepayment Models
 
-![K-IRRBB Prepayment Models: repository setup; planned loan-prepayment modelling and independent challenge](docs/assets/prepayment-social-preview.png)
+![K-IRRBB Prepayment Models: specifications only; planned loan-prepayment modelling and independent challenge](docs/assets/prepayment-social-preview.png)
 
 ### Transparent loan-prepayment assumptions in Excel/VBA
 
