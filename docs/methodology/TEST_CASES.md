@@ -92,11 +92,11 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
 | `EVE-PV-01` | PV of hand-built cash flows on a two-tenor zero curve: linear interpolation, flat extrapolation, `k/12` grid | Independent script | `rel 1e-12` | Registered |
-| `EVE-DELTA-01` | ΔEVE sign, worst over the six supervisory scenarios, `CONTRACT` and user shocks excluded, currencies never added | Hand computation | `rel 1e-12` | Registered |
+| `EVE-DELTA-01` | ΔEVE sign, worst over the six supervisory scenarios, `CONTRACT` and user shocks excluded, currencies never added; internal-model and standardised-multiplier layers reported separately with the same `PV_BASE` | Hand computation | `rel 1e-12` | Registered |
 | `EVE-RATIO-01` | Ratio and indicator at exactly 0.15 (not raised) and just above (raised); Tier 1 in another currency gives no ratio; invalid Tier 1 stops the run | Hand construction | `exact` | Registered |
 | `GAP-BUCKET-01` | Cash flows at each bucket's upper bound fall in that bucket; reset balances fall in the bucket of the next reset | Hand construction | `exact` | Registered |
 | `GAP-CONS-01` | Sum over buckets equals the outstanding balance at the as-of date for `CONTRACT`, `BASE` and every scenario | Identity | `abs 0.005` | Registered |
-| `MEAS-01` | Weighted average life, effective duration and projected CPR over 12 months and over the projection | Hand computation | `abs 1e-12` | Registered |
+| `MEAS-01` | Weighted average repricing time (with `RESET` and `FLOAT` loans repricing at the next reset), effective duration and projected CPR over 12 months and over the projection | Hand computation | `abs 1e-12` | Registered |
 
 ### Common
 

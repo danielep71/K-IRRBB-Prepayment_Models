@@ -177,6 +177,7 @@ CF_s(k) = interest_s(k) + scheduled_s(k) + prepaid_s(k) + repricing_s(k)
 - `z_s(t)` is the zero rate of scenario `s` at `t` years. The discount curve is a run setting naming market-rate series supplied as continuously compounded zero rates, interpolated linearly in rate and held flat outside the series; each scenario shocks and floors it like the refinancing curve (decision M13). The toolkit does not bootstrap zero rates from par rates; a discount curve not declared as zero rates rejects the run.
 - Interest is projected at the client rate, so commercial margins are included in `PV_s` (decision M14).
 - Present values are per currency and never added across currencies.
+- Each CPR layer of the [regulatory overlay](#regulatory-overlay) gives its own cash flows: `PV_s`, `dEVE_s`, the worst case, the ratio and the indicator are computed and labelled separately for the internal-model CPR path and, when requested, for the standardised-multiplier path. `BASE` uses `CPR_BASE` in both layers, so `PV_BASE` is the same (decision M15). Layers are never mixed in one result.
 
 ### ΔEVE and worst case
 
@@ -222,7 +223,7 @@ Principal cash flows (scheduled, prepaid and repricing) are placed in the time b
 
 | Measure | Definition (decision M18) |
 | --- | --- |
-| Weighted average life | `sum_k (k/12) x principal_s(k) / sum_k principal_s(k)` in years, per scenario |
+| Weighted average repricing time | `sum_k (k/12) x principal_s(k) / sum_k principal_s(k)` in years, per scenario, where `principal_s(k)` includes the repricing principal of `RESET` and `FLOAT` loans at their next reset. For loans fixed to maturity it equals the weighted average life; it is never labelled as life for a book with resetting loans |
 | Effective duration | `(PV_PAR_DOWN - PV_PAR_UP) / (2 x PV_BASE x dr)`, with `dr` the nominal parallel shock size of the currency, also where the floor binds; not reported when `PV_BASE <= 0` |
 | Projected CPR | Pool SMM of each projected month, `sum prepaid / sum (opening - scheduled)`, compounded as `1 - (prod (1 - SMM))^(12/n)` over the first 12 months and over the projection; never an average of CPR values |
 
@@ -254,7 +255,7 @@ Each model needs independent expected values with stated tolerances, an out-of-t
 | M12 | EVE scope | Loan-book contribution per segment and currency, in total per currency; no NII; not the supervisory outlier test | Proposed (#72) |
 | M13 | Discount curve | Supplied continuously compounded zero rates on the `k/12` grid, linear interpolation, flat extrapolation, shocked and floored per scenario; no bootstrapping | Proposed (#72) |
 | M14 | Commercial margins | Included: interest projected at the client rate; an exclusion option waits for verification of `REG-3` (#45) | Proposed (#72) |
-| M15 | ΔEVE and worst case | `PV_s - PV_BASE`; worst over the six supervisory scenarios; `CONTRACT` and user shocks excluded from the worst case | Proposed (#72) |
+| M15 | ΔEVE and worst case | `PV_s - PV_BASE` per CPR layer (internal model; standardised multipliers when requested), never mixed; worst over the six supervisory scenarios; `CONTRACT` and user shocks excluded from the worst case | Proposed (#72) |
 | M16 | ΔEVE / Tier 1 and indicator | `-worst dEVE / Tier1` in the Tier 1 currency only; indicator above 0.15; overlay, provisional | Proposed (#72) |
 | M17 | Repricing gap | 19 `REG-1` buckets, upper bound inclusive; principal only; `CONTRACT`, `BASE` and each scenario; reset balances at the next reset | Proposed (#72) |
-| M18 | Other measures | Weighted average life, effective duration from the parallel shocks, projected CPR by compounding pool SMM | Proposed (#72) |
+| M18 | Other measures | Weighted average repricing time (repricing principal at the next reset), effective duration from the parallel shocks, projected CPR by compounding pool SMM | Proposed (#72) |

@@ -33,7 +33,7 @@ Calibration, independent challenge and acceptance are distinct and identifiable:
 | `PM1` | Formula evaluation at fixed parameters; fit against an independent optimiser; constraints; failure and minimum-sample handling; recovery of a known generating process (a statistical check, not a tolerance test) |
 | Cash-flow projection | Annuity, linear and bullet schedules; payment frequency; re-amortisation after prepayment; repricing at reset; monthly and lifetime conservation |
 | Scenarios and overlay | Zero shock reproduces `BASE`; sign and monotonicity of the CPR response; post-shock floor; multiplier overlay; overlays change no fitted parameter |
-| EVE and repricing gap (proposed, #72) | PV against an independent discounting script; ΔEVE sign and worst scenario; ratio and indicator at the threshold and in another currency; bucket boundaries; gap conservation; weighted average life, effective duration and projected CPR |
+| EVE and repricing gap (proposed, #72) | PV against an independent discounting script; ΔEVE sign and worst scenario; ratio and indicator at the threshold and in another currency; bucket boundaries; gap conservation; CPR layers kept separate; weighted average repricing time, effective duration and projected CPR |
 | Common | Leakage, parameter freeze, segment isolation, repeatability, units, failures that withdraw stale outputs |
 
 ## Out-of-time validation
