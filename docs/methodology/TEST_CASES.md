@@ -29,6 +29,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `DATA-VALID-01` | Totals per date, segment and currency; warnings `W01`–`W05`; all three files accepted | Hand computation from a small synthetic register and panel covering every event | `abs 0.005` amounts; `exact` counts and codes | Registered |
 | `DATA-INVALID-01` | First error per line for every error code, including file-level `E01` and `E12` | Hand construction, one invalid line per rule | `exact` | Registered |
+| `DATA-REJECT-01` | All-or-nothing import: one invalid row in any of the three files rejects all three; the previously accepted dataset stays unchanged and its outputs are marked stale | Hand construction: an accepted import followed by one rejected import per file | `exact` | Registered |
 | `DATA-EVENT-01` | Event/flow consistency (`E14`) for every event, at and around each boundary | Hand construction | `exact` | Registered |
 | `DATA-IDENT-01` | Balance identity (`E13`) accepted at a difference of 0.005 and rejected just above it | Hand construction | `exact` | Registered |
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Registered |
@@ -91,7 +92,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
 | `OOS-LEAK-01` | A forecast from origin `t` is unchanged when data after `t` are altered; negative control | Property test | `exact` | Registered |
-| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case | Hand computation | `abs 1e-12` | Registered |
+| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation | `abs 1e-12` | Registered |
 | `SEG-ISO-01` | Altering one segment leaves other segments' parameters and forecasts unchanged; currencies never pooled | Property test | `exact` | Registered |
 | `REPEAT-01` | Same inputs, settings and commit give identical outputs and fingerprints | Two runs compared | `exact` | Registered |
 | `PARAM-01` | A parameter set is immutable; exporting never re-estimates | Property test | `exact` | Registered |
