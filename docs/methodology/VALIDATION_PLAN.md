@@ -53,7 +53,8 @@ Pass/fail thresholds are decision V3: a segment and currency passes only when bo
 ## Leakage prevention
 
 - Every predictor and forecast at origin `t` uses only the [point-in-time view](DATA_CONTRACT.md#point-in-time-availability) at `t`.
-- **Property test:** altering, adding or removing any row dated after `t`, or any market rate after `t - L`, leaves every predictor, incentive and forecast at `t` unchanged.
+- **Property test, forecasts:** altering, adding or removing any row or market rate dated after `t` leaves every predictor and forecast from origin `t` unchanged. Forecasts use the curve observed at `t`, so rates at `t` are not altered by this test.
+- **Property test, historical incentive:** for the loan-month ending at `t`, altering any market rate dated after `t - L` leaves its incentive unchanged (`INC-LAG-01`).
 - **Negative control:** the same test with the point-in-time filter disabled must detect a change, proving the test can fail.
 - Parameters are frozen across the test window: re-running at a later origin with the same parameter set gives identical parameters.
 
@@ -117,7 +118,7 @@ This plan does not build anything. The following work needs its own issues in a 
 
 | # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| V1 | Test window | At least 12 forecast origins after the estimation window, each with a complete 12-month horizon inside the data window, so the data window extends at least 12 months past the last origin | Accepted 2026-10-21; amended 2026-10-21 after review of #26 |
+| V1 | Test window | At least 12 forecast origins after the estimation window with a complete 12-month horizon inside the data window. Later origins may follow; their pairs that end beyond the data window are classified `INCOMPLETE` | Accepted 2026-10-21; amended 2026-10-21 after reviews of #26 and #34 |
 | V2 | Horizons | 1 to 12 months, plus the cumulative prepaid amount at 12 months | Accepted 2026-10-21 |
 | V3 | Out-of-time pass criteria | `PM1` MAE of monthly SMM no worse than `PM0` at every horizon, and cumulative prepaid error within ±10 % at 12 months, per segment and currency; `INCOMPLETE` pairs excluded from both, `ZERO_REALISED` pairs from the ±10 % test | Accepted 2026-10-21; amended 2026-10-21 after review of #26 |
 | V4 | Reference tooling | Python with pinned NumPy/SciPy, offline only, never a runtime dependency | Accepted 2026-10-21 |

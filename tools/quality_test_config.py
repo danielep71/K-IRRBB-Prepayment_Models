@@ -37,7 +37,7 @@ class ConfigTests(unittest.TestCase):
             self.assertTrue(any('unpinned action' in error for error in inspect_config(root)))
 
     def test_dependabot_must_target_release_branch(self):
-        for target in ('main', 'release/next', None):
+        for target in ('main', 'release/next', 'release/999.0.0', None):
             with self.subTest(target=target), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 (root / '.github').mkdir()
