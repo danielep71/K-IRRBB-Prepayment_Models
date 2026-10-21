@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed, except decision D10, **proposed in issue #72 and not accepted**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -117,7 +117,7 @@ The key is (`as_of_date`, `rate_id`). Which series form the refinancing curve, a
 
 ## Tier 1 capital
 
-Status: **proposed in issue #72 (decision D10); not accepted.**
+Status: **accepted by the owner on 2026-10-21 (issue #72, decision D10).**
 
 Tier 1 capital is a run setting, not a dataset. The user enters one amount and one currency for the run; the toolkit never derives it. It is used only for the ΔEVE / Tier 1 ratio of the [model contracts](MODEL_CONTRACTS.md#eve-sensitivity-and-repricing-gap) and is recorded with every scenario result that uses it.
 
@@ -240,4 +240,4 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment. A positive `other_change` counts as exposure in the month, and prepayment above that exposure is rejected (`E15`) | Accepted 2026-10-21; amended 2026-10-21 after review of #24 |
 | D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Accepted 2026-10-21 |
 | D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Accepted 2026-10-21 |
-| D10 | Tier 1 capital | A run setting (amount and currency) entered by the user, validated before any calculation and recorded with each result; never a dataset or derived | Proposed (#72) |
+| D10 | Tier 1 capital | A run setting (amount and currency) entered by the user, validated before any calculation and recorded with each result; never a dataset or derived | Accepted 2026-10-21 (#72) |
