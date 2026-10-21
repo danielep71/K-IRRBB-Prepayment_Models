@@ -1,8 +1,9 @@
 #==============================================================================
-# Canonical Excel/VBA .gitattributes
+# .gitattributes for K-IRRBB-Prepayment_Models
 #------------------------------------------------------------------------------
 # PURPOSE
-#   Define the canonical Git behavior for new Excel/VBA repositories created from this template.
+#   Define Git behavior for this Excel/VBA repository, adapted from the
+#   K-IRRBB-NMDs baseline (see docs/provenance.json).
 #
 # POLICY
 #   - Exported VBA source is normalized in Git and checked out as CRLF.

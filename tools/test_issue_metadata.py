@@ -74,7 +74,7 @@ class IssueMetadataTests(unittest.TestCase):
 
 
 class IssueMetadataEntryTests(unittest.TestCase):
-    """Event routing in main() and API failure reporting (#41)."""
+    """Event routing in main() and API failure reporting."""
 
     def run_main(self, **env: str) -> Any:
         environment = {"GITHUB_REPOSITORY": "owner/repo", "ISSUE_MILESTONE_NUMBER": "2", **env}
@@ -82,7 +82,7 @@ class IssueMetadataEntryTests(unittest.TestCase):
             return policy.main()
 
     def test_unset_or_invalid_milestone_variable_fails_before_any_api_call(self) -> None:
-        # #117: no fallback to milestone 1, the closed v0.1.0.
+        # No fallback to milestone 1, the closed v0.1.0.
         with patch.object(policy, "api", side_effect=AssertionError("no API call expected")), \
                 patch.object(policy, "reconcile", side_effect=AssertionError("no reconcile expected")):
             for value in ("", "  "):
