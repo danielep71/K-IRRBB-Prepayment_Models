@@ -8,6 +8,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Fixed
 
+- Brought the foundation closeout record in line with the final evidence (#16): integration (#47, #48), all three gates on `main` at `2bd2ecf` including label drift, and the owner's read-back of `ISSUE_MILESTONE_NUMBER = 2`. Documentation only.
+
 - Fixed four findings from the review of #34: forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive; decision M11 defines the predicted bucket value of the `PM1` fit; V1 now allows later origins with `INCOMPLETE` pairs after 12 complete ones; the Dependabot check enforces the exact active release branch.
 
 - Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
