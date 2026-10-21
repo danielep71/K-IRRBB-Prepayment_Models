@@ -1,8 +1,8 @@
 # Release guide
 
-No versions, tags or workbook artifacts have been released. main is the default integration branch; no release branch has been approved. Completing v0.1.0 - Repo setup does not publish a release.
+No versions, tags or workbook artifacts have been released. The active release branch is `release/0.1.0`, created from main on 2026-10-21 at the owner's request. The branch name does not authorize a release. Completing v0.1.0 - Repo setup does not publish a release.
 
-Integrate reviewed PRs through the protected main branch, with the `integrity` check passing on an up-to-date branch and all review conversations resolved. If the owner later chooses a release branch, document its merge methods and checks, and align Dependabot/milestone automation. Never rewrite published history.
+Open task PRs into `release/0.1.0` and squash-merge them once the `integrity` check passes and every review finding is resolved. The owner reviews and integrates the release branch into protected main with a merge commit, under the main rules in [repository settings](docs/REPOSITORY_SETTINGS.md). After each integration into main, level the release branch with main. Code may reach the release branch before release evidence exists; nothing is released without it. Never rewrite published history.
 
 ## Future gates
 
