@@ -8,7 +8,7 @@ Recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d
 
 | Gate (issue #16) | State on 2026-10-21 | Owner of the next step |
 | --- | --- | --- |
-| #14 and #15 completed or explicitly deferred | **Done.** Every acceptance criterion of both issues is ticked with linked evidence; review findings on #24, #25 and #26 are fixed (#28, #29, #30). Both issues closed as completed on 2026-10-21 at the owner's instruction | — |
+| #14 and #15 completed or explicitly deferred | **Open.** Both issues were closed and then reopened on 2026-10-21 because their bodies list unfinished review items. The owner kept the convention merged in #30 for drawdown exposure and `RENEG` transfers; the remaining items are tracked in each issue body | Owner closes #14 and #15 once their items are evidenced |
 | Final NMD gap comparison with a disposition per gap | **Done.** Recorded [below](#comparison-with-k-irrbb-nmds); the owner accepted every disposition on 2026-10-21 | — |
 | Integration of `release/0.1.0` into `main`; governance, settings and milestone documents reconciled | **Not done.** `main` is at `3461d89`; `release/0.1.0` holds every PR from #23 onwards | Owner integrates and levels the release branch |
 | Required checks and issue metadata verified on the final closeout commit | **Not done.** Interim evidence below; it does not certify later commits | Repeat after integration |
@@ -25,8 +25,8 @@ Interim evidence:
 | Issue | Deliverable | State | Evidence |
 | --- | --- | --- | --- |
 | #1–#13 | README, layout, Git hygiene, policies, governance, templates, metadata enforcement, static CI, settings, Dependabot, traffic, branding, installation | Closed | Each issue body; commits up to `3461d89` on `main` |
-| #14 | Data and model contracts | Closed as completed, 2026-10-21 | #24, acceptance #25, review fixes #29 and #30 |
-| #15 | Validation plan, test cases, Excel evidence | Closed as completed, 2026-10-21 | #26, acceptance #27, review fixes #28 |
+| #14 | Data and model contracts | Open; review items listed in the issue | #24, acceptance #25, review fixes #29 and #30 |
+| #15 | Validation plan, test cases, Excel evidence | Open; review items listed in the issue | #26, acceptance #27, review fixes #28 |
 | #16 | Changelog, release guide, closeout | Open; this record | #32 and this change |
 
 Prototype PR #19 is separate future implementation work. It is neither setup evidence nor a release requirement.
@@ -73,7 +73,7 @@ No gap is resolved by copying NMD content. Every deferred item needs a future is
 
 ## Closeout steps
 
-1. ~~Owner closes #14 and #15~~: closed on 2026-10-21.
+1. Owner closes #14 and #15 once their remaining review items are evidenced.
 2. ~~Owner accepts the dispositions above~~: accepted on 2026-10-21.
 3. Owner integrates `release/0.1.0` into `main` and levels the release branch.
 4. Re-run the gates on the resulting commit: `integrity`, issue metadata, label drift.
