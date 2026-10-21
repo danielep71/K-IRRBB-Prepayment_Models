@@ -110,6 +110,7 @@ Whether `PM1` fits total SMM or separate curves for partial and full prepayment 
 
 - **Sample:** risk-set loan-months of the estimation window, grouped into incentive buckets of 25 basis points (decision M8). Bucket SMM is the pool SMM of the bucket.
 - **Objective:** weighted least squares on monthly SMM, weights `sum A` of each bucket and month; the model's CPR is converted to SMM before comparison. Fitting CPR directly is not allowed.
+- **Predicted bucket value** (decision M11): for each bucket and month, `sum_i A(i,t) x SMM_model(i,t) / sum_i A(i,t)` over its loan-months, each loan evaluated at its own incentive, age, calendar month and burnout. The curve is never evaluated at the bucket midpoint.
 - **Constraints** are enforced by parametrisation: `c_min = logistic(p1)`, `c_max = c_min + (1 - c_min) x logistic(p2)`, `k = exp(p3)`, `x0 = p4`.
 - **Optimiser:** Nelder–Mead with recorded start values, initial step, tolerance, iteration limit and number of restarts. Settings are deterministic; the same data and settings give the same parameters.
 - **Failure:** non-convergence, a parameter at a numerical boundary, or a non-finite objective means the model is **not estimated** for that segment and currency. The run reports why. A failed fit is never replaced by default values without a recorded behavioural assumption.
@@ -178,3 +179,4 @@ Each model needs independent expected values with stated tolerances, an out-of-t
 | M8 | Incentive bucket width | 25 basis points | Accepted 2026-10-21 |
 | M9 | Minimum sample | 36 month ends, 5,000 loan-months, 100 `FULL` events | Accepted 2026-10-21 |
 | M10 | Export format | CSV with the parameter-set ID in every row | Accepted 2026-10-21 |
+| M11 | Predicted bucket value in the `PM1` fit | Exposure-weighted mean of loan-level model SMM over the bucket's loan-months | Accepted 2026-10-21 after review of #34 |

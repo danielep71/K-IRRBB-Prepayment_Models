@@ -8,9 +8,15 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Fixed
 
+- Fixed four findings from the review of #34: forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive; decision M11 defines the predicted bucket value of the `PM1` fit; V1 now allows later origins with `INCOMPLETE` pairs after 12 complete ones; the Dependabot check enforces the exact active release branch.
+
 - Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
 
 ### Added
+
+- Opened #38–#45 in milestone v0.2.0 - Prototype setup for every deferred gap of the foundation closeout (#16) and linked them from the closeout record.
+
+- Updated the foundation closeout (#16): #14 and #15 closed, release integrated into main (#34) and levelled (#35), successor milestone reported. Added the step to open successor-milestone issues for every deferred gap before closing milestone 1.
 
 - Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.
 
