@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
-  <title id="title">K-IRRBB Prepayment Models — repository setup</title>
+  <title id="title">K-IRRBB Prepayment Models — specifications only</title>
   <desc id="desc">Planned Excel/VBA toolkit for loan-prepayment assumptions and independent challenge. Partial and full prepayments, CPR/SMM conventions, scenarios and synthetic benchmarks are planned scope, not implemented or validated results.</desc>
   <defs>
     <linearGradient id="bg"><stop stop-color="#060d1a"/><stop offset="1" stop-color="#111d3b"/></linearGradient>
@@ -21,7 +21,7 @@
     <text x="67" y="400" font-size="21" fill="#c6d3e8">Loan-prepayment assumptions.</text>
     <text x="67" y="432" font-size="21" fill="#c6d3e8">Transparent, independent challenge.</text>
     <rect x="66" y="475" width="269" height="42" rx="8" fill="#101e37" stroke="#45bcf5"/>
-    <text x="200" y="502" text-anchor="middle" font-size="15" font-weight="bold" letter-spacing="1" fill="#73d0ff">REPOSITORY SETUP</text>
+    <text x="200" y="502" text-anchor="middle" font-size="15" font-weight="bold" letter-spacing="1" fill="#73d0ff">SPECIFICATIONS ONLY</text>
     <text x="66" y="558" font-size="16" fill="#a1b5d2">Planned toolkit · Excel / VBA · IRRBB / ALM</text>
     <g transform="translate(648 60)">
       <text x="0" y="15" font-size="13" font-weight="bold" letter-spacing="2.6" fill="#a9bddc">PLANNED SCOPE</text>
