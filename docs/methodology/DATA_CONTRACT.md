@@ -92,7 +92,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 | `FULL` | Full prepayment before the maturity month, including external refinancing | `prepaid_principal > 0`; `balance = 0`; `as_of_date` before the month end of `maturity_date` | ✅ |
 | `MATURITY` | Final scheduled repayment | `balance = 0`; `as_of_date` is the month end of `maturity_date` | ✅ |
 | `DEFAULT` | Loan enters default | `prepaid_principal = 0`; `balance` is the defaulted principal | ✅ |
-| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `prepaid_principal = 0`; `balance = 0`; `other_change = -(balance(t-1) - scheduled_principal(t))`, the principal transferred to the successor | ✅ |
+| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `prepaid_principal = 0`; `balance = 0`; `scheduled_principal(t) <= balance(t-1)`; `other_change = -(balance(t-1) - scheduled_principal(t)) <= 0`, so the transferred principal is nonnegative | ✅ |
 | `SALE` | Sold or transferred out of the portfolio | `prepaid_principal = 0`; `balance` is the transferred principal | ✅ |
 
 - No row is dated after a terminal event (`E10`).
@@ -148,7 +148,7 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 | `E14` | Event inconsistent with its required flows or dates | Each row |
 | `E10` | Row dated after the loan's terminal event | Each row |
 | `E13` | Balance identity broken | The later row |
-| `E15` | **Prepayment above exposure**: `prepaid_principal` exceeds `balance(t-1) - scheduled_principal(t) + max(other_change(t), 0)` by more than 0.005 | The later row |
+| `E15` | **Prepayment above exposure**: `prepaid_principal` exceeds `balance(t-1) - scheduled_principal(t) + max(other_change(t), 0)` by any positive amount; compare at the input's exact decimal precision, without tolerance or clamping | The later row |
 | `E12` | **Missing extract**: a month end in the data window has no panel rows | Once per missing month end |
 
 | Code | Warning | Reported at |
