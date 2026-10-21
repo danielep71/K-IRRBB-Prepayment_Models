@@ -2,17 +2,17 @@
 
 Status: **open.** Milestone 1 (v0.1.0 - Repo setup) is not closed. This record collects the closeout gates of issue #16 and the final comparison with K-IRRBB-NMDs. It does not authorize a tag, a GitHub Release, a workbook or any model use; see [releasing](../RELEASING.md).
 
-Recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d4305e469a91`. Later changes are not covered; the [check gate](#gates) must be repeated on the final closeout commit.
+First recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d4305e469a91`; gates updated the same day after integration into `main` (`f43107a0bced216050e275e8ac97eb1d853a09bf`) and levelling of the release branch (`d0114c1cea4785ae7c8215aa1f7eb5e0357dfa1b`). Later changes are not covered; the [check gate](#gates) must be repeated on the final closeout commit.
 
 ## Gates
 
 | Gate (issue #16) | State on 2026-10-21 | Owner of the next step |
 | --- | --- | --- |
-| #14 and #15 completed or explicitly deferred | **Open.** Both issues were closed and then reopened on 2026-10-21 because their bodies list unfinished review items. The owner kept the convention merged in #30 for drawdown exposure and `RENEG` transfers; the remaining items are tracked in each issue body | Owner closes #14 and #15 once their items are evidenced |
+| #14 and #15 completed or explicitly deferred | **Done.** The owner kept the convention merged in #30 for drawdown exposure and `RENEG` transfers; every item in both issue bodies was ticked with linked evidence, and both issues were closed as completed on 2026-10-21 | — |
 | Final NMD gap comparison with a disposition per gap | **Done.** Recorded [below](#comparison-with-k-irrbb-nmds); the owner accepted every disposition on 2026-10-21 | — |
-| Integration of `release/0.1.0` into `main`; governance, settings and milestone documents reconciled | **Not done.** `main` is at `3461d89`; `release/0.1.0` holds every PR from #23 onwards | Owner integrates and levels the release branch |
-| Required checks and issue metadata verified on the final closeout commit | **Not done.** Interim evidence below; it does not certify later commits | Repeat after integration |
-| Successor milestone selected; `ISSUE_MILESTONE_NUMBER` updated and read back | **Not done.** No successor milestone exists | Owner selects it, then the variable is updated |
+| Integration of `release/0.1.0` into `main`; governance, settings and milestone documents reconciled | **Done.** #34 merged the release branch into `main` at `f43107a` on the owner's instruction; #35 levelled `release/0.1.0` with `main` at `d0114c1`. This update reaches `main` only with the next integration | Owner integrates this update |
+| Required checks and issue metadata verified on the final closeout commit | **Partly done.** `integrity` and the Dependabot configuration check passed on `main` at `f43107a`. They must be repeated on the commit that brings this update to `main` | Repeat after the next integration |
+| Successor milestone selected; `ISSUE_MILESTONE_NUMBER` updated and read back | **Reported done.** The owner reported on 2026-10-21 that the successor milestone exists and `ISSUE_MILESTONE_NUMBER` points to it. Not read back in this record | Owner confirms the read-back |
 
 Interim evidence:
 
@@ -25,9 +25,9 @@ Interim evidence:
 | Issue | Deliverable | State | Evidence |
 | --- | --- | --- | --- |
 | #1–#13 | README, layout, Git hygiene, policies, governance, templates, metadata enforcement, static CI, settings, Dependabot, traffic, branding, installation | Closed | Each issue body; commits up to `3461d89` on `main` |
-| #14 | Data and model contracts | Open; review items listed in the issue | #24, acceptance #25, review fixes #29 and #30 |
-| #15 | Validation plan, test cases, Excel evidence | Open; review items listed in the issue | #26, acceptance #27, review fixes #28 |
-| #16 | Changelog, release guide, closeout | Open; this record | #32 and this change |
+| #14 | Data and model contracts | Closed as completed, 2026-10-21 | #24, acceptance #25, review fixes #29 and #30 |
+| #15 | Validation plan, test cases, Excel evidence | Closed as completed, 2026-10-21 | #26, acceptance #27, review fixes #28, #29 and #30 |
+| #16 | Changelog, release guide, closeout | Open; this record | #32, #33 and this change |
 
 Prototype PR #19 is separate future implementation work. It is neither setup evidence nor a release requirement.
 
@@ -73,9 +73,10 @@ No gap is resolved by copying NMD content. Every deferred item needs a future is
 
 ## Closeout steps
 
-1. Owner closes #14 and #15 once their remaining review items are evidenced.
+1. ~~Owner closes #14 and #15~~: closed on 2026-10-21.
 2. ~~Owner accepts the dispositions above~~: accepted on 2026-10-21.
-3. Owner integrates `release/0.1.0` into `main` and levels the release branch.
-4. Re-run the gates on the resulting commit: `integrity`, issue metadata, label drift.
-5. Owner creates the successor milestone; `ISSUE_MILESTONE_NUMBER` is updated and read back.
-6. Close #16 with this record and the final evidence, then close milestone 1.
+3. ~~Owner integrates `release/0.1.0` into `main` and levels the release branch~~: #34 and #35 on 2026-10-21.
+4. ~~Owner creates the successor milestone; `ISSUE_MILESTONE_NUMBER` is updated~~: reported on 2026-10-21; read-back to be confirmed.
+5. Create one issue in the successor milestone, with owner and one priority, for each deferred gap [above](#gaps-and-dispositions), and link them here.
+6. Integrate this record into `main` and re-run the gates on that commit: `integrity`, issue metadata, label drift.
+7. Close #16 with this record and the final evidence, then close milestone 1.
