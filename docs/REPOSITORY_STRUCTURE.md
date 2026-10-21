@@ -28,7 +28,7 @@ These are design/review rules, not claims of an implemented VBA boundary checker
 
 ## Units and provenance
 
-Rates and probabilities use decimals; rates identify annualisation. Monetary amounts carry an ISO currency. Dates, observation frequency, endpoints, CPR/SMM denominators and loan-event definitions must be fixed by issue #14 before implementation. No implicit FX conversion or annual/monthly probability substitution is allowed.
+Rates and probabilities use decimals; rates identify annualisation. Monetary amounts carry an ISO currency. Dates, observation frequency, endpoints, CPR/SMM denominators and loan-event definitions are specified in the [data contract](methodology/DATA_CONTRACT.md) and [model contracts](methodology/MODEL_CONTRACTS.md) accepted by the owner on 2026-10-21 in issue #14. Acceptance does not imply implementation or validation. No implicit FX conversion or annual/monthly probability substitution is allowed.
 
 Freeze each future parameter set with an ID, model/version, segment/currency, data window and fingerprint, calibration settings, values/units, diagnostics, timestamp and exact code SHA. Changes create new sets. Scenarios, backtests and exports identify the set used; exporting must not silently recalibrate.
 

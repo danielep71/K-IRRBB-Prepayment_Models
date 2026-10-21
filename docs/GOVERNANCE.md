@@ -8,7 +8,7 @@ The trusted-default-branch metadata workflow handles events and a daily sweep, s
 
 ## Branches and review
 
-Current branch: **main**. No release branch exists. Initial bootstrap establishes checks and documentation. Subsequent changes use focused task PRs, reviewer sign-off and green checks. Do not create a release branch solely to copy NMD's current version. If the owner chooses one later, align Dependabot, milestone guides and rules.
+Default branch: **main**. Active release branch: **release/0.1.0**, created from main on 2026-10-21 at the owner's request. Subsequent changes use focused task PRs into the release branch, reviewer sign-off and green checks. The owner integrates the release branch into main and levels it with main afterwards. Dependabot targets the release branch. Do not copy NMD's release version or historical release branch names.
 
 Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Main accepts merge commits, as in NMD. Do not bypass failing checks or rewrite published history.
 

@@ -60,8 +60,8 @@ def inspect_config(root: Path) -> list[str]:
                 for update in data['updates']:
                     if set(update.get('labels', [])) - labels:
                         raise ValueError('unknown Dependabot label')
-                    if update.get('target-branch') != 'main':
-                        raise ValueError('Dependabot must target main during setup')
+                    if not re.fullmatch(r'release/\d+\.\d+\.\d+', str(update.get('target-branch'))):
+                        raise ValueError('Dependabot must target the active release branch')
         except (yaml.YAMLError, ValueError, KeyError, TypeError) as exc:
             errors.append(f'{path.relative_to(root)}: {exc}')
     return errors

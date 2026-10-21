@@ -22,6 +22,10 @@ NMD's check is named `Repository integrity`; this repository's actual job/check 
 
 ## Branch decision and limits
 
-Keep main as the only long-lived development branch during setup. The owner has not requested a release branch. Short-lived task branches support PR integration; automatically remove them after merging. Do not copy NMD's release version, bypass exceptions or historical release branch names.
+At the owner's request, `release/0.1.0` was created on 2026-10-21 from main at `3461d891a4e076932c4c21ef30f569d62eafab3e`. It is the active release branch and the integration target for task PRs and Dependabot. Task PRs into it are squash-merged once `integrity` passes and review findings are resolved. The owner reviews and integrates the release branch into main with a merge commit, as above.
 
-Configure release-branch and tag protections before introducing those artifacts in an explicitly approved release scope. This setup does not publish a release, grant access, create credentials or change repository visibility. Issue #4 records the ownership/distribution review and owner confirmation for the inspected snapshots; #11 records traffic setup and #12 branding.
+After each integration into main, level the release branch with main: the owner fast-forwards it, or the main merge commit is merged into a release branch opened before the integration. Short-lived task branches support PR integration; automatically remove them after merging. Do not copy NMD's release version, bypass exceptions or historical release branch names.
+
+On 2026-10-21 the owner reported that `release/0.1.0` is protected. The saved rules have not been read back into this record; until they are, this is the intended baseline: require PRs and the **integrity** check, block deletion and force pushes, allow squash merges. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).
+
+Configure tag protections before introducing tags in an explicitly approved release scope. This setup does not publish a release, grant access, create credentials or change repository visibility. Issue #4 records the ownership/distribution review and owner confirmation for the inspected snapshots; #11 records traffic setup and #12 branding.

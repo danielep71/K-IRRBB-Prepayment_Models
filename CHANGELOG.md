@@ -6,7 +6,29 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 - Add daily traffic history, idempotent snapshots, badges and milestone-bound alerts (#11). Use a main-only analytics environment without deployment records; live activation requires TRAFFIC_TOKEN. Upgrade pinned actionlint to 1.7.12 for current environment syntax.
 
+### Fixed
+
+- Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
+
 ### Added
+
+- Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.
+
+- Foundation closeout record for milestone 1 (#16): gate status, issue dispositions and the final comparison with K-IRRBB-NMDs, with each gap kept, deferred or left to an owner decision. The milestone is not closed; integration into main, final checks and a successor milestone remain.
+
+- Amended data decisions D4 and D7 after review of #24 (#14): positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected. Registered `DATA-EXPO-01`.
+
+- Amended validation decisions V1 and V3 after review of #26 (#15): only (origin, horizon) pairs with a complete horizon are scored, others are `INCOMPLETE`; zero realised prepayment uses absolute error and is excluded from the ±10 % test. Registered `DATA-REJECT-01` for all-or-nothing import rejection.
+
+- Owner accepted all validation and Excel evidence decisions (V1-V6, E1-E3) as proposed on 2026-10-21 (#15). Nothing is executed; every case remains registered only. Recorded the owner's report that `release/0.1.0` is protected; the saved rules are not read back.
+
+- Proposed validation plan, numerical test-case register and Excel evidence requirements (#15). Not accepted; every case is registered only and no check, harness or Excel run has been executed.
+
+- Owner accepted all data and model contract decisions (D1-D9, M1-M10) as proposed on 2026-10-21 (#14). Sources remain unverified and nothing is implemented or validated.
+
+- Proposed prepayment data contract, model contracts and source register under docs/methodology (#14). Specifications only, not accepted; every decision is listed as open and no source is verified for this repository.
+
+- Adopted `release/0.1.0`, created from main on 2026-10-21 at the owner's request, as the integration target for task PRs and Dependabot. Documented squash merges into it, owner integration into main and levelling after each integration. No release, tag or version is implied.
 
 - Recorded the owner’s confirmation of ownership/publication permission and clarified that the prototype uses SACCR only as a visual reference (#4). Existing setup-source attributions remain in place.
 

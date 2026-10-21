@@ -2,7 +2,7 @@
 
 Use a structured issue with the problem, component, acceptance criteria, exact SHA for defects and a minimal synthetic reproduction. Follow [metadata rules](docs/GOVERNANCE.md).
 
-After bootstrap, propose focused task PRs to main unless the owner establishes another integration branch. Link the issue, explain behaviour, run `python tools/check.py`, record limitations and await review/green checks. Preserve history. Issue work does not authorize publishing a release.
+Propose focused task PRs to the active release branch, `release/0.1.0`; the owner integrates it into main. Link the issue, explain behaviour, run `python tools/check.py`, record limitations and await review/green checks. Preserve history. Issue work does not authorize publishing a release.
 
 Update authoritative docs and [changelog](CHANGELOG.md). Distinguish planned features from implemented ones. Version changes to data, units and numerical contracts; keep models separate from Excel glue.
 
@@ -14,6 +14,6 @@ Future Office assets require inspection of hidden sheets, names, cached data, li
 
 ## Evidence
 
-Static checks establish repository integrity only. Future calculations need independent expected values and tolerances; Excel changes need real compile/run evidence on the candidate SHA with host version/bitness. An empty test suite or Python pass is not a substitute.
+Static checks establish repository integrity only. Future calculations need independent expected values and tolerances; Excel changes need real compile/run evidence on the candidate SHA with host version/bitness. An empty test suite or Python pass is not a substitute. See the [validation plan](docs/methodology/VALIDATION_PLAN.md) and [Excel evidence](docs/EXCEL_EVIDENCE.md).
 
 Original contributions use [MPL-2.0](LICENSE). Report vulnerabilities privately via [security policy](SECURITY.md) and follow [conduct rules](CODE_OF_CONDUCT.md).

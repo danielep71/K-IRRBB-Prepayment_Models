@@ -35,3 +35,15 @@ class ConfigTests(unittest.TestCase):
             (root / '.github/labels.json').write_text('{"core": []}')
             (workflows / 'bad.yml').write_text('jobs:\n  job:\n    steps:\n      - uses: "actions/checkout@main"\n')
             self.assertTrue(any('unpinned action' in error for error in inspect_config(root)))
+
+    def test_dependabot_must_target_release_branch(self):
+        for target in ('main', 'release/next', None):
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                (root / '.github').mkdir()
+                (root / '.github/labels.json').write_text('{"core": []}')
+                update = {'package-ecosystem': 'github-actions', 'directory': '/'}
+                if target:
+                    update['target-branch'] = target
+                (root / '.github/dependabot.yml').write_text(json.dumps({'version': 2, 'updates': [update]}))
+                self.assertTrue(any('active release branch' in error for error in inspect_config(root)))
