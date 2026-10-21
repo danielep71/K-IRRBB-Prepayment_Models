@@ -37,6 +37,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 - Corrected security-policy descriptions of live traffic credentials and branding assets (#4).
 - Brought the foundation closeout record in line with the final evidence (#16).
 - Governance and traffic guides give `ISSUE_MILESTONE_NUMBER` as 2 (v0.2.0 - Prototype setup), not 1 (#53).
+- Comments in configuration, tooling and workflows no longer cite K-IRRBB-NMDs issue numbers or describe the repository as in setup, private or a template; `docs/LABELS.md` priority meanings follow `.github/labels.json` (#65).
 
 ## Version rules
 
