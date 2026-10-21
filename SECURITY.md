@@ -1,6 +1,6 @@
 # Security policy
 
-Main is pre-release and currently contains setup documentation, automation and branding, not a model workbook. A separate prototype branch contains experimental VBA and tooling; it is not an accepted or supported release. No release carries production support. Reports against main are handled best-effort.
+Main is pre-release and contains setup documentation, accepted methodology specifications, automation and branding, not a model workbook. A separate prototype branch contains experimental VBA and tooling; it is not an accepted or supported release. No release carries production support. Reports against main are handled best-effort.
 
 ## Reporting
 

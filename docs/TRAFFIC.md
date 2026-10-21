@@ -77,7 +77,7 @@ Snapshots cannot recover gaps longer than GitHub's retention window.
 
 The environment and token must be configured before the first successful run.
 Until then, badges may show unavailable data; they must not be read as zero.
-The active alert milestone is currently **1** (`v0.1.0 - Repo setup`).
+The active alert milestone is currently **2** (`v0.2.0 - Prototype setup`).
 
 GitHub documents the no-deployment setting in
 [Deploying to a specific environment](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/deploy-to-environment).

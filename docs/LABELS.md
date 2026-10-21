@@ -1,6 +1,6 @@
 # Labels
 
-The canonical catalogue is `.github/labels.json`; `.github/label-policy.json` selects application. The 20 labels match SACCR and NMD.
+The canonical catalogue is `.github/labels.json`; `.github/label-policy.json` selects application. The 20 labels were adapted from VBA-SACCR-Toolkit; see [provenance](PROVENANCE.md).
 
 | Priority | Meaning |
 | --- | --- |
