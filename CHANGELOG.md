@@ -8,6 +8,8 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Added
 
+- Amended data decisions D4 and D7 after review of #24 (#14): positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected. Registered `DATA-EXPO-01`.
+
 - Amended validation decisions V1 and V3 after review of #26 (#15): only (origin, horizon) pairs with a complete horizon are scored, others are `INCOMPLETE`; zero realised prepayment uses absolute error and is excluded from the ±10 % test. Registered `DATA-REJECT-01` for all-or-nothing import rejection.
 
 - Owner accepted all validation and Excel evidence decisions (V1-V6, E1-E3) as proposed on 2026-10-21 (#15). Nothing is executed; every case remains registered only. Recorded the owner's report that `release/0.1.0` is protected; the saved rules are not read back.

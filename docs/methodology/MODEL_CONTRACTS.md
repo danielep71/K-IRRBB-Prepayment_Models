@@ -18,11 +18,13 @@ Notation: `t` is a month end; loan-month `(i, t)` runs from `t-1` to `t`; amount
 For a loan-month in the [risk set](DATA_CONTRACT.md#risk-set-missing-observations-and-censoring):
 
 ```text
-A(i,t) = balance(i,t-1) - scheduled_principal(i,t)      amount available to prepay
-P(i,t) = prepaid_principal(i,t)                           PARTIAL or FULL prepayment
+A(i,t) = balance(i,t-1) - scheduled_principal(i,t) + max(other_change(i,t), 0)   amount available to prepay
+P(i,t) = prepaid_principal(i,t)                                                    PARTIAL or FULL prepayment
 ```
 
-A loan-month with `A <= 0` (for example the final scheduled payment) is excluded. `other_change` does not enter `A` or `P`.
+A loan-month with `A <= 0` (for example the final scheduled payment) is excluded. A positive `other_change` (a drawdown or capitalisation in the month) counts as exposure, because it can be prepaid in the same month; the import rejects `P > A` (`E15`), so `0 <= SMM <= 1`. A negative `other_change` does not reduce `A`.
+
+When `RENEG` inclusion is selected (data decision D4), a `RENEG` row contributes `P = -other_change`, the principal transferred to its successor, and is reported as `SMM_reneg`; otherwise it enters neither sum.
 
 **Pool SMM** for a segment, currency and month is balance-weighted, never an average of loan rates:
 
@@ -32,7 +34,7 @@ SMM_partial(t) = sum over PARTIAL rows of P / sum_i A(i,t)
 SMM_full(t)    = sum over FULL rows of P    / sum_i A(i,t)
 ```
 
-so `SMM = SMM_partial + SMM_full`. `DEFAULT`, `SALE` and `RENEG` loan-months enter the sums as set by data decisions D4 and D5.
+so `SMM = SMM_partial + SMM_full`, plus `SMM_reneg` when `RENEG` is included. `DEFAULT`, `SALE` and `RENEG` loan-months enter the sums as set by data decisions D4 and D5.
 
 **CPR** is the annualised equivalent of a constant monthly rate:
 
