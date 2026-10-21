@@ -1,6 +1,6 @@
 # Model contracts
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 are **proposed in issue #72 and not accepted**.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 were **accepted by the owner on 2026-10-21 (issue #72)**.
 
 This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, EVE sensitivity and the repricing gap, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence are in the [validation plan](VALIDATION_PLAN.md).
 
@@ -134,12 +134,12 @@ Outputs per segment, currency, scenario and month: opening balance, interest, sc
 
 ## Scenarios
 
-A scenario is a shocked refinancing curve applied at the as-of date and held. It reaches the model only through the incentive `I`, so each scenario has its own CPR path. Under proposed decision M13, the scenario's shocked and floored discount curve also discounts its projected cash flows ([EVE sensitivity](#eve-sensitivity-and-repricing-gap)).
+A scenario is a shocked refinancing curve applied at the as-of date and held. It reaches the model only through the incentive `I`, so each scenario has its own CPR path. Under decision M13, the scenario's shocked and floored discount curve also discounts its projected cash flows ([EVE sensitivity](#eve-sensitivity-and-repricing-gap)).
 
 | Scenario | Source |
 | --- | --- |
 | `BASE` | Observed curve at the as-of date |
-| `CONTRACT` | Observed curve at the as-of date with no prepayment (`SMM = 0`): a reference for the repricing gap and EVE, never a supervisory scenario. Proposed decision M17 (#72) |
+| `CONTRACT` | Observed curve at the as-of date with no prepayment (`SMM = 0`): a reference for the repricing gap and EVE, never a supervisory scenario. Decision M17 (#72) |
 | `PAR_UP`, `PAR_DOWN`, `STEEPENER`, `FLATTENER`, `SHORT_UP`, `SHORT_DOWN` | Supervisory shock scenarios, `REG-3` |
 | User-defined parallel or ramp shocks | Run settings, recorded with the results |
 
@@ -153,14 +153,14 @@ Overlays are applied after the fit, change no fitted parameter and are labelled 
 | Post-shock floor | `min(observed rate, min(0, -150bp + 3bp x m))` at maturity `m` years | `REG-3` Art. 3(7) | Verified in the NMD register |
 | Standardised prepayment multipliers | `CPR_s = min(1, gamma_s x CPR_BASE)` with `gamma_s = 0.8` for up, steepener and short-up and `1.2` for down, flattener and short-down, as reported by the prototype | `REG-1` | **Not verified**; provisional |
 | Supervisory expectations on behavioural assumptions | Governance of prepayment assumptions | `REG-2` | **Not verified** |
-| Loan-book ΔEVE indicator | Raised when `-worst dEVE / Tier1 > 0.15` | `REG-1`, `REG-5` | **Not verified**; proposed (M16, #72) |
-| Repricing-gap buckets | The 19 time buckets of `REG-1` Table 1 | `REG-1` | **Not verified**; proposed (M17, #72) |
+| Loan-book ΔEVE indicator | Raised when `-worst dEVE / Tier1 > 0.15` | `REG-1`, `REG-5` | **Not verified**; provisional (M16, #72) |
+| Repricing-gap buckets | The 19 time buckets of `REG-1` Table 1 | `REG-1` | **Not verified**; provisional (M17, #72) |
 
 The toolkit can report the internal-model CPR path and the standardised-multiplier CPR path side by side. Which one a bank uses for a regulatory purpose is outside the toolkit, which neither establishes compliance nor approves a model.
 
 ## EVE sensitivity and repricing gap
 
-Status: **proposed in issue #72; not accepted.** Nothing in this section may be implemented until the owner accepts decisions M12–M18 and data decision D10. Every regulatory figure below is provisional until its source is verified (#45).
+Status: **accepted by the owner on 2026-10-21 (issue #72)**, with decisions M12–M18 and data decision D10 as proposed. Nothing here is implemented or validated. Every regulatory figure below is provisional until its source is verified (#45).
 
 The toolkit measures the **loan book's contribution** to the economic value of equity: the present value of the projected cash flows of the loans in the run, per segment and currency and in total per currency. It is not the bank-level supervisory outlier test, which needs every banking-book position, and it does not measure NII (decision M12).
 
@@ -231,7 +231,7 @@ Principal cash flows (scheduled, prepaid and repricing) are placed in the time b
 
 A **parameter set** is immutable once created and holds: ID; model ID and version; segment and currency; data window and input fingerprints from the [lineage](DATA_CONTRACT.md#lineage); estimation and test windows; run settings (curve series and convention, lag, margin, bucket width, optimiser settings, data decisions D4 and D5); each value with unit and layer (estimate, assumption or overlay); diagnostics; timestamp; and toolkit commit SHA.
 
-A **scenario result** names its parameter set and holds, per segment, currency, scenario and month: SMM, CPR and the projected cash flows above; under the proposed decisions M12–M18, also PV, `dEVE`, the ratio and indicator with the Tier 1 amount and currency used, the repricing gap and the other measures. Exporting never re-estimates. The export file format is decision M10.
+A **scenario result** names its parameter set and holds, per segment, currency, scenario and month: SMM, CPR and the projected cash flows above; under decisions M12–M18, also PV, `dEVE`, the ratio and indicator with the Tier 1 amount and currency used, the repricing gap and the other measures. Exporting never re-estimates. The export file format is decision M10.
 
 ## Independent validation
 
@@ -252,10 +252,10 @@ Each model needs independent expected values with stated tolerances, an out-of-t
 | M9 | Minimum sample | 36 month ends, 5,000 loan-months, 100 `FULL` events | Accepted 2026-10-21 |
 | M10 | Export format | CSV with the parameter-set ID in every row | Accepted 2026-10-21 |
 | M11 | Predicted bucket value in the `PM1` fit | Exposure-weighted mean of loan-level model SMM over the bucket's loan-months | Accepted 2026-10-21 after review of #34 |
-| M12 | EVE scope | Loan-book contribution per segment and currency, in total per currency; no NII; not the supervisory outlier test | Proposed (#72) |
-| M13 | Discount curve | Supplied continuously compounded zero rates on the `k/12` grid, linear interpolation, flat extrapolation, shocked and floored per scenario; no bootstrapping | Proposed (#72) |
-| M14 | Commercial margins | Included: interest projected at the client rate; an exclusion option waits for verification of `REG-3` (#45) | Proposed (#72) |
-| M15 | ΔEVE and worst case | `PV_s - PV_BASE` per CPR layer (internal model; standardised multipliers when requested), never mixed; worst over the six supervisory scenarios; `CONTRACT` and user shocks excluded from the worst case | Proposed (#72) |
-| M16 | ΔEVE / Tier 1 and indicator | `-worst dEVE / Tier1` in the Tier 1 currency only; indicator above 0.15; overlay, provisional | Proposed (#72) |
-| M17 | Repricing gap | 19 `REG-1` buckets, upper bound inclusive; principal only; `CONTRACT`, `BASE` and each scenario; reset balances at the next reset | Proposed (#72) |
-| M18 | Other measures | Weighted average repricing time (repricing principal at the next reset), effective duration from the parallel shocks, projected CPR by compounding pool SMM | Proposed (#72) |
+| M12 | EVE scope | Loan-book contribution per segment and currency, in total per currency; no NII; not the supervisory outlier test | Accepted 2026-10-21 (#72) |
+| M13 | Discount curve | Supplied continuously compounded zero rates on the `k/12` grid, linear interpolation, flat extrapolation, shocked and floored per scenario; no bootstrapping | Accepted 2026-10-21 (#72) |
+| M14 | Commercial margins | Included: interest projected at the client rate; an exclusion option waits for verification of `REG-3` (#45) | Accepted 2026-10-21 (#72) |
+| M15 | ΔEVE and worst case | `PV_s - PV_BASE` per CPR layer (internal model; standardised multipliers when requested), never mixed; worst over the six supervisory scenarios; `CONTRACT` and user shocks excluded from the worst case | Accepted 2026-10-21 (#72) |
+| M16 | ΔEVE / Tier 1 and indicator | `-worst dEVE / Tier1` in the Tier 1 currency only; indicator above 0.15; overlay, provisional | Accepted 2026-10-21 (#72) |
+| M17 | Repricing gap | 19 `REG-1` buckets, upper bound inclusive; principal only; `CONTRACT`, `BASE` and each scenario; reset balances at the next reset | Accepted 2026-10-21 (#72) |
+| M18 | Other measures | Weighted average repricing time (repricing principal at the next reset), effective duration from the parallel shocks, projected CPR by compounding pool SMM | Accepted 2026-10-21 (#72) |

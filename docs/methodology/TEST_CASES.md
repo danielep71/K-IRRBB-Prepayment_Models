@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-proposed-72) test decisions proposed in #72 and not accepted.
+Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -87,7 +87,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)`; provisional until `REG-1` is verified | Hand computation | `abs 1e-12` | Registered |
 | `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |
 
-### EVE sensitivity and repricing gap (proposed, #72)
+### EVE sensitivity and repricing gap (#72)
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
