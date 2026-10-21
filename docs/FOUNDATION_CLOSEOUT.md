@@ -8,8 +8,8 @@ Recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6351f5d
 
 | Gate (issue #16) | State on 2026-10-21 | Owner of the next step |
 | --- | --- | --- |
-| #14 and #15 completed or explicitly deferred | Every acceptance criterion of both issues is ticked with linked evidence; review findings on #24, #25 and #26 are fixed (#28, #29, #30). Both issues remain open for owner closure | Owner closes #14 and #15 |
-| Final NMD gap comparison with a disposition per gap | Recorded [below](#comparison-with-k-irrbb-nmds) | Owner accepts the dispositions |
+| #14 and #15 completed or explicitly deferred | **Done.** Every acceptance criterion of both issues is ticked with linked evidence; review findings on #24, #25 and #26 are fixed (#28, #29, #30). Both issues closed as completed on 2026-10-21 at the owner's instruction | — |
+| Final NMD gap comparison with a disposition per gap | **Done.** Recorded [below](#comparison-with-k-irrbb-nmds); the owner accepted every disposition on 2026-10-21 | — |
 | Integration of `release/0.1.0` into `main`; governance, settings and milestone documents reconciled | **Not done.** `main` is at `3461d89`; `release/0.1.0` holds every PR from #23 onwards | Owner integrates and levels the release branch |
 | Required checks and issue metadata verified on the final closeout commit | **Not done.** Interim evidence below; it does not certify later commits | Repeat after integration |
 | Successor milestone selected; `ISSUE_MILESTONE_NUMBER` updated and read back | **Not done.** No successor milestone exists | Owner selects it, then the variable is updated |
@@ -25,9 +25,9 @@ Interim evidence:
 | Issue | Deliverable | State | Evidence |
 | --- | --- | --- | --- |
 | #1–#13 | README, layout, Git hygiene, policies, governance, templates, metadata enforcement, static CI, settings, Dependabot, traffic, branding, installation | Closed | Each issue body; commits up to `3461d89` on `main` |
-| #14 | Data and model contracts | Open; all criteria evidenced | #24, acceptance #25, review fixes #29 and #30 |
-| #15 | Validation plan, test cases, Excel evidence | Open; all criteria evidenced | #26, acceptance #27, review fixes #28 |
-| #16 | Changelog, release guide, closeout | Open; this record | This change |
+| #14 | Data and model contracts | Closed as completed, 2026-10-21 | #24, acceptance #25, review fixes #29 and #30 |
+| #15 | Validation plan, test cases, Excel evidence | Closed as completed, 2026-10-21 | #26, acceptance #27, review fixes #28 |
+| #16 | Changelog, release guide, closeout | Open; this record | #32 and this change |
 
 Prototype PR #19 is separate future implementation work. It is neither setup evidence nor a release requirement.
 
@@ -69,12 +69,12 @@ Reference: K-IRRBB-NMDs at `f703c7ab6bff207b5ce5917af8368cb24ea23f13`, inspected
 | Example module under `examples/` | Guide only | Deferred until a public facade exists |
 | Sources verified against official texts (`REG-1`, `REG-3` for NMD provisions) | No source verified for prepayments | Deferred; any regulatory overlay waits for verification ([source register](methodology/SOURCES.md)) |
 
-No gap is resolved by copying NMD content. Every deferred item needs a future issue in a successor milestone.
+No gap is resolved by copying NMD content. Every deferred item needs a future issue in a successor milestone. The owner accepted these dispositions on 2026-10-21.
 
 ## Closeout steps
 
-1. Owner closes #14 and #15, or records why they stay open.
-2. Owner accepts the dispositions above.
+1. ~~Owner closes #14 and #15~~: closed on 2026-10-21.
+2. ~~Owner accepts the dispositions above~~: accepted on 2026-10-21.
 3. Owner integrates `release/0.1.0` into `main` and levels the release branch.
 4. Re-run the gates on the resulting commit: `integrity`, issue metadata, label drift.
 5. Owner creates the successor milestone; `ISSUE_MILESTONE_NUMBER` is updated and read back.
