@@ -8,7 +8,7 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 ### Fixed
 
-- Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered atomic-import/stale-result and window-boundary tests (#26). Tests remain registered only; remaining methodological review findings stay tracked in #14 and #15.
+- Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
 
 ### Added
 
