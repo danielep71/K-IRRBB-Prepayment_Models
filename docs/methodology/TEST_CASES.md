@@ -32,6 +32,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `DATA-REJECT-01` | All-or-nothing import: one invalid row in any of the three files rejects all three; the previously accepted dataset stays unchanged and its outputs are marked stale | Hand construction: an accepted import followed by one rejected import per file | `exact` | Registered |
 | `DATA-EVENT-01` | Event/flow consistency (`E14`) for every event, at and around each boundary | Hand construction | `exact` | Registered |
 | `DATA-IDENT-01` | Balance identity (`E13`) accepted at a difference of 0.005 and rejected just above it | Hand construction | `exact` | Registered |
+| `DATA-EXPO-01` | Prepayment above exposure (`E15`): accepted at `P = A` including a same-month drawdown, rejected just above; the review example of #24 (opening 100, drawdown 100, prepayment 150) is accepted with `A = 200` and `SMM = 0.75` | Hand construction | `exact` | Registered |
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Registered |
 | `DATA-PIT-02` | Leakage: changing information after an origin leaves the point-in-time view at that origin unchanged; negative control without the filter | Property test | `exact` | Registered |
 | `DATA-RECON-01` | Reconciliation against user control totals; a mismatch rejects the import | Hand construction | `abs 0.005`; `exact` counts | Registered |
@@ -44,8 +45,8 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `RATE-CONV-01` | `SMM -> CPR -> SMM` and `CPR -> SMM -> CPR` round trips on a grid including 0, 1e-8, 0.02, 0.5, 0.999999 and 1 | Independent script using `log1p`/`expm1` | `rel 1e-12` | Registered |
 | `RATE-CONV-02` | The worked check of the model contracts: `A = 99,000`, `SMM = 2,000 / 99,000`, `CPR = 1 - (1 - SMM)^12` | Hand computation and independent script | `abs 1e-12` | Registered |
-| `RATE-POOL-01` | Pool SMM is `sum P / sum A`, not the mean of loan SMMs; `SMM = SMM_partial + SMM_full`; `A <= 0` excluded | Hand computation on three loans with different balances | `abs 1e-12` | Registered |
-| `RATE-POOL-02` | `DEFAULT` and `SALE` excluded from numerator and denominator; `RENEG` excluded by default and included when the run setting says so | Hand computation | `abs 1e-12` | Registered |
+| `RATE-POOL-01` | Pool SMM is `sum P / sum A`, not the mean of loan SMMs; `SMM = SMM_partial + SMM_full`; `A <= 0` excluded; a positive `other_change` counted in `A` | Hand computation on three loans with different balances | `abs 1e-12` | Registered |
+| `RATE-POOL-02` | `DEFAULT` and `SALE` excluded from numerator and denominator; `RENEG` excluded by default, and when the run setting includes it, `P = -other_change` reported as `SMM_reneg` | Hand computation | `abs 1e-12` | Registered |
 | `RATE-PERIOD-01` | Realised CPR over `n` months compounds monthly SMM; never the average of monthly CPRs | Hand computation over 3 and 12 months | `abs 1e-12` | Registered |
 
 ### Rate incentive
