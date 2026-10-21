@@ -27,9 +27,10 @@ This project is intended to provide transparent tools for developing and indepen
 | Loan prepayments | Partial and full early repayments, distinguished from scheduled principal |
 | Assumptions | Explicit CPR/SMM conventions, segmentation and rate incentives, subject to agreed model contracts |
 | Independent challenge | Synthetic benchmarks, documented tolerances and out-of-time validation |
+| EVE and repricing gap | Loan book's contribution to EVE per supervisory scenario, ΔEVE / Tier 1 indicator and repricing gap; specified in [#72](https://github.com/danielep71/K-IRRBB-Prepayment_Models/issues/72), accepted 2026-10-21, not implemented |
 | Downstream use | Controlled ALM export; model acceptance remains outside the toolkit |
 
-This repository does not currently calculate EVE, NII, supervisory outlier tests, option values or market prices. It does not approve models or establish regulatory compliance. Deposit stability, decay and rate pass-through belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). Both sit within [K-Risk-Engines](https://github.com/danielep71/K-Risk-Engines).
+This repository calculates nothing yet. Even with the accepted EVE extension (#72) it will not calculate NII, the bank-level supervisory outlier test, option values or market prices. It does not approve models or establish regulatory compliance. Deposit stability, decay and rate pass-through belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). Both sit within [K-Risk-Engines](https://github.com/danielep71/K-Risk-Engines).
 
 ## Navigation
 

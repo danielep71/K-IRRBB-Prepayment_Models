@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- EVE sensitivity and repricing-gap contracts (#72): decisions M12–M18 and D10, accepted by the owner on 2026-10-21; source `REG-5`, validation rows and registered cases. Sources unverified; nothing implemented. Review follow-up names the measure weighted average repricing time (including principal repricing at the next reset), and computes EVE, worst scenarios, ratios and indicators separately per labelled CPR layer.
 - Source-first architecture, directory guides, developer installation and future VBA conventions (#2, #13).
 - Editing and Git rules with no approved workbook exception (#3).
 - Contribution, security, conduct, governance, provenance and release guides; MPL-2.0 text (#4, #5, #16).
@@ -41,6 +42,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 - Corrected security-policy descriptions of live traffic credentials and branding assets (#4).
 - Brought the foundation closeout record in line with the final evidence (#16).
 - Governance and traffic guides give `ISSUE_MILESTONE_NUMBER` as 2 (v0.2.0 - Prototype setup), not 1 (#53).
+- The post-shock floor is stated as a lower bound on the shocked rate, and projected CPR excludes months with no exposure from the product and from `n` (review of #75, #72).
 - Comments in configuration, tooling and workflows no longer cite K-IRRBB-NMDs issue numbers or describe the repository as in setup, private or a template; `docs/LABELS.md` priority meanings follow `.github/labels.json` (#65).
 
 ## Version rules
