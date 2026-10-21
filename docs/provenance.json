@@ -35,6 +35,17 @@
         ".github/workflows/labels-sync.yml",
         ".github/workflows/labels-drift.yml"
       ]
+    },
+    {
+      "repository": "https://github.com/danielep71/K-IRRBB-NMDs",
+      "reference_revision": "f703c7ab6bff207b5ce5917af8368cb24ea23f13",
+      "treatment": "Methodology contract structure, CSV subset, validation-code style and source-verification procedure adapted to loan prepayments. Prepayment content written for this project; no NMD decisions, approvals or figures copied except the REG-3 verification record, cited by reference.",
+      "files": [
+        "docs/methodology/README.md",
+        "docs/methodology/DATA_CONTRACT.md",
+        "docs/methodology/MODEL_CONTRACTS.md",
+        "docs/methodology/SOURCES.md"
+      ]
     }
   ]
 }
