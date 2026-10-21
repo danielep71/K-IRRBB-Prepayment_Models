@@ -1,6 +1,6 @@
 # Developer installation
 
-There is no workbook, add-in or prepayment engine to install during setup.
+There is no workbook, add-in or prepayment engine to install yet.
 
 ## Current prerequisites
 

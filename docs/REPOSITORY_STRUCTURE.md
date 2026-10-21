@@ -1,6 +1,6 @@
 # Repository structure
 
-The project uses the **application** profile, consistent with K-IRRBB-NMDs. The intended deliverable is an analysis workbook assembled from exported VBA source. This milestone establishes the architecture; no workbook or VBA component exists yet.
+The project uses the **application** profile, consistent with K-IRRBB-NMDs. The intended deliverable is an analysis workbook assembled from exported VBA source. The setup milestone (v0.1.0) established the architecture; no workbook or VBA component exists yet.
 
 | Location | Responsibility |
 | --- | --- |
@@ -36,4 +36,4 @@ Freeze each future parameter set with an ID, model/version, segment/currency, da
 
 Exported VBA will be authoritative. Built workbooks, local evidence and parameter exports are ignored. No workbook exception is approved. A future macro-free template needs an exact-path exception, reproducible preparation, inspection and its own issue.
 
-The intended runtime is Windows Excel 64-bit without Python, R or external services. Independent benchmark tooling can use other languages. Full IRRBB aggregation, pricing, automatic ALM uploads and model approval are outside setup scope.
+The intended runtime is Windows Excel 64-bit without Python, R or external services. Independent benchmark tooling can use other languages. Full IRRBB aggregation, pricing, automatic ALM uploads and model approval are outside the current scope.

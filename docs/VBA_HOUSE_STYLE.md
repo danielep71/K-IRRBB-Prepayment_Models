@@ -1,6 +1,6 @@
 # VBA house style
 
-Requirements for future source; no VBA exists in setup.
+Requirements for future source; no VBA exists on main yet.
 
 - Use Option Explicit, four-space indentation and typed variables. Role prefixes: CORE_, PREPAY_, WB_, TEST_. Core standard modules use Option Private Module.
 - State units, bounds, outputs, assumptions and failure behaviour at public boundaries. Introduce the supported-signature manifest with the first facade.
