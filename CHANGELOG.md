@@ -10,9 +10,21 @@ All work is unreleased. The setup milestone does not imply a version tag or GitH
 
 - Tightened the #30 contract boundaries (#14): E15 rejects every positive excess of prepayment over exposure at input decimal precision, and RENEG requires nonnegative residual principal. Extended the registered boundary cases; no importer or Excel execution is claimed.
 
+- Brought the foundation closeout record in line with the final evidence (#16): integration (#47, #48), all three gates on `main` at `2bd2ecf` including label drift, and the owner's read-back of `ISSUE_MILESTONE_NUMBER = 2`. Documentation only.
+
+- Fixed four findings from the review of #34: forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive; decision M11 defines the predicted bucket value of the `PM1` fit; V1 now allows later origins with `INCOMPLETE` pairs after 12 complete ones; the Dependabot check enforces the exact active release branch.
+
 - Aligned the structure guide with accepted contracts (#25), made the already accepted chronological test-window rule explicit in the model contract (#24), and registered a window-boundary test. Tests remain registered only; remaining contract findings stay tracked in #14, while #28 handles the validation-plan findings from #26.
 
 ### Added
+
+- Opened #38–#45 in milestone v0.2.0 - Prototype setup for every deferred gap of the foundation closeout (#16) and linked them from the closeout record.
+
+- Updated the foundation closeout (#16): #14 and #15 closed, release integrated into main (#34) and levelled (#35), successor milestone reported. Added the step to open successor-milestone issues for every deferred gap before closing milestone 1.
+
+- Recorded the owner's acceptance of the NMD gap dispositions on 2026-10-21 in the foundation closeout (#16). #14 and #15 stay open for their remaining review items; integration into main, final checks and a successor milestone remain.
+
+- Foundation closeout record for milestone 1 (#16): gate status, issue dispositions and the final comparison with K-IRRBB-NMDs, with each gap kept, deferred or left to an owner decision. The milestone is not closed; integration into main, final checks and a successor milestone remain.
 
 - Amended data decisions D4 and D7 after review of #24 (#14): positive `other_change` counts as SMM exposure and prepayment above exposure is rejected (`E15`), so SMM stays within [0, 1]; a `RENEG` transfer is recorded as negative `other_change` and is the numerator when `RENEG` inclusion is selected. Registered `DATA-EXPO-01`.
 

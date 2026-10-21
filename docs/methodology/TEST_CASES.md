@@ -63,7 +63,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `PM0-CALC-01` | `PM0` equals the realised CPR of the estimation window | Hand computation | `abs 1e-12` | Registered |
 | `PM1-FORM-01` | S-curve, ramp, seasonality, burnout and clamp evaluated at fixed parameters | Independent script | `rel 1e-12` | Registered |
-| `PM1-FIT-01` | Weighted least-squares fit on synthetic bucket data: parameters and objective | Independent optimiser on the same objective, offline | Decision V5 | Registered |
+| `PM1-FIT-01` | Weighted least-squares fit on synthetic bucket data, with predicted bucket values per decision M11: parameters and objective | Independent optimiser on the same objective, offline | Decision V5 | Registered |
 | `PM1-FAIL-01` | Non-convergence, a parameter at a numerical boundary or a non-finite objective gives "not estimated" and stores no parameters | Hand-constructed samples | `exact` | Registered |
 | `PM1-MIN-01` | A segment below the minimum sample is not estimated | Hand construction | `exact` | Registered |
 | `PM1-DGP-01` | Recovery of known generating parameters from a large synthetic sample; reported, not a tolerance test | Generated fixture with recorded seed | Statistical, reported | Registered |
@@ -93,7 +93,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Registered |
 | `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
-| `OOS-LEAK-01` | A forecast from origin `t` is unchanged when data after `t` are altered; negative control | Property test | `exact` | Registered |
+| `OOS-LEAK-01` | A forecast from origin `t` is unchanged when rows or market rates dated after `t` are altered; rates at `t` are not altered; negative control | Property test | `exact` | Registered |
 | `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation | `abs 1e-12` | Registered |
 | `SEG-ISO-01` | Altering one segment leaves other segments' parameters and forecasts unchanged; currencies never pooled | Property test | `exact` | Registered |
 | `REPEAT-01` | Same inputs, settings and commit give identical outputs and fingerprints | Two runs compared | `exact` | Registered |
