@@ -13,6 +13,7 @@ Setup follows [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs), inspec
 | Branding | NMD visual family redrawn as editable SVG; no numerical results copied (#12) |
 | Traffic | NMD collector adapted; aggregate history isolated from main (#11) |
 | Guides | Written for this project; no copied historical approvals |
+| Methodology contracts | NMD contract structure, CSV subset, validation-code style and source-verification procedure adapted; prepayment content written for this project; no NMD decisions or approvals copied (#14) |
 
 Original work: copyright 2026 Daniele Penza. The root [LICENSE](../LICENSE) supplies the MPL-2.0 notice for original content; third-party rights/attribution remain the contributor's responsibility.
 
