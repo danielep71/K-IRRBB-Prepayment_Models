@@ -4,6 +4,10 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ## [Unreleased]
 
+### Branding correction
+
+- Align the README/social-preview SVG and PNG status with Specifications only after setup closeout (#63); refresh the reviewed PNG digest. Planned scope and unvalidated-output statements remain explicit.
+
 ### Added
 
 - Source-first architecture, directory guides, developer installation and future VBA conventions (#2, #13).
