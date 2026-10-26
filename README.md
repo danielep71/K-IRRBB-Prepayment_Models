@@ -39,6 +39,7 @@ This repository calculates nothing yet. Even with the accepted EVE extension (#7
 | [Installation](INSTALLATION.md) | Current prerequisites and checks |
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
+| [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Proposed sheet, name and output layout (#38); no workbook exists |
 | [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
 | [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and deferred gaps |
 | [Milestones](docs/Milestones/README.md) | Closed setup milestone and the open successor |
