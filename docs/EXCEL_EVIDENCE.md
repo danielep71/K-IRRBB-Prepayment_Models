@@ -1,6 +1,6 @@
 # Excel evidence
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** There is no workbook, builder, test harness or export tool yet, so every stage below is currently `NOT_RUN`.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** The builder and export/compare tools exist (#43) but have not been run in Excel; there is no VBA component or test harness yet (#42), so every stage below is currently `NOT_RUN`.
 
 This document is authoritative for the Excel evidence record: what a build, compile and test run must capture, how it is bound to one commit, and which outcomes count. Numerical validation is separate and is defined in the [validation plan](methodology/VALIDATION_PLAN.md). Supported hosts are in [installation](../INSTALLATION.md); release gates are in [releasing](../RELEASING.md).
 
@@ -27,7 +27,7 @@ A skipped, interrupted or cleanup-failed run is not a pass. A later passing run 
 | Sources | Every imported VBA component and template asset, all from that commit |
 | Host | Excel version and build, Office bitness, Windows edition, version and architecture |
 | References | The VBA project references, which must be exactly the defaults named in [installation](../INSTALLATION.md) |
-| Security context | Macro setting and *Trust access to the VBA project object model*, as found and not changed, except as recorded for stage 6 |
+| Security context | Macro setting and *Trust access to the VBA project object model*, as found and not changed, except as recorded for stages 1 and 6 |
 | Operator and time | Who ran it; start and finish time with UTC offset |
 | Outcomes | One outcome per stage, with the copied output that supports it |
 
@@ -35,14 +35,14 @@ Any source change after the record invalidates it for the affected components. E
 
 ## Required stages
 
-1. **Clean build.** Build the workbook from source at the candidate commit, outside the checkout or in a Git-ignored location, with the builder delivered by future work. `PASS`: every component imported from the one commit, none missing or extra, only the default references.
+1. **Clean build.** Build the workbook from source at the candidate commit, outside the checkout or in a Git-ignored location, with `tools/Build-Workbook.ps1 -Build Test`; see [tooling](../tools/README.md#workbook-build). The builder generates the template, imports the components of the commit, exports the saved workbook again and compares it with the commit before writing anything. `PASS`: the builder reports `PASS` (every component imported from the one commit, none missing or extra, only the default references) and writes its build record; copy both into the log. Importing needs *Trust access to the VBA project object model*: if it had to be enabled for the build, record that and that it was turned off afterwards.
 2. **Compile.** Run **Debug → Compile VBAProject**. `PASS`: no error dialog. On failure, record the exact error text and component.
 3. **Smoke run.** Open the saved workbook afresh with macros enabled through the existing trust mechanism, run the harness entry point and copy its status and case table into the log. Check that `Calculation`, `EnableEvents`, `ScreenUpdating` and `DisplayAlerts` are the same after the run as before. `PASS`: the run completes, reports a pass with the expected number of cases, and restores Excel state.
 4. **Failure path.** Run the harness with an injected failure, then normally again. `PASS`: the injected case is reported as `FAIL` and noted as injected, every other executed case passes, and the following normal run passes cleanly. This proves a passing smoke run is able to fail.
 5. **Cleanup.** Close the workbook without saving into the checkout and record that it was closed. A built workbook is never committed.
-6. **Source round trip.** Export the VBA from the saved workbook into a new folder and compare it with the candidate commit using the export/compare tool delivered by future work. `PASS`: the workbook holds exactly the components at the candidate commit. If *Trust access to the VBA project object model* had to be enabled for the export, record that and that it was turned off afterwards.
+6. **Source round trip.** Export the VBA from the saved workbook into a new folder with `tools/Export-Workbook.ps1` and compare it with the candidate commit with `python tools/components.py compare`, using a manifest staged from the candidate (`python tools/components.py stage`). `PASS`: the workbook holds exactly the components at the candidate commit. If *Trust access to the VBA project object model* had to be enabled for the export, record that and that it was turned off afterwards.
 
-The harness entry point, injection procedure, builder and export tool are named in this document when they are delivered.
+Evidence uses the **test build**, which adds `tests/modules/` and the `Tests` sheet ([workbook contract](WORKBOOK_CONTRACT.md#build-components)). The **production build** of the same commit excludes both and must pass stages 1, 2 and 6 before release. The harness entry point and injection procedure are named here when the harness is delivered (#42).
 
 ## Bitness
 
@@ -55,7 +55,7 @@ A 32-bit `PASS` is reported as best-effort compile evidence, never as certificat
 
 ## Procedure
 
-Execution is manual (decision E1): a person runs Excel interactively. The procedure never changes macro security or Trust Center settings, apart from the recorded stage 6 exception.
+Execution is manual (decision E1): a person runs Excel interactively. The procedure never changes macro security or Trust Center settings, apart from the recorded stage 1 and 6 exceptions; the tools never change them.
 
 1. Check out the candidate in a clean tree: `git switch --detach FULL_SHA`, then `git status`.
 2. Create a record folder outside the checkout and start a UTF-8 `session.log` with the SHA and start time.
