@@ -34,6 +34,6 @@ Freeze each future parameter set with an ID, model/version, segment/currency, da
 
 ## Artifacts and runtime
 
-Exported VBA will be authoritative. Built workbooks, local evidence and parameter exports are ignored. No workbook exception is approved. A future macro-free template needs an exact-path exception, reproducible preparation, inspection and its own issue.
+Exported VBA will be authoritative. Built workbooks, local evidence and parameter exports are ignored. No workbook exception is approved. The owner decided on 2026-10-21 (#43) that the macro-free template is generated at build time by a committed builder script and never committed; the layout it must produce is set by the [workbook contract](WORKBOOK_CONTRACT.md), accepted on 2026-10-26 (#38).
 
 The intended runtime is Windows Excel 64-bit without Python, R or external services. Independent benchmark tooling can use other languages. Full IRRBB aggregation, pricing, automatic ALM uploads and model approval are outside the current scope.
