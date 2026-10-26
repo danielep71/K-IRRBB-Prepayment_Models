@@ -113,11 +113,11 @@ A `RENEG` row ends a loan and transfers its remaining principal, `T = -other_cha
 | Same month | The month end of the successor's `origination_date` equals the `as_of_date` of the `RENEG` row |
 | Same currency | The successor's `currency` equals the predecessor's; amounts are never converted |
 | Amount | `abs(original_balance(successor) - T) <= 0.005` currency units (decision D9) |
-| Reverse link | A register row with a `predecessor_id` needs that predecessor to end with a `RENEG` row in the successor's origination month, unless that month is before the data window |
+| Reverse link | A register row with a `predecessor_id` needs that predecessor to end with a `RENEG` row in the successor's origination month, only when that month is inside the data window; a successor originated before or after the window is not checked |
 | Segment | The successor may be in another segment; the change is reported as `W06`, never re-assigned |
 
 - A failure of any rule is `E16`, reported on the `RENEG` panel row, or on the successor's register row for a broken reverse link.
-- A `RENEG` row outside the data window (`W04`) is not reconciled, because its flows are not imported.
+- A `RENEG` row outside the data window (`W04`) is not reconciled, because its flows are not imported; for the same reason, a successor originated outside the window is not reverse-linked.
 - A successor in its origination month needs no panel row to reconcile; once it has a first panel row in its origination month, that row checks the balance identity against `original_balance`, as for any loan.
 - A split into several successors or a merge of several predecessors cannot be represented with one `predecessor_id` and is rejected (`E16`). Supporting either needs a new decision.
 
