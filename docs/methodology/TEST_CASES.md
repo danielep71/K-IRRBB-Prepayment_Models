@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72).
+Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, proposed in #49 and not accepted.
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -33,6 +33,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `DATA-EVENT-01` | Event/flow consistency (`E14`) for every event, at and around each boundary; `RENEG` accepts zero residual and rejects scheduled principal above opening balance, including opening 100, scheduled 120, `other_change = 20`, closing 0 | Hand construction | `exact` | Registered |
 | `DATA-IDENT-01` | Balance identity (`E13`) accepted at a difference of 0.005 and rejected just above it | Hand construction | `exact` | Registered |
 | `DATA-EXPO-01` | Prepayment above exposure (`E15`): accepted at `P = A` including a same-month drawdown, rejected at the smallest positive input excess (0.0001), with no tolerance; `A = 0.0001`, `P = 0.0051` is rejected even when `E13` passes; the review example of #24 (opening 100, drawdown 100, prepayment 150) is accepted with `A = 200` and `SMM = 0.75` | Hand construction | `exact` | Registered |
+| `DATA-RENEG-01` | RENEG successor reconciliation (`E16`, `W06`; proposed, #49): match at exactly 0.005 accepted and 0.0051 rejected; missing successor; two successors; successor in the next month or another currency; successor whose predecessor ended `FULL`; segment change accepted with `W06`; `RENEG` outside the data window not reconciled, and a successor originated before or after the window not reverse-linked | Hand construction | `exact` | Registered |
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Registered |
 | `DATA-PIT-02` | Leakage: changing information after an origin leaves the point-in-time view at that origin unchanged; negative control without the filter | Property test | `exact` | Registered |
 | `DATA-RECON-01` | Reconciliation against user control totals; a mismatch rejects the import | Hand construction | `abs 0.005`; `exact` counts | Registered |

@@ -26,7 +26,7 @@ Calibration, independent challenge and acceptance are distinct and identifiable:
 
 | Area | Minimum independent checks |
 | --- | --- |
-| Data import | Every validation code, first-error ordering, balance identity at its tolerance, event/flow consistency, reconciliation totals, fingerprint, all-or-nothing rejection |
+| Data import | Every validation code, first-error ordering, balance identity at its tolerance, event/flow consistency, RENEG successor reconciliation (proposed, #49), reconciliation totals, fingerprint, all-or-nothing rejection |
 | CPR/SMM | Conversion both ways, balance weighting, partial/full split, exits per decisions D4 and D5, multi-month compounding |
 | Rate incentive | Lag, margin, penalty annualisation, remaining term, curve interpolation and extrapolation |
 | `PM0` | Equals the realised CPR of the estimation window |
@@ -76,7 +76,7 @@ Each needs at least one case with a hand-derived or independently computed resul
 - each penalty type, and remaining term below one year;
 - `RESET` loans at `fixed_until`, `FLOAT` loans at reset;
 - loans past maturity, gaps, censored disappearances and loans in their first month;
-- `RENEG` chains, `DEFAULT` and `SALE` exits;
+- `RENEG` chains, including a successor at the 0.005 boundary, a missing or duplicated successor and a segment change (proposed, #49), `DEFAULT` and `SALE` exits;
 - non-zero `other_change`;
 - very small and very large balances within the parse limits; leap years and month ends;
 - Tier 1 in a currency other than the loans, `PV_BASE <= 0` for duration, and cash flows exactly on a bucket boundary (#72).
