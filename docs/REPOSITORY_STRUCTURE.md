@@ -24,7 +24,7 @@ The dependency direction is **Excel adapter → public facade → calculation co
 - `tests/modules/`: `TEST_` procedures may test core directly; exclude tests from production packaging.
 - Examples call only the supported facade.
 
-These are design/review rules, not claims of an implemented VBA boundary checker. Introduce a reviewed `docs/PUBLIC_API.txt` with the first facade, listing normalized supported signatures rather than every Public declaration.
+These are design/review rules, not claims of an implemented VBA boundary checker. [`docs/PUBLIC_API.txt`](PUBLIC_API.txt) lists the supported facade signatures, not every Public declaration (#39).
 
 ## Units and provenance
 
