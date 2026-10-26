@@ -27,4 +27,31 @@ The full gate includes the portable baseline, duplicate-key-safe YAML parsing, i
 
 Dependabot checks GitHub Actions weekly on Monday, targets the active release branch (`release/0.2.0`, enforced exactly by `ACTIVE_RELEASE_BRANCH` in `tools/check_config.py`; change both together), assigns danielep71 and applies ci/P3. GitHub reads the Dependabot configuration only from main, so a new target takes effect only after integration into main. At most five dependency PRs remain open; updates require review and passing checks, never automatic merge. Python/tool pins are maintained through reviewed changes to the requirements file and workflow.
 
+## Workbook build
+
+The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK_CONTRACT.md), decision of #43). The tools are build tooling only; the workbook never depends on them.
+
+| Tool | Runs on | Does |
+| --- | --- | --- |
+| `workbook_layout.py` | Any | The sheets, CodeNames, tables, settings and defined names of the workbook contract, as data |
+| `build_template.py` | Any, with `requirements-build.txt` | Generates the macro-free `.xlsx` template of a `production` or `test` build; refuses outputs in the checkout outside `build/` and `out/` |
+| `components.py stage` | Any, Git | Lists the components of a build from the commit object, checks prefixes, `VB_Name`, ASCII and name clashes, and writes `manifest.json` with CRLF copies |
+| `components.py compare` | Any | Compares an export with a manifest: missing, extra or changed components, code in document modules and non-default references fail |
+| `Build-Workbook.ps1` | Windows Excel | Stage 1: stages, generates the template, imports the components with macros disabled, saves, exports again and compares; writes the `.xlsm` and its `.build.json` record only on `PASS` |
+| `Export-Workbook.ps1` | Windows Excel | Stage 6: exports every component and the reference names of a saved workbook into a new folder, without saving it |
+
+The **test build** adds `tests/modules/` (`TEST_`) and the `Tests` sheet; the **production build** excludes them and `examples/`. Source folders map to prefixes: `src/core/` `CORE_`, `src/modules/` `PREPAY_`, `src/workbook/` `WB_`, `tests/modules/` `TEST_`; `src/classes/` holds `.cls` files. UserForms are rejected until a reviewed `.frx` binary exception exists. VBA source must be ASCII, because Git holds UTF-8 and the VBE imports Windows-1252.
+
+On Windows, from a clean checkout of the candidate commit:
+
+```powershell
+python -m pip install -r tools/requirements-build.txt
+powershell.exe -NoProfile -File .\tools\Build-Workbook.ps1 -Build Test -OutputPath C:\Work\prepay-test.xlsm
+powershell.exe -NoProfile -File .\tools\Export-Workbook.ps1 -WorkbookPath C:\Work\prepay-test.xlsm -OutputFolder C:\Work\export
+python tools/components.py stage --build test --commit HEAD --out C:\Work\stage
+python tools/components.py compare --manifest C:\Work\stage\manifest.json --export C:\Work\export
+```
+
+Importing and exporting need *Trust access to the VBA project object model*. The scripts never change it or any macro setting; when access is refused they stop. Record in the [Excel evidence](../docs/EXCEL_EVIDENCE.md) whether it had to be enabled and that it was turned off afterwards. Offline tests cover the layout, staging and comparison logic and the generated template's sheets, CodeNames and names; the PowerShell scripts have no automated test and run only on a real Excel host. A tool `PASS` is not compile, run or numerical evidence.
+
 Metadata tests mock GitHub; normal local checks do not write issues. The live metadata workflow uses GitHub's scoped token and the explicit `ISSUE_MILESTONE_NUMBER` repository variable. See [governance](../docs/GOVERNANCE.md).

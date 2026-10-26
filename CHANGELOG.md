@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- Workbook build tooling (#43): `tools/workbook_layout.py`, `tools/build_template.py` (macro-free template generated at build time, XlsxWriter pinned in `tools/requirements-build.txt`), `tools/components.py` (stage and compare), `tools/Build-Workbook.ps1` and `tools/Export-Workbook.ps1`, with offline tests and the production and test builds. Named in Excel evidence stages 1 and 6, which now both record the VBA project trust exception. Not run in Excel; no VBA component exists yet (#42).
 - Workbook contract (#38): sheet order, names and CodeNames, defined names, input, parameter, result and diagnostics areas, operations, staleness, build components and file access, with decisions W1–W10, accepted by the owner on 2026-10-26. After review of #83, no table anchor collides with a status name, and a failure clears only result areas. No workbook, template or VBA exists.
 - RENEG successor reconciliation (#49): decision D11 amending D4 and D6, accepted by the owner on 2026-10-26; error `E16`, warning `W06` and case `DATA-RENEG-01`. The reverse link is checked only for successors originated inside the data window (review of #79). Nothing implemented.
 - EVE sensitivity and repricing-gap contracts (#72): decisions M12–M18 and D10, accepted by the owner on 2026-10-21; source `REG-5`, validation rows and registered cases. Sources unverified; nothing implemented. Review follow-up names the measure weighted average repricing time (including principal repricing at the next reset), and computes EVE, worst scenarios, ratios and indicators separately per labelled CPR layer.
@@ -30,6 +31,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Changed
 
+- Workbook contract layout (#43): the tables of a sheet sit side by side from column C, so a growing table cannot overwrite the one below it; found while generating the template.
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
 - Release branches follow milestones: one `release/<milestone version>` branch per milestone is the integration target for task PRs and Dependabot. Task PRs are squash-merged into it; the owner integrates it into main with a merge commit, and it is levelled with main after each integration. `release/0.1.0` served v0.1.0 - Repo setup and is retired; `release/0.2.0`, created from main at `14a45c8` on 2026-10-21, is active for v0.2.0 - Prototype setup (#59). No release, tag or version is implied.
 - Upgraded pinned actionlint to 1.7.12 for current environment syntax (#11).

@@ -18,6 +18,6 @@ The command validates repository files/configuration, runs metadata regression t
 
 Future runtime development targets **Windows Excel 64-bit**, using default VBA, Excel, Office and OLE Automation references. No Excel certification exists yet. 32-bit is untested and uncertified; Mac and Excel web are not supported targets. Avoid runtime Python/R, external services and non-default COM references without a reviewed design.
 
-Import, template/build and harness instructions will arrive with implementation. Do not change macro security or trust settings for today's checks.
+The workbook build and export tools are described in the [tooling guide](tools/README.md#workbook-build); they need Windows Excel and have not yet been run there. Harness instructions arrive with the harness (#42). Do not change macro security or trust settings for today's checks.
 
 Follow [house style](docs/VBA_HOUSE_STYLE.md) and [architecture](docs/REPOSITORY_STRUCTURE.md). Git uses CRLF working-tree VBA/Windows scripts and LF cross-platform text. VBE encoding is not forced to UTF-8 without round-trip evidence. Keep generated output outside committed source.

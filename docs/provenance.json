@@ -56,6 +56,15 @@
         "docs/methodology/TEST_CASES.md",
         "docs/EXCEL_EVIDENCE.md"
       ]
+    },
+    {
+      "repository": "https://github.com/danielep71/K-IRRBB-Prepayment_Models",
+      "reference_revision": "3084e883bbd3f288b9c530e8783c79017b4c9cd6",
+      "treatment": "Workbook template generator and Excel build script adapted from the prototype branch (#19): visual identity (bands, palette, column C layout) and the Excel COM import approach. The prototype's visual identity used the K-SACCR template of https://github.com/danielep71/VBA-SACCR-Toolkit as a visual reference only; no SACCR code or template content was copied (owner clarification of 2026-10-20). Sheets, names, tables, build kinds and checks rewritten to the workbook contract (#38).",
+      "files": [
+        "tools/build_template.py",
+        "tools/Build-Workbook.ps1"
+      ]
     }
   ]
 }
