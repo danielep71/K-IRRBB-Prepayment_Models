@@ -12,7 +12,7 @@ Include exact SHA, affected file, impact, prerequisites and a minimal synthetic 
 
 Static checks and drift detection are read-only. Label reconciliation and issue metadata automation use issue-write permissions on trusted events. Pull-request code must not receive write credentials. Actions use SHA pins; checkouts do not persist credentials. The daily traffic workflow alone requests the main-only `analytics` environment and its `TRAFFIC_TOKEN` to read GitHub traffic. Its built-in token writes isolated traffic history and conditional alert issues. The environment uses `deployment: false`; see [traffic controls](docs/TRAFFIC.md).
 
-Main has no VBA runtime or importer; its only approved binary is a digest-pinned branding PNG. Prototype and future executable code must preserve approved macro controls and document any new file/network/COM access. Never weaken Excel security automatically.
+Main holds the first VBA modules (rate conversions and a test harness) with no importer and no file, network or COM access; its only approved binary is a digest-pinned branding PNG. Prototype and future executable code must preserve approved macro controls and document any new file/network/COM access. Never weaken Excel security automatically.
 
 Use synthetic data only. No borrower histories, client/employer records, proprietary methods or vendor source belong in this public repository. Static checks are not a secret scanner or confidentiality guarantee.
 

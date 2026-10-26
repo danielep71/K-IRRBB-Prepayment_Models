@@ -1,9 +1,9 @@
 # VBA house style
 
-Requirements for future source; no VBA exists on main yet.
+Requirements for all VBA source. The first modules (#42) have not yet been compiled in Excel.
 
 - Use Option Explicit, four-space indentation and typed variables. Role prefixes: CORE_, PREPAY_, WB_, TEST_. Core standard modules use Option Private Module.
-- State units, bounds, outputs, assumptions and failure behaviour at public boundaries. Introduce the supported-signature manifest with the first facade.
+- State units, bounds, outputs, assumptions and failure behaviour at public boundaries. List every supported facade signature in [`docs/PUBLIC_API.txt`](PUBLIC_API.txt).
 - Keep core independent of Excel/UI. Avoid implicit coercion, locale-dependent parsing, unqualified worksheet references and hidden unit conversion.
 - Validate before writing outputs; invalidate stale results on failure. Never present partial results as current.
 - Capture primary failure before cleanup. Restore only state owned by the operation and report cleanup failure separately. Avoid broad On Error Resume Next.

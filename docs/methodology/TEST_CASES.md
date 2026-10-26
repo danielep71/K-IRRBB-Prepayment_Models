@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted by the owner on 2026-10-21 (issue #15). Every case is `Registered`: no fixture, expected file, reference script or VBA test exists.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted by the owner on 2026-10-21 (issue #15). `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)` (#42); every other case is `Registered`. No fixture, expected file or reference script exists, and no case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -44,8 +44,8 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `RATE-CONV-01` | `SMM -> CPR -> SMM` and `CPR -> SMM -> CPR` round trips on a grid including 0, 1e-8, 0.02, 0.5, 0.999999 and 1 | Independent script using `log1p`/`expm1` | `rel 1e-12` | Registered |
-| `RATE-CONV-02` | The worked check of the model contracts: `A = 99,000`, `SMM = 2,000 / 99,000`, `CPR = 1 - (1 - SMM)^12` | Hand computation and independent script | `abs 1e-12` | Registered |
+| `RATE-CONV-01` | `SMM -> CPR -> SMM` and `CPR -> SMM -> CPR` round trips on a grid including 0, 1e-8, 0.02, 0.5, 0.999999 and 1. At SMM 0.999999 the CPR, `1 - 1e-72`, rounds to 1 in double precision, so no round trip exists; that point checks `CPR = 1` exactly | Independent script using `log1p`/`expm1` | `rel 1e-12` | Built (VBA) |
+| `RATE-CONV-02` | The worked check of the model contracts: `A = 99,000`, `SMM = 2,000 / 99,000`, `CPR = 1 - (1 - SMM)^12` | Hand computation and independent script; the VBA test's expected values come from Python `decimal` at 50 digits (2026-10-26), recorded in `tests/modules/TEST_Rates.bas` until #41 adds the expected file | `abs 1e-12` | Built (VBA) |
 | `RATE-POOL-01` | Pool SMM is `sum P / sum A`, not the mean of loan SMMs; `SMM = SMM_partial + SMM_full`; `A <= 0` excluded; a positive `other_change` counted in `A` | Hand computation on three loans with different balances | `abs 1e-12` | Registered |
 | `RATE-POOL-02` | `DEFAULT` and `SALE` excluded from numerator and denominator; `RENEG` excluded by default, and when the run setting includes it, `P = -other_change` reported as `SMM_reneg` | Hand computation | `abs 1e-12` | Registered |
 | `RATE-PERIOD-01` | Realised CPR over `n` months compounds monthly SMM; never the average of monthly CPRs | Hand computation over 3 and 12 months | `abs 1e-12` | Registered |
