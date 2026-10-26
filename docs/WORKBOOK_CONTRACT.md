@@ -10,7 +10,7 @@ This document is authoritative for the layout of the future analysis workbook: s
 - **Datasets never on worksheets.** The three input files are streamed by VBA file input into memory (data decision D1). Worksheets hold run settings, behavioural assumptions, lineage, findings, reconciliation, parameter sets, results and diagnostics only.
 - **No model formulas on sheets.** Every calculated value is written by VBA through the facade. Toolkit-written areas contain values only; input areas use data validation only. Conditional formats and charts may read written values.
 - **Adapters own the sheets.** Only `WB_` modules in `src/workbook/` read or write worksheets. They address sheets by CodeName and ranges by defined name, never by tab name or hard-coded address. `CORE_` and `PREPAY_` modules never touch a workbook object.
-- **No partial results.** An operation validates first, calculates in memory, then clears and writes all of its output areas. On failure it writes none of them, clears what it owns and marks them `STALE`; earlier results are never presented as current.
+- **No partial results.** An operation validates first, calculates in memory, then clears and writes all of its result areas. On failure it writes none of them and marks them `FAILED`; earlier results are never presented as current. [Status and staleness](#status-and-staleness) sets which areas a failure clears and which it keeps.
 
 ## Sheets
 
@@ -51,7 +51,7 @@ All sheets share one layout, following the prototype template of #19, whose visu
 
 - All names are workbook-scoped, refer to one cell in this workbook with an absolute reference, and are visible (W2). External references, relative references, hidden names and names created by users for the toolkit are not allowed.
 - **Scalar settings:** `cfg_<code>`, on the value cell of the setting row, for every code in [Settings](#settings).
-- **Table anchors:** `<Sheet>_<Table>`, on the first header cell, for every table below.
+- **Table anchors:** `<Sheet>_<Table>`, on the first header cell, for every table below. No table is named `Status`, so a table anchor never collides with a `<Sheet>_Status` name.
 - **Workbook state:** `Run_Status`, `Run_ID`, `Run_Operation`, `Run_Timestamp`, `Run_Commit` on `Log`, and `Build_Commit` on `README`.
 - The builder creates every name. Before an operation, the adapter checks that each name exists and points to the expected sheet; a missing or moved name stops the operation before any calculation.
 
@@ -104,7 +104,7 @@ Table `Controls_Totals`, optional, one row per (`as_of_date`, `segment`, `curren
 | `Findings` | `Findings_Summary`, `Findings_Rows` | Import, every run | Count per code; then one row per finding in the contract order: code, file, line, key, message. At most 100,000 rows are listed; the summary always has every count (W4) |
 | `Reconciliation` | `Reconciliation_Totals`, `Reconciliation_Controls` | Import | Totals per month end, segment and currency; control-total differences |
 | `Parameters` | `Parameters_Sets`, `Parameters_Values` | Calibration | One header row per set (every item of a [parameter set](methodology/MODEL_CONTRACTS.md#parameter-and-scenario-outputs)) and one row per value with unit and layer. Append only (W5) |
-| `Calibration` | `Calibration_Status`, `Calibration_Buckets`, `Calibration_Residuals` | Calibration | Optimiser status, iterations and objective; observed vs fitted SMM and CPR per bucket; weighted R²; residuals by age, calendar month and cohort; `PM0` comparison; "not estimated" segments with the reason |
+| `Calibration` | `Calibration_Optimiser`, `Calibration_Buckets`, `Calibration_Residuals` | Calibration | Optimiser status, iterations and objective; observed vs fitted SMM and CPR per bucket; weighted R²; residuals by age, calendar month and cohort; `PM0` comparison; "not estimated" segments with the reason |
 | `Backtest` | `Backtest_Scores`, `Backtest_Outcome` | Backtest | Bias, MAE and cumulative prepaid error per segment, currency, origin and horizon, with `INCOMPLETE` and `ZERO_REALISED` pairs and their counts; V3 pass or fail |
 | `CashFlows` | `CashFlows_Table` | Projection | One row per segment, currency, CPR layer, scenario and month: opening, interest, scheduled, prepaid, repricing, closing, SMM, CPR, parameter-set ID |
 | `EVE` | `EVE_Scenarios`, `EVE_Summary` | Projection | PV and ΔEVE per segment, currency, layer and scenario, and in total per currency; worst ΔEVE, ratio and indicator in the Tier 1 currency with the Tier 1 amount used, labelled "loan-book indicator; not the supervisory outlier test" (M16) |
@@ -124,7 +124,7 @@ Every result row that depends on parameters carries the parameter-set ID; layers
 | `WB_Backtest` | In-memory dataset; the parameter sets of `calibration_run_id` | `Backtest`, `Findings`, `Log` | A test window |
 | `WB_Project` | In-memory dataset; the parameter sets of `calibration_run_id`; `Settings`, `Assumptions`, `Scenarios` | `CashFlows`, `EVE`, `Gap`, `Measures`, `Findings`, `Log` | Current import |
 | `WB_Export` | The parameter sets of `calibration_run_id` or the current results | CSV in a user-selected folder (M10); `Log` | Current results |
-| `WB_ClearOutputs` | — | Clears every output area except `Parameters` and `Log`; marks them `STALE` | — |
+| `WB_ClearOutputs` | — | Clears every result area and `Findings`; marks them `STALE`. Keeps `Import`, `Reconciliation`, `Parameters` and `Log` | — |
 
 Names are proposed (W6) and become binding with the facade register (#39). Every entry point saves `Calculation`, `EnableEvents`, `ScreenUpdating` and `DisplayAlerts` and restores them on every exit path, as stage 3 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) checks.
 
@@ -135,7 +135,11 @@ Names are proposed (W6) and become binding with the facade register (#39). Every
 `Run_Status` and each `<Sheet>_Status` hold one of `CURRENT`, `STALE` or `FAILED`, with the run ID and timestamp.
 
 - A successful import makes `Import`, `Findings` and `Reconciliation` `CURRENT` and every result sheet `STALE`. A rejected import keeps the previously accepted dataset and lineage and marks every result sheet `STALE`, as `DATA-REJECT-01` requires.
-- A successful operation makes the sheets it wrote `CURRENT`. A failed one writes none of its areas, clears them and marks them `FAILED`.
+- Areas fall into four kinds, each with its own failure rule:
+  - **Result areas** (`Calibration`, `Backtest`, `CashFlows`, `EVE`, `Gap`, `Measures`): a successful operation replaces those it owns and marks them `CURRENT`; a failed one clears them and marks them `FAILED`.
+  - **Dataset areas** (`Import`, `Reconciliation`): replaced only by a successful import; a failed import or any other failed operation leaves them unchanged.
+  - **`Findings`**: rewritten by every operation, successful or not, so the findings that explain a failure are always shown.
+  - **Append-only areas** (`Parameters`, `Log`): never cleared, edited or deleted by the toolkit. A failed calibration appends no parameter set; every operation, including a failed one, appends one `Log` row.
 - The workbook has no worksheet event handlers (W9). A result therefore records the fingerprint of the settings, assumptions and scenarios it used; every operation compares it with the current inputs and marks the result `STALE` on any difference. An edit made after a run is flagged at the next operation, not when it is typed.
 
 ## Build components
