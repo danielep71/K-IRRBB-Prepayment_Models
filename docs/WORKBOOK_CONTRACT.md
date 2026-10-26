@@ -43,7 +43,7 @@ The toolkit never writes an input sheet or `README`. Users never edit an output,
 All sheets share one layout, following the prototype template of #19, whose visual identity uses K-SACCR as a visual reference only; #43 records that reference in `docs/provenance.json`.
 
 - Row 1 carries the product band and row 2 the sheet title. Row 4 of every output, parameter and diagnostics sheet is the status line, named `<Sheet>_Status` ([Status and staleness](#status-and-staleness)).
-- Every table starts in column C. Its first header cell carries a workbook-scoped name `<Sheet>_<Table>`; data rows start on the row below and run to the last used row.
+- The tables of a sheet share one top row and sit side by side: the first starts in column C and each next one after one empty column, so every table can grow downward without overwriting another. Its first header cell carries a workbook-scoped name `<Sheet>_<Table>`; data rows start on the row below and run to the last used row. On `Log`, the `Run_*` cells sit above `Log_Runs`.
 - Input cells are visually distinct from output cells. Gridlines are off and print areas are set by the builder.
 - A table that would exceed 1,048,576 rows fails the operation before anything is written; it is never truncated.
 
@@ -154,7 +154,7 @@ Stage 1 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) requires every co
 | `tests/modules/` (`TEST_`) and the `Tests` sheet | | ✅ |
 | `examples/` | | |
 
-The builder (#43) holds the expected component list of each build and fails on any missing or extra component; the export/compare tool checks the same list in stage 6. CodeNames are set by the builder and checked at build time.
+`tools/components.py stage` derives the expected component list of each build from the commit, and `tools/Build-Workbook.ps1` fails on any missing, extra or changed component, on code in a document module and on a non-default reference; `tools/Export-Workbook.ps1` and `tools/components.py compare` check the same list in stage 6. CodeNames and defined names are set by `tools/build_template.py` from `tools/workbook_layout.py`, which offline tests keep in line with this contract ([tooling](../tools/README.md#workbook-build)).
 
 ## File access
 
