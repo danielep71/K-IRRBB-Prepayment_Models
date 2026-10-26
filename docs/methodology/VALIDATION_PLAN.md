@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** A VBA test harness exists (#42) but has not run in Excel; no fixture, reference script, workbook build or Excel record exists, and every check below is planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
+Status: **accepted on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** A VBA test harness exists (#42) but has not run in Excel; no fixture, reference script, workbook build or Excel record exists, and every check below is planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
