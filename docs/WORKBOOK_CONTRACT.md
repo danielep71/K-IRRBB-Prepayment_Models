@@ -1,6 +1,6 @@
 # Workbook contract
 
-Status: **proposed in issue #38; decisions W1–W10 are not accepted.** No workbook, template, builder or VBA exists. This is a specification only; nothing here is built, compiled or run.
+Status: **accepted by the owner on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed. No workbook, template, builder or VBA exists. This is a specification only; nothing here is built, compiled or run.
 
 This document is authoritative for the layout of the future analysis workbook: sheet order, names and CodeNames, defined names, the input, parameter, result and diagnostics areas, and which areas the toolkit writes. What is calculated is specified in the [data contract](methodology/DATA_CONTRACT.md) and the [model contracts](methodology/MODEL_CONTRACTS.md); the code boundaries are in [repository structure](REPOSITORY_STRUCTURE.md); what a real Excel run must record is in [Excel evidence](EXCEL_EVIDENCE.md).
 
@@ -126,7 +126,7 @@ Every result row that depends on parameters carries the parameter-set ID; layers
 | `WB_Export` | The parameter sets of `calibration_run_id` or the current results | CSV in a user-selected folder (M10); `Log` | Current results |
 | `WB_ClearOutputs` | — | Clears every result area and `Findings`; marks them `STALE`. Keeps `Import`, `Reconciliation`, `Parameters` and `Log` | — |
 
-Names are proposed (W6) and become binding with the facade register (#39). Every entry point saves `Calculation`, `EnableEvents`, `ScreenUpdating` and `DisplayAlerts` and restores them on every exit path, as stage 3 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) checks.
+Names are fixed by W6; the facade signatures they call are recorded in the facade register (#39). Every entry point saves `Calculation`, `EnableEvents`, `ScreenUpdating` and `DisplayAlerts` and restores them on every exit path, as stage 3 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) checks.
 
 **In-memory dataset (W7).** The accepted dataset lives in memory for the Excel session only; the workbook keeps its lineage, not its rows. After the workbook is reopened or the VBA project is reset, operations that need the dataset stop and ask for a new import. A re-import of the same files is recognised by the SHA-256 fingerprints in `Import_Lineage`.
 
@@ -158,22 +158,22 @@ The builder (#43) holds the expected component list of each build and fails on a
 
 ## File access
 
-Under W10, the workbook reads exactly three user-selected CSV files, read-only, during `WB_Import`, and writes CSV files only to a user-selected folder during `WB_Export`. It never stores a directory path, opens other workbooks, uses the network or non-default COM references, or changes macro or Trust Center settings. Acceptance of W10 is the agreement that [SECURITY.md](../SECURITY.md) and the [data contract](methodology/DATA_CONTRACT.md#dataset-size) require before file input is implemented.
+Under W10, the workbook reads exactly three user-selected CSV files, read-only, during `WB_Import`, and writes CSV files only to a user-selected folder during `WB_Export`. It never stores a directory path, opens other workbooks, uses the network or non-default COM references, or changes macro or Trust Center settings. W10, accepted on 2026-10-26, is the agreement that [SECURITY.md](../SECURITY.md) and the [data contract](methodology/DATA_CONTRACT.md#dataset-size) require before file input is implemented.
 
-## Open decisions
+## Decisions
 
-| # | Decision | Proposal | Status |
+| # | Decision | Outcome | Status |
 | ---: | --- | --- | --- |
-| W1 | Sheet set and order | The 17 sheets above, all visible; `Tests` in the test build only | Proposed (#38) |
-| W2 | Defined names | Workbook-scoped, absolute, visible; `cfg_<code>` for settings, `<Sheet>_<Table>` for tables, `<Sheet>_Status`, `Run_*` and `Build_Commit` | Proposed (#38) |
-| W3 | Fixed contract values | Code constants recorded in outputs, not editable settings | Proposed (#38) |
-| W4 | Findings volume | At most 100,000 listed rows; complete counts per code | Proposed (#38) |
-| W5 | Parameter sets in the workbook | Append-only `Parameters` sheet; the toolkit never edits or deletes a set; a result whose set is missing is `STALE` | Proposed (#38) |
-| W6 | Entry points | `WB_Import`, `WB_Calibrate`, `WB_Backtest`, `WB_Project`, `WB_Export`, `WB_ClearOutputs`; harness entry point named by #42 | Proposed (#38) |
-| W7 | Dataset persistence | In memory for the session only; re-import after reopening, recognised by fingerprint | Proposed (#38) |
-| W8 | Test build | A separate build with `tests/modules/` and the `Tests` sheet; production excludes both | Proposed (#38) |
-| W9 | Event handlers | None; staleness detected by input fingerprints at the next operation | Proposed (#38) |
-| W10 | File access | Three user-selected CSV inputs, read-only; CSV exports to a user-selected folder; nothing else | Proposed (#38) |
+| W1 | Sheet set and order | The 17 sheets above, all visible; `Tests` in the test build only | Accepted 2026-10-26 (#38) |
+| W2 | Defined names | Workbook-scoped, absolute, visible; `cfg_<code>` for settings, `<Sheet>_<Table>` for tables, `<Sheet>_Status`, `Run_*` and `Build_Commit` | Accepted 2026-10-26 (#38) |
+| W3 | Fixed contract values | Code constants recorded in outputs, not editable settings | Accepted 2026-10-26 (#38) |
+| W4 | Findings volume | At most 100,000 listed rows; complete counts per code | Accepted 2026-10-26 (#38) |
+| W5 | Parameter sets in the workbook | Append-only `Parameters` sheet; the toolkit never edits or deletes a set; a result whose set is missing is `STALE` | Accepted 2026-10-26 (#38) |
+| W6 | Entry points | `WB_Import`, `WB_Calibrate`, `WB_Backtest`, `WB_Project`, `WB_Export`, `WB_ClearOutputs`; harness entry point named by #42 | Accepted 2026-10-26 (#38) |
+| W7 | Dataset persistence | In memory for the session only; re-import after reopening, recognised by fingerprint | Accepted 2026-10-26 (#38) |
+| W8 | Test build | A separate build with `tests/modules/` and the `Tests` sheet; production excludes both | Accepted 2026-10-26 (#38) |
+| W9 | Event handlers | None; staleness detected by input fingerprints at the next operation | Accepted 2026-10-26 (#38) |
+| W10 | File access | Three user-selected CSV inputs, read-only; CSV exports to a user-selected folder; nothing else | Accepted 2026-10-26 (#38) |
 
 ## Not covered
 
