@@ -133,6 +133,8 @@ try {
     $Comparison | ForEach-Object { Write-Host $_ }
     if ($CompareExit -ne 0) { throw 'The built workbook does not match the commit; nothing was written to OutputPath.' }
 
+    $OutputDir = Split-Path -Parent $OutputPath
+    if (-not (Test-Path -LiteralPath $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir | Out-Null }
     Copy-Item -LiteralPath $Built -Destination $OutputPath -Force
     $Record = [ordered]@{
         commit = $Commit
