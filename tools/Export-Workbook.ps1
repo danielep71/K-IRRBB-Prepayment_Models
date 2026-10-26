@@ -4,8 +4,10 @@ Export every VBA component and reference of a saved workbook into a new folder.
 
 .DESCRIPTION
 Opens the workbook read-only with macros disabled, exports each VBA component
-(standard modules as .bas, class and document modules as .cls) and writes the
-names of the VBA project references to references.json. The workbook is closed
+(standard modules as .bas, class and document modules as .cls), writes each
+component's VBA type to components.json, so that document modules can be told
+from class modules, and writes the names of the VBA project references to
+references.json. The workbook is closed
 without saving. Compare the folder with a build manifest using
 `python tools/components.py compare`. This is stage 6 of docs/EXCEL_EVIDENCE.md.
 
@@ -60,11 +62,14 @@ try {
         throw 'Excel refused access to the VBA project. "Trust access to the VBA project object model" is off; ' +
               'this script does not change it.'
     }
+    $Types = [ordered]@{}
     foreach ($Component in $Project.VBComponents) {
         $Extension = $Extensions[[int]$Component.Type]
         if ($null -eq $Extension) { throw "Unsupported component type $($Component.Type): $($Component.Name)" }
         $Component.Export((Join-Path $OutputFolder ($Component.Name + $Extension)))
+        $Types[[string]$Component.Name] = [int]$Component.Type
     }
+    [System.IO.File]::WriteAllText((Join-Path $OutputFolder 'components.json'), (ConvertTo-Json -InputObject $Types), $Utf8)
     $References = @(foreach ($Reference in $Project.References) { [string]$Reference.Name })
     $Json = ConvertTo-Json -InputObject $References
     [System.IO.File]::WriteAllText((Join-Path $OutputFolder 'references.json'), $Json, $Utf8)

@@ -36,9 +36,9 @@ The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK
 | `workbook_layout.py` | Any | The sheets, CodeNames, tables, settings and defined names of the workbook contract, as data |
 | `build_template.py` | Any, with `requirements-build.txt` | Generates the macro-free `.xlsx` template of a `production` or `test` build; refuses outputs in the checkout outside `build/` and `out/` |
 | `components.py stage` | Any, Git | Lists the components of a build from the commit object, checks prefixes, `VB_Name`, ASCII and name clashes, and writes `manifest.json` with CRLF copies |
-| `components.py compare` | Any | Compares an export with a manifest: missing, extra or changed components, code in document modules and non-default references fail |
+| `components.py compare` | Any | Compares an export with a manifest: missing, extra or changed components, a wrong VBA type (a sheet's module must be a document module), code in document modules and non-default references fail |
 | `Build-Workbook.ps1` | Windows Excel | Stage 1: stages, generates the template, imports the components with macros disabled, saves, exports again and compares; writes the `.xlsm` and its `.build.json` record only on `PASS` |
-| `Export-Workbook.ps1` | Windows Excel | Stage 6: exports every component and the reference names of a saved workbook into a new folder, without saving it |
+| `Export-Workbook.ps1` | Windows Excel | Stage 6: exports every component, its VBA type and the reference names of a saved workbook into a new folder, without saving it |
 
 The **test build** adds `tests/modules/` (`TEST_`) and the `Tests` sheet; the **production build** excludes them and `examples/`. Source folders map to prefixes: `src/core/` `CORE_`, `src/modules/` `PREPAY_`, `src/workbook/` `WB_`, `tests/modules/` `TEST_`; `src/classes/` holds `.cls` files. UserForms are rejected until a reviewed `.frx` binary exception exists. VBA source must be ASCII, because Git holds UTF-8 and the VBE imports Windows-1252.
 
