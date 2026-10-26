@@ -16,7 +16,7 @@ import hashlib
 import re
 from dataclasses import dataclass, field
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, Inexact, localcontext
 from pathlib import Path
 
 LOANS, PANEL, RATES = 'loans.csv', 'loan_panel.csv', 'market_rates.csv'
@@ -36,6 +36,8 @@ PENALTY_TYPES = {'NONE', 'PCT', 'MONTHS_INTEREST'}
 EVENTS = {'NONE', 'PARTIAL', 'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TERMINAL = {'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TOLERANCE = Decimal('0.005')    # decision D9
+# Arithmetic runs in a wide context that traps rounding, so a result is exact or the reader stops.
+PRECISION = 1000
 
 ID_RE = re.compile(r'[A-Za-z0-9_-]{1,32}')
 CCY_RE = re.compile(r'[A-Z]{3}')
@@ -125,6 +127,14 @@ def sha256_file(path: Path) -> str:
 # ---------------------------------------------------------------------------
 
 def read_import(folder: Path, window_start: date, window_end: date, allowlist: set[str]) -> Result:
+    """Read one import; raise decimal.Inexact rather than round an amount."""
+    with localcontext() as ctx:
+        ctx.prec = PRECISION
+        ctx.traps[Inexact] = True
+        return _read_import(folder, window_start, window_end, allowlist)
+
+
+def _read_import(folder: Path, window_start: date, window_end: date, allowlist: set[str]) -> Result:
     result = Result()
     rows: dict[str, list[Row]] = {}
     for name in (LOANS, PANEL, RATES):
@@ -224,8 +234,9 @@ def read_import(folder: Path, window_start: date, window_end: date, allowlist: s
     while month <= window_end:
         if month not in present:
             result.errors.append((PANEL, 0, 'E12'))
-        nxt = month.replace(day=1)
-        month = month_end(date(nxt.year + (nxt.month == 12), nxt.month % 12 + 1, 1))
+        if month >= window_end:    # never build the month after 9999-12
+            break
+        month = month_end(date(month.year + (month.month == 12), month.month % 12 + 1, 1))
 
     result.errors.sort(key=lambda e: ((LOANS, PANEL, RATES).index(e[0]), e[1]))
     result.warnings.sort(key=lambda w: ((LOANS, PANEL, RATES).index(w[0]), w[1], w[2]))
@@ -411,7 +422,9 @@ def check_successors(register: dict[str, Row], panel: list[Row], window_start: d
     successors: dict[str, list[Row]] = {}
     for loan in register.values():
         pred = loan.values['predecessor_id']
-        if pred:
+        if pred == loan.values['loan_id']:
+            fail(loan, 'E16')    # D6: a modification continues under a new loan_id
+        elif pred:
             successors.setdefault(pred, []).append(loan)
     reneg = {r.values['loan_id']: r for r in panel if ok(r) and r.values['event'] == 'RENEG'}
     for loan_id, row in reneg.items():

@@ -2,6 +2,7 @@
 import hashlib
 import json
 import sys
+import tempfile
 import unittest
 from datetime import date
 from decimal import Decimal
@@ -60,6 +61,38 @@ class FieldCases(unittest.TestCase):
             self.assertEqual(value, None if item['value'] is None else Decimal(item['value']), item)
         for item in spec['codes']:
             self.assertEqual(item['input'] in CODE_SETS[item['set']], item['valid'], item)
+
+
+class ReaderEdges(unittest.TestCase):
+    """Reader behaviour outside the registered cases (review of #96)."""
+
+    def read(self, loans: list[str], panel: list[str], start: date, end: date) -> reader.Result:
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            files = {reader.LOANS: loans, reader.PANEL: panel,
+                     reader.RATES: [f'{end.isoformat()},EUR_SWAP_60M,EUR,60,0.03']}
+            for name, lines in files.items():
+                text = '\n'.join([','.join(reader.HEADERS[name]), *lines]) + '\n'
+                (folder / name).write_text(text, encoding='ascii')
+            return reader.read_import(folder, start, end, {'EUR'})
+
+    def test_self_link_is_not_a_successor(self) -> None:
+        result = self.read(['L1,MTG_FIX,EUR,2024-01-15,2030-01-15,100,FIXED,,,ANNUITY,1,NONE,,L1'],
+                           ['2024-01-31,L1,0,0.03,0,0,-100,RENEG'], date(2024, 1, 31), date(2024, 1, 31))
+        self.assertFalse(result.accepted)
+        self.assertIn([reader.LOANS, 2, 'E16'], [list(e) for e in result.errors])
+
+    def test_large_amounts_are_not_rounded(self) -> None:
+        big = '10000000000000000000000000000'
+        result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           [f'2024-01-31,L1,{big},0.03,0,0,0,NONE', f'2024-02-29,L1,{big},0.03,0.01,0,0,NONE'],
+                           date(2024, 1, 31), date(2024, 2, 29))
+        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 3, 'E13']])
+
+    def test_window_ending_in_9999(self) -> None:
+        result = self.read(['L1,MTG_FIX,EUR,9999-01-15,9999-12-31,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           ['9999-12-31,L1,0,0.03,1,0,0,MATURITY'], date(9999, 12, 31), date(9999, 12, 31))
+        self.assertTrue(result.accepted, result.errors)
 
 
 class Fingerprints(unittest.TestCase):
