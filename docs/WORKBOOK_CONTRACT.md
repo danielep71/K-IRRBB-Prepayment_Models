@@ -1,12 +1,12 @@
 # Workbook contract
 
-Status: **accepted by the owner on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed. No workbook, template, builder or VBA exists. This is a specification only; nothing here is built, compiled or run.
+Status: **accepted on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed. The template generator and build/export tooling exist (#43, #87/#88). This remains a specification: no Windows Excel build, compilation or run is established, and the first VBA modules are delivered by #91 while workbook adapters remain in #42.
 
 This document is authoritative for the layout of the future analysis workbook: sheet order, names and CodeNames, defined names, the input, parameter, result and diagnostics areas, and which areas the toolkit writes. What is calculated is specified in the [data contract](methodology/DATA_CONTRACT.md) and the [model contracts](methodology/MODEL_CONTRACTS.md); the code boundaries are in [repository structure](REPOSITORY_STRUCTURE.md); what a real Excel run must record is in [Excel evidence](EXCEL_EVIDENCE.md).
 
 ## Principles
 
-- **Built, never committed.** The owner decided on 2026-10-21 (#43) that the macro-free template is generated at build time by a committed builder script and never committed. The builder (#43) creates the template, imports the exported VBA of one commit and saves the `.xlsm` outside the checkout or in a Git-ignored location. No `.xlsx`, `.xlsm` or `.xlsb` file enters Git.
+- **Built, never committed.** The decision recorded on 2026-10-21 (#43) is that the macro-free template is generated at build time by a committed builder script and never committed. The builder (#43) creates the template, imports the exported VBA of one commit and saves the `.xlsm` outside the checkout or in a Git-ignored location. No `.xlsx`, `.xlsm` or `.xlsb` file enters Git.
 - **Datasets never on worksheets.** The three input files are streamed by VBA file input into memory (data decision D1). Worksheets hold run settings, behavioural assumptions, lineage, findings, reconciliation, parameter sets, results and diagnostics only.
 - **No model formulas on sheets.** Every calculated value is written by VBA through the facade. Toolkit-written areas contain values only; input areas use data validation only. Conditional formats and charts may read written values.
 - **Adapters own the sheets.** Only `WB_` modules in `src/workbook/` read or write worksheets. They address sheets by CodeName and ranges by defined name, never by tab name or hard-coded address. `CORE_` and `PREPAY_` modules never touch a workbook object.
