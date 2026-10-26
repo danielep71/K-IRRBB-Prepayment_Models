@@ -1,6 +1,6 @@
 # Model contracts
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 were **accepted by the owner on 2026-10-21 (issue #72)**.
+Status: **accepted on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 were **accepted on 2026-10-21 (issue #72)**.
 
 This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, EVE sensitivity and the repricing gap, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence are in the [validation plan](VALIDATION_PLAN.md).
 
@@ -160,7 +160,7 @@ The toolkit can report the internal-model CPR path and the standardised-multipli
 
 ## EVE sensitivity and repricing gap
 
-Status: **accepted by the owner on 2026-10-21 (issue #72)**, with decisions M12–M18 and data decision D10 as proposed. Nothing here is implemented or validated. Every regulatory figure below is provisional until its source is verified (#45).
+Status: **accepted on 2026-10-21 (issue #72)**, with decisions M12–M18 and data decision D10 as proposed. Nothing here is implemented or validated. Every regulatory figure below is provisional until its source is verified (#45).
 
 The toolkit measures the **loan book's contribution** to the economic value of equity: the present value of the projected cash flows of the loans in the run, per segment and currency and in total per currency. It is not the bank-level supervisory outlier test, which needs every banking-book position, and it does not measure NII (decision M12).
 
