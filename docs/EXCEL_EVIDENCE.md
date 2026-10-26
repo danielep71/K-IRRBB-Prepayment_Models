@@ -1,6 +1,6 @@
 # Excel evidence
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** The builder and export/compare tools (#43) and the first VBA modules and test harness (#42) exist but have not been run in Excel, so every stage below is currently `NOT_RUN`.
+Status: **accepted on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** The builder and export/compare tools (#43) and the first VBA modules and test harness (#42) exist but have not been run in Excel, so every stage below is currently `NOT_RUN`.
 
 This document is authoritative for the Excel evidence record: what a build, compile and test run must capture, how it is bound to one commit, and which outcomes count. Numerical validation is separate and is defined in the [validation plan](methodology/VALIDATION_PLAN.md). Supported hosts are in [installation](../INSTALLATION.md); release gates are in [releasing](../RELEASING.md).
 
