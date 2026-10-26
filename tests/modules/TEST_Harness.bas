@@ -8,9 +8,9 @@ Attribute VB_Name = "TEST_Harness"
 '   the failure-injection path of docs/EXCEL_EVIDENCE.md, stage 4.
 '
 ' ENTRY POINTS
-'   TEST_RunAll        Runs every case and writes the Tests sheet.
-'   TEST_RunInjected   Runs every case with an injected failure in
-'                      INJECTED_CASE and writes the Tests sheet.
+'   TEST_RunAll        Runs every case, writes the Tests sheet and shows the
+'                      summary line in a message box.
+'   TEST_RunInjected   The same with an injected failure in INJECTED_CASE.
 '   TEST_Run           Function behind both; returns the summary line.
 '   TEST_RunCases      Pure runner; returns the case table without touching
 '                      the workbook.
@@ -61,11 +61,11 @@ End Sub
 '------------------------------------------------------------------------------
 
 Public Sub TEST_RunAll()
-    TEST_Run ""
+    Report TEST_Run("")
 End Sub
 
 Public Sub TEST_RunInjected()
-    TEST_Run INJECTED_CASE
+    Report TEST_Run(INJECTED_CASE)
 End Sub
 
 Public Function TEST_Run(Optional ByVal InjectCase As String = "") As String
@@ -90,6 +90,7 @@ Restore:
     Exit Function
 Failed:
     TEST_Run = "FAILED harness error " & Err.Number & ": " & Err.Description
+    MarkFailed TEST_Run
     Resume Restore
 End Function
 
@@ -161,6 +162,22 @@ Errored:
     mInjectActive = False
     Out(Row, 2) = "ERROR"
     Out(Row, 4) = "VBA error " & Err.Number & ": " & Err.Description
+End Sub
+
+Private Sub Report(ByVal Summary As String)
+    'Show the outcome to the operator; a harness failure is never silent.
+    If Left$(Summary, 6) = "FAILED" Then
+        MsgBox Summary, vbCritical, "TEST_Harness"
+    Else
+        MsgBox Summary, vbInformation, "TEST_Harness"
+    End If
+End Sub
+
+Private Sub MarkFailed(ByVal Text As String)
+    'Replace an earlier CURRENT status where the sheet can still be written;
+    'the status cell itself may be what failed, so ignore a second error here.
+    On Error Resume Next
+    ThisWorkbook.Names("Tests_Status").RefersToRange.Value = Text
 End Sub
 
 Private Sub AddFailure(ByVal Text As String)
