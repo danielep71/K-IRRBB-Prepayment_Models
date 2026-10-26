@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- First VBA source and test harness (#42, #39): `CORE_Rates` and the `PREPAY_Rates` facade (SMM and CPR conversions through `log1p`/`expm1`, range errors at the facade), `docs/PUBLIC_API.txt`, and `TEST_Harness` with a case registry, the outcomes `NOT RUN`, `ERROR`, `FAIL` and `PASS`, the entry points `TEST_RunAll` and `TEST_RunInjected`, and `TEST_Rates`. `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`. Not compiled or run in Excel.
 - Workbook build tooling (#43): `tools/workbook_layout.py`, `tools/build_template.py` (macro-free template generated at build time, XlsxWriter pinned in `tools/requirements-build.txt`), `tools/components.py` (stage and compare), `tools/Build-Workbook.ps1` and `tools/Export-Workbook.ps1`, with offline tests and the production and test builds. Named in Excel evidence stages 1 and 6, which now both record the VBA project trust exception. Not run in Excel; no VBA component exists yet (#42).
 - Workbook contract (#38): sheet order, names and CodeNames, defined names, input, parameter, result and diagnostics areas, operations, staleness, build components and file access, with decisions W1–W10, accepted by the owner on 2026-10-26. After review of #83, no table anchor collides with a status name, and a failure clears only result areas. No workbook, template or VBA exists.
 - RENEG successor reconciliation (#49): decision D11 amending D4 and D6, accepted by the owner on 2026-10-26; error `E16`, warning `W06` and case `DATA-RENEG-01`. The reverse link is checked only for successors originated inside the data window (review of #79). Nothing implemented.
@@ -31,6 +32,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Changed
 
+- `RATE-CONV-01` (#42): at SMM 0.999999 the CPR rounds to 1 in double precision, so that grid point checks `CPR = 1` instead of a round trip.
 - Workbook contract layout (#43): the tables of a sheet sit side by side from column C, so a growing table cannot overwrite the one below it; found while generating the template.
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
 - Release branches follow milestones: one `release/<milestone version>` branch per milestone is the integration target for task PRs and Dependabot. Task PRs are squash-merged into it; the owner integrates it into main with a merge commit, and it is levelled with main after each integration. `release/0.1.0` served v0.1.0 - Repo setup and is retired; `release/0.2.0`, created from main at `14a45c8` on 2026-10-21, is active for v0.2.0 - Prototype setup (#59). No release, tag or version is implied.
@@ -39,6 +41,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Fixed
 
+- The component comparison checks VBA types, so a sheet's document module replaced by a standard module of the same name fails (review of #87, #43).
 - Tightened the #30 contract boundaries (#14): E15 rejects every positive excess of prepayment over exposure at input decimal precision, and RENEG requires nonnegative residual principal. Extended the registered boundary cases; no importer or Excel execution is claimed.
 - Forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive (review of #34).
 - The Dependabot check enforces the exact active release branch (review of #34).

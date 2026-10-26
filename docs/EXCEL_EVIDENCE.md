@@ -1,6 +1,6 @@
 # Excel evidence
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** The builder and export/compare tools exist (#43) but have not been run in Excel; there is no VBA component or test harness yet (#42), so every stage below is currently `NOT_RUN`.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **No Excel evidence exists.** The builder and export/compare tools (#43) and the first VBA modules and test harness (#42) exist but have not been run in Excel, so every stage below is currently `NOT_RUN`.
 
 This document is authoritative for the Excel evidence record: what a build, compile and test run must capture, how it is bound to one commit, and which outcomes count. Numerical validation is separate and is defined in the [validation plan](methodology/VALIDATION_PLAN.md). Supported hosts are in [installation](../INSTALLATION.md); release gates are in [releasing](../RELEASING.md).
 
@@ -42,7 +42,7 @@ Any source change after the record invalidates it for the affected components. E
 5. **Cleanup.** Close the workbook without saving into the checkout and record that it was closed. A built workbook is never committed.
 6. **Source round trip.** Export the VBA from the saved workbook into a new folder with `tools/Export-Workbook.ps1` and compare it with the candidate commit with `python tools/components.py compare`, using a manifest staged from the candidate (`python tools/components.py stage`). `PASS`: the workbook holds exactly the components at the candidate commit. If *Trust access to the VBA project object model* had to be enabled for the export, record that and that it was turned off afterwards.
 
-Evidence uses the **test build**, which adds `tests/modules/` and the `Tests` sheet ([workbook contract](WORKBOOK_CONTRACT.md#build-components)). The **production build** of the same commit excludes both and must pass stages 1, 2 and 6 before release. The harness entry point and injection procedure are named here when the harness is delivered (#42).
+Evidence uses the **test build**, which adds `tests/modules/` and the `Tests` sheet ([workbook contract](WORKBOOK_CONTRACT.md#build-components)). The **production build** of the same commit excludes both and must pass stages 1, 2 and 6 before release. The harness entry point is the macro `TEST_RunAll` (module `TEST_Harness`); it writes the `Tests_Cases` table and `Tests_Status`, and its expected result today is `4 of 4 PASS`. The injection procedure is the macro `TEST_RunInjected`, which injects a failure into `RATE-CONV-02`; its expected result is `3 of 4 PASS (injected failure in RATE-CONV-02)`, with `RATE-CONV-02` reported as `FAIL` and its message starting `INJECTED:`. Both macros show the summary line in a message box; a harness error is reported as `FAILED` in the message box and, where the sheet can still be written, in `Tests_Status`, and fails stages 3 and 4.
 
 ## Bitness
 

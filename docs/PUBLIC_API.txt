@@ -1,0 +1,28 @@
+K-IRRBB-Prepayment_Models: supported public facade
+===================================================
+
+Only the signatures below are supported. A Public declaration in any other
+module, including CORE_, WB_ and TEST_ modules, is internal and may change
+without notice. Examples (#44) call only these entry points.
+
+Changing this register:
+- Adding, removing or changing a signature, its units, bounds or failure
+  behaviour needs an issue and review in the same pull request as the code.
+- A change to an existing signature is breaking and is recorded under
+  Changed in CHANGELOG.md.
+- Nothing listed here is validated until an Excel evidence record for the
+  candidate commit says so (docs/EXCEL_EVIDENCE.md).
+
+Error numbers are vbObjectError + n, with the module name as source.
+
+Module PREPAY_Rates (docs/methodology/MODEL_CONTRACTS.md, "CPR and SMM")
+------------------------------------------------------------------------
+Function PREPAY_CprFromSmm(ByVal Smm As Double) As Double
+    CPR = 1 - (1 - SMM)^12. Smm is a monthly decimal rate in [0, 1];
+    returns the annual decimal rate in [0, 1].
+    Raises vbObjectError + 1001 when Smm is outside [0, 1] or not a number.
+
+Function PREPAY_SmmFromCpr(ByVal Cpr As Double) As Double
+    SMM = 1 - (1 - CPR)^(1/12). Cpr is an annual decimal rate in [0, 1];
+    returns the monthly decimal rate in [0, 1].
+    Raises vbObjectError + 1001 when Cpr is outside [0, 1] or not a number.
