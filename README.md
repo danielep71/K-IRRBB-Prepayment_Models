@@ -39,7 +39,7 @@ Apart from the SMM and CPR conversions (#42), not yet run in Excel, this reposit
 | [Installation](INSTALLATION.md) | Current prerequisites and checks |
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
-| [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Accepted sheet, name and output layout (#38); no workbook exists |
+| [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Accepted sheet, name and output layout (#38); template tooling exists, Excel build unverified (#43) |
 | [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
 | [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and deferred gaps |
 | [Milestones](docs/Milestones/README.md) | Closed setup milestone and the open successor |
