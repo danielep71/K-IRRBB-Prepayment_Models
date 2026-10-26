@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted on 2026-10-26 (issue #49)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -103,7 +103,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 
 ## RENEG successors
 
-Status: **accepted by the owner on 2026-10-26 (issue #49)** (decision D11, amending D4 and D6). Nothing here is implemented or validated.
+Status: **accepted on 2026-10-26 (issue #49)** (decision D11, amending D4 and D6). Nothing here is implemented or validated.
 
 A `RENEG` row ends a loan and transfers its remaining principal, `T = -other_change(t)`, to exactly one successor: the register row whose `predecessor_id` is the renegotiated loan (decision D6). The import reconciles the two, so a source cannot transfer one amount and open the successor with another.
 
@@ -137,7 +137,7 @@ The key is (`as_of_date`, `rate_id`). Which series form the refinancing curve, a
 
 ## Tier 1 capital
 
-Status: **accepted by the owner on 2026-10-21 (issue #72, decision D10).**
+Status: **accepted on 2026-10-21 (issue #72, decision D10).**
 
 Tier 1 capital is a run setting, not a dataset. The user enters one amount and one currency for the run; the toolkit never derives it. It is used only for the ΔEVE / Tier 1 ratio of the [model contracts](MODEL_CONTRACTS.md#eve-sensitivity-and-repricing-gap) and is recorded with every scenario result that uses it.
 
