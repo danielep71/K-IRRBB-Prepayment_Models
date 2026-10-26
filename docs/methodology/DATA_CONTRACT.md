@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section are **proposed in issue #49 and not accepted**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -49,7 +49,7 @@ Header:
 | `payment_months` | `1`, `3`, `6` or `12` | Months | ✅ | Scheduled payment frequency |
 | `penalty_type` | `NONE`, `PCT` or `MONTHS_INTEREST` | — | ✅ | Contractual early-repayment charge |
 | `penalty_value` | Decimal, up to 8 places | Decimal share (`PCT`) or months (`MONTHS_INTEREST`) | Unless `NONE` | ≥ 0; empty for `NONE` |
-| `predecessor_id` | As `loan_id` | — | — | The loan this one replaced after a [modification](#loan-events); must exist in the register and, under proposed decision D11, must have ended with `RENEG` in this loan's origination month ([RENEG successors](#reneg-successors)) |
+| `predecessor_id` | As `loan_id` | — | — | The loan this one replaced after a [modification](#loan-events); must exist in the register and, under decision D11, must have ended with `RENEG` in this loan's origination month ([RENEG successors](#reneg-successors)) |
 
 The key is `loan_id`. Register fields are the terms at origination of that `loan_id`. A change of rate, maturity, amortisation or penalty terms is a modification and creates a new `loan_id` (decision D6); the register is never edited in place to reflect it.
 
@@ -92,7 +92,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 | `FULL` | Full prepayment before the maturity month, including external refinancing | `prepaid_principal > 0`; `balance = 0`; `as_of_date` before the month end of `maturity_date` | ✅ |
 | `MATURITY` | Final scheduled repayment | `balance = 0`; `as_of_date` is the month end of `maturity_date` | ✅ |
 | `DEFAULT` | Loan enters default | `prepaid_principal = 0`; `balance` is the defaulted principal | ✅ |
-| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `prepaid_principal = 0`; `balance = 0`; `scheduled_principal(t) <= balance(t-1)`; `other_change = -(balance(t-1) - scheduled_principal(t)) <= 0`, so the transferred principal is nonnegative; reconciled with its successor under proposed decision D11 ([RENEG successors](#reneg-successors)) | ✅ |
+| `RENEG` | Modified or internally refinanced; replaced by a loan whose `predecessor_id` is this one | `prepaid_principal = 0`; `balance = 0`; `scheduled_principal(t) <= balance(t-1)`; `other_change = -(balance(t-1) - scheduled_principal(t)) <= 0`, so the transferred principal is nonnegative; reconciled with its successor under decision D11 ([RENEG successors](#reneg-successors)) | ✅ |
 | `SALE` | Sold or transferred out of the portfolio | `prepaid_principal = 0`; `balance` is the transferred principal | ✅ |
 
 - No row is dated after a terminal event (`E10`).
@@ -103,7 +103,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 
 ## RENEG successors
 
-Status: **proposed in issue #49 (decision D11, amending D4 and D6); not accepted.**
+Status: **accepted by the owner on 2026-10-26 (issue #49)** (decision D11, amending D4 and D6). Nothing here is implemented or validated.
 
 A `RENEG` row ends a loan and transfers its remaining principal, `T = -other_change(t)`, to exactly one successor: the register row whose `predecessor_id` is the renegotiated loan (decision D6). The import reconciles the two, so a source cannot transfer one amount and open the successor with another.
 
@@ -182,7 +182,7 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 | `E10` | Row dated after the loan's terminal event | Each row |
 | `E13` | Balance identity broken | The later row |
 | `E15` | **Prepayment above exposure**: `prepaid_principal` exceeds `balance(t-1) - scheduled_principal(t) + max(other_change(t), 0)` by any positive amount; compare at the input's exact decimal precision, without tolerance or clamping | The later row |
-| `E16` | **RENEG successor mismatch** (proposed, D11): no successor or more than one, successor in another month or currency, transferred principal and successor `original_balance` differing by more than 0.005, or a successor whose predecessor did not end with `RENEG` in its origination month | The `RENEG` row, or the successor's register row |
+| `E16` | **RENEG successor mismatch** (D11): no successor or more than one, successor in another month or currency, transferred principal and successor `original_balance` differing by more than 0.005, or a successor whose predecessor did not end with `RENEG` in its origination month | The `RENEG` row, or the successor's register row |
 | `E12` | **Missing extract**: a month end in the data window has no panel rows | Once per missing month end |
 
 | Code | Warning | Reported at |
@@ -192,7 +192,7 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 | `W03` | Non-zero `other_change` | The row |
 | `W04` | Row outside the data window; excluded and counted | The row |
 | `W05` | **Past maturity**: positive balance after the month end of `maturity_date` | The row |
-| `W06` | **Segment change at RENEG** (proposed, D11): the successor is in another segment than its predecessor | The successor's register row |
+| `W06` | **Segment change at RENEG** (D11): the successor is in another segment than its predecessor | The successor's register row |
 
 ## Risk set, missing observations and censoring
 
@@ -256,11 +256,11 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D1 | Input granularity and route | Loan-level CSV files streamed by VBA file input; no segment-level input | Accepted 2026-10-21 |
 | D2 | Segment list | `MTG_FIX`, `MTG_RST`, `MTG_FLT`, `CON_FIX`, `SME_FIX` | Accepted 2026-10-21 |
 | D3 | Scheduled vs prepaid principal | Supplied by the source and checked by the balance identity; no toolkit derivation from the contractual schedule | Accepted 2026-10-21 |
-| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set. When included, the transferred principal `-other_change` is the numerator | Accepted 2026-10-21; amended 2026-10-21 after review of #24 |
+| D4 | Internal refinancing (`RENEG`) | Excluded from the SMM numerator and denominator by default, reported separately; inclusion is a run setting recorded in the parameter set. When included, the transferred principal `-other_change` is the numerator | Accepted 2026-10-21; amended 2026-10-21 after review of #24; amended 2026-10-26 by D11 (#49) |
 | D5 | Default and sale in the SMM denominator | Excluded from numerator and denominator in their exit month (competing exits) | Accepted 2026-10-21 |
-| D6 | Contract modifications | End the loan with `RENEG` and continue under a new `loan_id` with `predecessor_id` | Accepted 2026-10-21; amendment proposed in D11 (#49) |
+| D6 | Contract modifications | End the loan with `RENEG` and continue under a new `loan_id` with `predecessor_id` | Accepted 2026-10-21; amended 2026-10-26 by D11 (#49) |
 | D7 | Drawdowns and capitalisation | Allowed through `other_change` with warning `W03`; not part of prepayment. A positive `other_change` counts as exposure in the month, and prepayment above that exposure is rejected (`E15`) | Accepted 2026-10-21; amended 2026-10-21 after review of #24 |
 | D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Accepted 2026-10-21 |
 | D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Accepted 2026-10-21 |
 | D10 | Tier 1 capital | A run setting (amount and currency) entered by the user, validated before any calculation and recorded with each result; never a dataset or derived | Accepted 2026-10-21 (#72) |
-| D11 | RENEG successor reconciliation | Exactly one successor per `RENEG` row, in the same month and currency, with `original_balance` within 0.005 of the transferred principal; reverse link checked; segment change allowed with `W06`; splits and merges rejected; failures are `E16`, ordered after `E15` | Proposed (#49); amends D4 and D6 |
+| D11 | RENEG successor reconciliation | Exactly one successor per `RENEG` row, in the same month and currency, with `original_balance` within 0.005 of the transferred principal; reverse link checked for successors originated inside the data window; segment change allowed with `W06`; splits and merges rejected; failures are `E16`, ordered after `E15` | Accepted 2026-10-26 (#49); amends D4 and D6 |
