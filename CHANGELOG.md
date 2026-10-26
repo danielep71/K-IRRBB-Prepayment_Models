@@ -41,6 +41,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Fixed
 
+- The component comparison checks VBA types, so a sheet's document module replaced by a standard module of the same name fails (review of #87, #43).
 - Tightened the #30 contract boundaries (#14): E15 rejects every positive excess of prepayment over exposure at input decimal precision, and RENEG requires nonnegative residual principal. Extended the registered boundary cases; no importer or Excel execution is claimed.
 - Forecast leakage tests alter only data after the origin, while the lag cutoff applies to the historical incentive (review of #34).
 - The Dependabot check enforces the exact active release branch (review of #34).
