@@ -1,6 +1,6 @@
 # Prepayment methodology contracts
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. The EVE sensitivity and repricing-gap extension was accepted by the owner on 2026-10-21 (issue #72). Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
+Status: **accepted on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify what a future implementation must satisfy. No model, importer, calibration routine or numerical output exists, and nothing here is validated. The EVE sensitivity and repricing-gap extension was accepted on 2026-10-21 (issue #72). Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
 
 | Document | Authoritative for |
 | --- | --- |
