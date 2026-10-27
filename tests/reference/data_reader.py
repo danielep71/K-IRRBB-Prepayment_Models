@@ -580,6 +580,8 @@ def check_controls(data: bytes, result: Result) -> None:
     if not texts or texts[0] != header.encode('ascii'):
         differ(1, (), '')
         return
+    if len(texts) == 1:    # an empty Controls_Totals table: no control totals were supplied
+        return
     controls: dict[tuple[str, ...], tuple[int, dict[str, Decimal] | None]] = {}
     for line, raw in enumerate(texts[1:], start=2):
         fields = raw.decode('ascii').split(',') if raw.isascii() else []
