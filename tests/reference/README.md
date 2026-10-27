@@ -4,7 +4,7 @@ Independent offline references for the [case register](../../docs/methodology/TE
 
 ## `data_reader.py`
 
-Reads the three input files of one import and applies the [data contract](../../docs/methodology/DATA_CONTRACT.md): file format, errors `E01`–`E16` in the first-error order, warnings `W01`–`W06`, the data window, RENEG successor reconciliation (D11), loan-month exposure and SHA-256 fingerprints. Amounts use exact decimal arithmetic in a wide context that traps rounding: an amount is never rounded silently, and an input that would need rounding stops the reader.
+Reads the three input files of one import and applies the [data contract](../../docs/methodology/DATA_CONTRACT.md): file format, errors `E01`–`E16` in the first-error order, warnings `W01`–`W06`, the data window, RENEG successor reconciliation (D11), loan-month exposure, the risk-set outcome of each loan-month, the point-in-time view at a forecast origin and SHA-256 fingerprints. Amounts use exact decimal arithmetic in a wide context that traps rounding: an amount is never rounded silently, and an input that would need rounding stops the reader.
 
 ### Choices where the contract is silent
 
@@ -22,5 +22,8 @@ The reader needs a behaviour for the points below. The contract does not settle 
 | 8 | A failed row as previous row | A row that failed an earlier rule still serves as the previous row of the next month |
 | 9 | Order of findings | By file (register, panel, market rates), then line |
 | 10 | Self-link | A register row whose `predecessor_id` is its own `loan_id` fails `E16`, because D6 continues a modified loan under a new `loan_id` |
+| 11 | Past maturity at the window end | A loan-month starting at or after the maturity month end is `PAST_MATURITY` even when it also starts at the window end; the contract excludes it from the risk set but also lists the window end as censoring, which matters for the censored last balances of the lineage |
+
+The point-in-time view filters register and panel rows, as the contract states. Market rates dated after an origin are a model-level concern, tested by `INC-LAG-01` and `OOS-LEAK-01`.
 
 Open question for `DATA-EVENT-01`: a `RENEG` row with zero residual transfers `T = 0`, while D11 needs exactly one successor with `abs(original_balance - T) <= 0.005` and `original_balance > 0`. Only successors with an original balance of at most 0.005 reconcile. The case is not built until this is decided.
