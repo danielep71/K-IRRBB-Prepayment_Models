@@ -1,0 +1,91 @@
+{
+  "case": "DATA-PIT-01",
+  "provenance": {
+    "tool": "hand assignment",
+    "steps": "Each loan-month runs from a non-terminal row at month end t-1 to t and is keyed by loan and t-1. Assigned from the risk-set table of the data contract: t-1 not before the month end of maturity_date gives PAST_MATURITY; t-1 at the window end gives END_OF_WINDOW; a row at t gives that row's event; no row at t with a later row gives GAP; no later row gives CENSORED. A loan's first row opens it and ends no loan-month; a terminal row starts none. events: every event observed (P1 PARTIAL then FULL, M1 MATURITY, D1 DEFAULT, S1 SALE, R1 RENEG with successor R2), loans opened inside the window (R2, N1) and END_OF_WINDOW at 2024-04-30; W03 for the RENEG transfer. gap: G1 misses 2024-03 and G2 misses 2024-02 and 2024-03, so the loan-month after the last row before the gap is GAP; warnings are not asserted because the location of W01 is a reader choice. censored: C1 stops after 2024-02 and C2 after 2024-01 without a terminal event (W02 at the last row). past-maturity: X1 matures 2024-02-15; the loan-months from 2024-02-29 and 2024-03-31 are PAST_MATURITY, with W05 on its rows after 2024-02-29. No variant has a loan-month that is both past maturity and at the window end.",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-04-30",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "events": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        ["loan_panel.csv", 13, "W03"]
+      ],
+      "outcomes": {
+        "F1|2024-01-31": "NONE",
+        "F1|2024-02-29": "NONE",
+        "F1|2024-03-31": "NONE",
+        "F1|2024-04-30": "END_OF_WINDOW",
+        "P1|2024-01-31": "PARTIAL",
+        "P1|2024-02-29": "FULL",
+        "M1|2024-01-31": "MATURITY",
+        "D1|2024-01-31": "DEFAULT",
+        "S1|2024-01-31": "SALE",
+        "R1|2024-01-31": "RENEG",
+        "R2|2024-02-29": "NONE",
+        "R2|2024-03-31": "NONE",
+        "R2|2024-04-30": "END_OF_WINDOW",
+        "N1|2024-03-31": "NONE",
+        "N1|2024-04-30": "END_OF_WINDOW"
+      }
+    },
+    "gap": {
+      "accepted": true,
+      "errors": [],
+      "outcomes": {
+        "F1|2024-01-31": "NONE",
+        "F1|2024-02-29": "NONE",
+        "F1|2024-03-31": "NONE",
+        "F1|2024-04-30": "END_OF_WINDOW",
+        "G1|2024-01-31": "NONE",
+        "G1|2024-02-29": "GAP",
+        "G1|2024-04-30": "END_OF_WINDOW",
+        "G2|2024-01-31": "GAP",
+        "G2|2024-04-30": "END_OF_WINDOW"
+      }
+    },
+    "censored": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        ["loan_panel.csv", 4, "W02"],
+        ["loan_panel.csv", 6, "W02"]
+      ],
+      "outcomes": {
+        "F1|2024-01-31": "NONE",
+        "F1|2024-02-29": "NONE",
+        "F1|2024-03-31": "NONE",
+        "F1|2024-04-30": "END_OF_WINDOW",
+        "C1|2024-01-31": "NONE",
+        "C1|2024-02-29": "CENSORED",
+        "C2|2024-01-31": "CENSORED"
+      }
+    },
+    "past-maturity": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        ["loan_panel.csv", 7, "W05"],
+        ["loan_panel.csv", 9, "W05"]
+      ],
+      "outcomes": {
+        "F1|2024-01-31": "NONE",
+        "F1|2024-02-29": "NONE",
+        "F1|2024-03-31": "NONE",
+        "F1|2024-04-30": "END_OF_WINDOW",
+        "X1|2024-01-31": "NONE",
+        "X1|2024-02-29": "PAST_MATURITY",
+        "X1|2024-03-31": "PAST_MATURITY"
+      }
+    }
+  }
+}

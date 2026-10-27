@@ -2,7 +2,8 @@
 
 It reads the three input files of one import, applies the validation rules
 in the contract's first-error order and returns the findings, warnings,
-loan-month exposures and file fingerprints. It is reference tooling only
+loan-month exposures, risk-set outcomes and file fingerprints, and builds
+the point-in-time view at a forecast origin. It is reference tooling only
 (decision V4): standard library, exact decimal arithmetic, never a runtime
 dependency, and written without reference to any toolkit source.
 
@@ -88,6 +89,10 @@ def previous_month_end(value: date) -> date:
     return month_end(prior)
 
 
+def next_month_end(value: date) -> date:
+    return month_end(date(value.year + (value.month == 12), value.month % 12 + 1, 1))
+
+
 # ---------------------------------------------------------------------------
 # Result
 # ---------------------------------------------------------------------------
@@ -97,6 +102,8 @@ class Result:
     errors: list[tuple[str, int, str]] = field(default_factory=list)
     warnings: list[tuple[str, int, str]] = field(default_factory=list)
     loan_months: dict[tuple[str, str], tuple[Decimal, Decimal]] = field(default_factory=dict)
+    # Outcome of the loan-month that starts at month end t-1, keyed by (loan_id, t-1).
+    outcomes: dict[tuple[str, str], str] = field(default_factory=dict)
     fingerprints: dict[str, str] = field(default_factory=dict)
 
     @property
@@ -224,6 +231,7 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
     for loan_id, loan_rows in by_loan.items():
         loan_rows.sort(key=lambda r: r.parsed['as_of_date'])  # type: ignore[arg-type, return-value]
         check_loan_history(register[loan_id], loan_rows, fail, ok, result, window_end)
+        record_outcomes(register[loan_id], [r for r in loan_rows if ok(r)], result, window_end)
 
     # E16 RENEG successors (decision D11).
     check_successors(register, inside[PANEL], window_start, window_end, fail, ok, result)
@@ -236,7 +244,7 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
             result.errors.append((PANEL, 0, 'E12'))
         if month >= window_end:    # never build the month after 9999-12
             break
-        month = month_end(date(month.year + (month.month == 12), month.month % 12 + 1, 1))
+        month = next_month_end(month)
 
     result.errors.sort(key=lambda e: ((LOANS, PANEL, RATES).index(e[0]), e[1]))
     result.warnings.sort(key=lambda w: ((LOANS, PANEL, RATES).index(w[0]), w[1], w[2]))
@@ -399,6 +407,29 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
         result.warnings.append((PANEL, previous.line, 'W02'))
 
 
+def record_outcomes(loan: Row, rows: list[Row], result: Result, window_end: date) -> None:
+    """Risk set, missing observations and censoring: one outcome per loan-month starting at a non-terminal row."""
+    maturity = loan.parsed['maturity_date']
+    assert isinstance(maturity, date)
+    maturity_end = month_end(maturity)
+    for index, row in enumerate(rows):
+        if row.values['event'] in TERMINAL:
+            continue
+        start = as_of_of(row)
+        later = rows[index + 1:]
+        if start >= maturity_end:
+            outcome = 'PAST_MATURITY'
+        elif start == window_end:
+            outcome = 'END_OF_WINDOW'
+        elif later and as_of_of(later[0]) == next_month_end(start):
+            outcome = later[0].values['event']
+        elif later:
+            outcome = 'GAP'
+        else:
+            outcome = 'CENSORED'
+        result.outcomes[(row.values['loan_id'], start.isoformat())] = outcome
+
+
 def event_consistent(event: str, bal: Decimal, sched: Decimal, prepaid: Decimal, other: Decimal,
                      opening: Decimal | None, as_of: date, maturity_end: date) -> bool:
     if event == 'NONE':
@@ -447,3 +478,27 @@ def check_successors(register: dict[str, Row], panel: list[Row], window_start: d
                 ending = reneg.get(pred_id)
                 if ending is None or ending.parsed['as_of_date'] != start:
                     fail(successor, 'E16')
+
+
+# ---------------------------------------------------------------------------
+# Point-in-time availability
+# ---------------------------------------------------------------------------
+
+def read_rows(folder: Path) -> dict[str, list[dict[str, str]]]:
+    """The register and panel rows of an import as field values, without validation."""
+    rows: dict[str, list[dict[str, str]]] = {}
+    for name in (LOANS, PANEL):
+        lines = (folder / name).read_text(encoding='ascii').splitlines()
+        rows[name] = [dict(zip(HEADERS[name], line.split(','))) for line in lines[1:]]
+    return rows
+
+
+def point_in_time_view(rows: dict[str, list[dict[str, str]]], origin: date) -> dict[str, list[tuple[str, ...]]]:
+    """Register rows of loans originated on or before the origin and panel rows dated on or before it."""
+    def known(text: str) -> bool:
+        value = parse_date(text)
+        return value is not None and value <= origin
+
+    view = {LOANS: [r for r in rows[LOANS] if known(r['origination_date'])],
+            PANEL: [r for r in rows[PANEL] if known(r['as_of_date'])]}
+    return {name: sorted(tuple(r[f] for f in HEADERS[name]) for r in kept) for name, kept in view.items()}

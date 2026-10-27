@@ -1,6 +1,7 @@
 """Built (Python) cases: run the reference reader on each fixture and compare with its expected file."""
 import hashlib
 import json
+import random
 import sys
 import tempfile
 import unittest
@@ -40,6 +41,9 @@ class ImportCases(unittest.TestCase):
                     self.assertEqual(prepaid, Decimal(month['prepaid']))
                     if 'smm' in month:
                         self.assertEqual(prepaid / available, Decimal(month['smm']))
+                if 'outcomes' in want:
+                    got = {f'{loan}|{start}': outcome for (loan, start), outcome in result.outcomes.items()}
+                    self.assertEqual(got, want['outcomes'])
 
     def test_data_ident_01(self) -> None:
         self.run_case('DATA-IDENT-01')
@@ -49,6 +53,9 @@ class ImportCases(unittest.TestCase):
 
     def test_data_reneg_01(self) -> None:
         self.run_case('DATA-RENEG-01')
+
+    def test_data_pit_01(self) -> None:
+        self.run_case('DATA-PIT-01')
 
 
 class FieldCases(unittest.TestCase):
@@ -97,6 +104,78 @@ class ReaderEdges(unittest.TestCase):
         result = self.read(['L1,MTG_FIX,EUR,9999-01-15,9999-12-31,1,FIXED,,,ANNUITY,1,NONE,,'],
                            ['9999-12-31,L1,0,0.03,1,0,0,MATURITY'], date(9999, 12, 31), date(9999, 12, 31))
         self.assertTrue(result.accepted, result.errors)
+
+
+class PointInTime(unittest.TestCase):
+    """DATA-PIT-02: information after an origin never enters the view at that origin."""
+
+    def setUp(self) -> None:
+        self.spec = expected('DATA-PIT-02')
+        self.rows = reader.read_rows(FIXTURES / self.spec['fixture'])
+        self.rng = random.Random(self.spec['seed'])
+        self.serial = 0
+
+    def test_views(self) -> None:
+        for origin, want in self.spec['views'].items():
+            view = reader.point_in_time_view(self.rows, date.fromisoformat(origin))
+            self.assertEqual(sorted(r[0] for r in view[reader.LOANS]), want['loans'], origin)
+            self.assertEqual(len(view[reader.PANEL]), want['panel_rows'], origin)
+
+    def later_date(self, origin: date) -> str:
+        month = origin
+        for _ in range(self.rng.randint(1, 6)):
+            month = reader.next_month_end(month)
+        return month.isoformat()
+
+    def change_after(self, rows: dict[str, list[dict[str, str]]], origin: date) -> None:
+        """Apply one random change to information that becomes known only after the origin.
+
+        Edits and deletions touch fixture rows only, so no change undoes an addition of the same trial.
+        """
+        self.serial += 1
+        later_panel = [r for r in rows[reader.PANEL] if not r['loan_id'].startswith('NEW')
+                       and date.fromisoformat(r['as_of_date']) > origin]
+        later_loans = [r for r in rows[reader.LOANS] if not r['loan_id'].startswith('NEW')
+                       and date.fromisoformat(r['origination_date']) > origin]
+        kinds = ['add_panel', 'add_loan'] + ['edit_panel', 'move_panel', 'delete_panel'] * bool(later_panel) \
+            + ['edit_loan', 'delete_loan'] * bool(later_loans)
+        kind = self.rng.choice(kinds)
+        if kind == 'edit_panel':
+            row = self.rng.choice(later_panel)
+            row[self.rng.choice(reader.HEADERS[reader.PANEL][1:])] = f'CHANGED{self.serial}'
+        elif kind == 'move_panel':
+            row = self.rng.choice(later_panel)
+            row['as_of_date'], row['balance'] = self.later_date(origin), f'MOVED{self.serial}'
+        elif kind == 'delete_panel':
+            rows[reader.PANEL].remove(self.rng.choice(later_panel))
+        elif kind == 'edit_loan':
+            row = self.rng.choice(later_loans)
+            field = self.rng.choice([f for f in reader.HEADERS[reader.LOANS] if f != 'origination_date'])
+            row[field] = f'CHANGED{self.serial}'
+        elif kind == 'delete_loan':
+            rows[reader.LOANS].remove(self.rng.choice(later_loans))
+        elif kind == 'add_panel':
+            row = dict(self.rng.choice(rows[reader.PANEL]))
+            row['as_of_date'], row['loan_id'] = self.later_date(origin), f'NEW{self.serial}'
+            rows[reader.PANEL].append(row)
+        else:
+            row = dict(self.rng.choice(rows[reader.LOANS]))
+            row['origination_date'], row['loan_id'] = self.later_date(origin), f'NEW{self.serial}'
+            rows[reader.LOANS].append(row)
+
+    def test_changes_after_the_origin_do_not_leak(self) -> None:
+        unfiltered = date(9999, 12, 31)    # negative control: no row is after this origin
+        for origin_text in self.spec['views']:
+            origin = date.fromisoformat(origin_text)
+            before = reader.point_in_time_view(self.rows, origin)
+            for trial in range(self.spec['trials']):
+                rows = {name: [dict(r) for r in kept] for name, kept in self.rows.items()}
+                for _ in range(self.rng.randint(1, 3)):
+                    self.change_after(rows, origin)
+                with self.subTest(origin=origin_text, trial=trial):
+                    self.assertEqual(reader.point_in_time_view(rows, origin), before)
+                    self.assertNotEqual(reader.point_in_time_view(rows, unfiltered),
+                                        reader.point_in_time_view(self.rows, unfiltered))
 
 
 class Fingerprints(unittest.TestCase):

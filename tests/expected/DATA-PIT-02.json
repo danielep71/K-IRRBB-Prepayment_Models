@@ -1,0 +1,18 @@
+{
+  "case": "DATA-PIT-02",
+  "provenance": {
+    "tool": "hand construction and property test",
+    "steps": "The point-in-time view at origin t keeps register rows with origination_date <= t and panel rows with as_of_date <= t. views: hand count of the DATA-PIT-01 events fixture at each month end of its window (loans originated 2023-06-15 for F1, P1, M1, D1, S1 and R1, 2024-02-10 for R2 and 2024-03-05 for N1; 6, 7, 4 and 3 panel rows at the four month ends). Property: for each origin, each trial applies one to three random changes to information after the origin (edit a field of a later panel row or of the register row of a later loan, move a later panel row to another later month end, delete a later row, add a later row for a new loan) and requires the view at the origin to be unchanged. Negative control: the same changes without the filter always change the data.",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza"
+  },
+  "fixture": "DATA-PIT-01/events",
+  "seed": 20261027,
+  "trials": 200,
+  "views": {
+    "2024-01-31": {"loans": ["D1", "F1", "M1", "P1", "R1", "S1"], "panel_rows": 6},
+    "2024-02-29": {"loans": ["D1", "F1", "M1", "P1", "R1", "R2", "S1"], "panel_rows": 13},
+    "2024-03-31": {"loans": ["D1", "F1", "M1", "N1", "P1", "R1", "R2", "S1"], "panel_rows": 17},
+    "2024-04-30": {"loans": ["D1", "F1", "M1", "N1", "P1", "R1", "R2", "S1"], "panel_rows": 20}
+  }
+}
