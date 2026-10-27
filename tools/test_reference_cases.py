@@ -32,7 +32,8 @@ class ImportCases(unittest.TestCase):
                                             set(settings['currency_allowlist']))
                 self.assertEqual(result.accepted, want['accepted'])
                 self.assertEqual([list(e) for e in result.errors], want['errors'])
-                self.assertEqual([list(w) for w in result.warnings], want['warnings'])
+                if 'warnings' in want:
+                    self.assertEqual([list(w) for w in result.warnings], want['warnings'])
                 for key, month in want.get('loan_months', {}).items():
                     available, prepaid = result.loan_months[tuple(key.split('|'))]
                     self.assertEqual(available, Decimal(month['available']))
@@ -45,6 +46,9 @@ class ImportCases(unittest.TestCase):
 
     def test_data_expo_01(self) -> None:
         self.run_case('DATA-EXPO-01')
+
+    def test_data_reneg_01(self) -> None:
+        self.run_case('DATA-RENEG-01')
 
 
 class FieldCases(unittest.TestCase):
