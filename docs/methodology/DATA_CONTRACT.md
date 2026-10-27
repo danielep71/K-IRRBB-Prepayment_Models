@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27 (issue #41)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -109,7 +109,8 @@ A `RENEG` row ends a loan and transfers its remaining principal, `T = -other_cha
 
 | Rule | Check |
 | --- | --- |
-| One successor | Every `RENEG` row inside the data window has exactly one register row with `predecessor_id` equal to its `loan_id`. None, or more than one, is `E16` |
+| One successor | Every `RENEG` row inside the data window that transfers `T > 0.005` has exactly one register row with `predecessor_id` equal to its `loan_id`. None, or more than one, is `E16` |
+| Zero residual | A `RENEG` row with `T <= 0.005` (scheduled principal equal to the opening balance, within the tolerance of D9) needs no successor; a register row naming it as predecessor is `E16` on that register row (decision D15) |
 | Same month | The month end of the successor's `origination_date` equals the `as_of_date` of the `RENEG` row |
 | Same currency | The successor's `currency` equals the predecessor's; amounts are never converted |
 | Amount | `abs(original_balance(successor) - T) <= 0.005` currency units (decision D9) |
@@ -182,8 +183,9 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 | `E10` | Row dated after the loan's terminal event | Each row |
 | `E13` | Balance identity broken | The later row |
 | `E15` | **Prepayment above exposure**: `prepaid_principal` exceeds `balance(t-1) - scheduled_principal(t) + max(other_change(t), 0)` by any positive amount; compare at the input's exact decimal precision, without tolerance or clamping | The later row |
-| `E16` | **RENEG successor mismatch** (D11): no successor or more than one, successor in another month or currency, transferred principal and successor `original_balance` differing by more than 0.005, or a successor whose predecessor did not end with `RENEG` in its origination month | The `RENEG` row, or the successor's register row |
-| `E12` | **Missing extract**: a month end in the data window has no panel rows | Once per missing month end |
+| `E16` | **RENEG successor mismatch** (D11, D15): no successor or more than one where one is required, a successor for a `RENEG` row that transfers at most 0.005, successor in another month or currency, transferred principal and successor `original_balance` differing by more than 0.005, or a successor whose predecessor did not end with `RENEG` in its origination month | The `RENEG` row, or the successor's register row |
+| `E12` | **Missing extract**: a month end in the data window has no panel rows | Once per missing month end, at `loan_panel.csv` line 0 with the month end as key (D14) |
+| `E17` | **Control-total mismatch** (D13): against the user's [control totals](#reconciliation), a count differs, an amount differs by more than 0.005, a (`as_of_date`, `segment`, `currency`) is in only one of the computed and control totals, or a control row is empty, duplicated or does not parse | Once per key and measure (once per row for an invalid control row), at its `Controls_Totals` row, or line 0 when the key has no control row; after the findings of the three files, and only when they have no other error |
 
 | Code | Warning | Reported at |
 | --- | --- | --- |
@@ -218,12 +220,12 @@ The contract assumes events are reported by the month end in which they occur. A
 
 ## Reconciliation
 
-After import, the toolkit reports for every (`as_of_date`, `segment`, `currency`): number of loans, total balance, total scheduled principal, total prepaid principal split into `PARTIAL` and `FULL`, total `other_change`, and the count and balance of each terminal event. It checks that:
+After import, the toolkit reports for every (`as_of_date`, `segment`, `currency`): number of loans, total balance, total scheduled principal, total prepaid principal split into `PARTIAL` and `FULL`, total `other_change`, and the count and the reported `balance` of the rows of each terminal event: 0 for `FULL`, `MATURITY` and `RENEG`, the defaulted or transferred principal for `DEFAULT` and `SALE` (decision D12). Totals cover the accepted rows inside the data window. It checks that:
 
 - segment totals add up to the panel total for each date and currency;
-- if the user supplies control totals, counts match exactly and amounts within 0.005 currency units.
+- if the user supplies control totals (workbook table `Controls_Totals`: `as_of_date`, `segment`, `currency`, then `loans`, `balance`, `scheduled_principal`, `prepaid_partial`, `prepaid_full`, `other_change` and `<event>_count`, `<event>_balance` for `full`, `maturity`, `default`, `reneg` and `sale`), counts match exactly and amounts within 0.005 currency units, for every key on either side; every failure is `E17` (decision D13).
 
-Amounts in different currencies are never added together. Totals keep input precision; rounding is for presentation only. A reconciliation difference fails the import.
+Amounts in different currencies are never added together. Totals keep input precision; rounding is for presentation only. A reconciliation difference fails the import (`E17`).
 
 ## Dataset size
 
@@ -263,4 +265,8 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D8 | Import timestamp time zone | Host local time without offset, as decided in K-IRRBB-NMDs | Accepted 2026-10-21 |
 | D9 | Tolerances | 0.005 currency units for the balance identity and control totals | Accepted 2026-10-21 |
 | D10 | Tier 1 capital | A run setting (amount and currency) entered by the user, validated before any calculation and recorded with each result; never a dataset or derived | Accepted 2026-10-21 (#72) |
-| D11 | RENEG successor reconciliation | Exactly one successor per `RENEG` row, in the same month and currency, with `original_balance` within 0.005 of the transferred principal; reverse link checked for successors originated inside the data window; segment change allowed with `W06`; splits and merges rejected; failures are `E16`, ordered after `E15` | Accepted 2026-10-26 (#49); amends D4 and D6 |
+| D11 | RENEG successor reconciliation | Exactly one successor per `RENEG` row, in the same month and currency, with `original_balance` within 0.005 of the transferred principal; reverse link checked for successors originated inside the data window; segment change allowed with `W06`; splits and merges rejected; failures are `E16`, ordered after `E15` | Accepted 2026-10-26 (#49); amends D4 and D6; amended 2026-10-27 by D15 (#41) |
+| D12 | Terminal-event balance in reconciliation | The reported `balance` of each terminal row (0 for `FULL`, `MATURITY` and `RENEG`) | Decided 2026-10-27 (#41) |
+| D13 | Control-total mismatch | Error `E17`, once per key and measure (once per row for an invalid control row) at the `Controls_Totals` row (line 0 for a missing control row); a key on only one side, or an empty, duplicated or unparseable control row, is a mismatch; ordered after the three files and checked only when they have no other error | Decided 2026-10-27 (#41) |
+| D14 | Location of `E12` | `loan_panel.csv`, line 0, once per missing month end, with the month end as key | Decided 2026-10-27 (#41) |
+| D15 | Zero-residual `RENEG` | A `RENEG` row transferring `T <= 0.005` needs no successor; a successor naming it is `E16` | Decided 2026-10-27 (#41); amends D11 |

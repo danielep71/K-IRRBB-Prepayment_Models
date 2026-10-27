@@ -1,0 +1,4 @@
+loan_id,segment,currency,origination_date,maturity_date,original_balance,rate_type,fixed_until,reset_months,amortisation,payment_months,penalty_type,penalty_value,predecessor_id
+F1,MTG_FIX,EUR,2023-06-15,2030-06-15,1000,FIXED,,,ANNUITY,1,NONE,,
+G1,MTG_FIX,EUR,2023-06-15,2030-06-15,1000,FIXED,,,ANNUITY,1,NONE,,
+G2,MTG_FIX,EUR,2023-06-15,2030-06-15,1000,FIXED,,,ANNUITY,1,NONE,,

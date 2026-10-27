@@ -2,7 +2,9 @@
 
 It reads the three input files of one import, applies the validation rules
 in the contract's first-error order and returns the findings, warnings,
-loan-month exposures and file fingerprints. It is reference tooling only
+loan-month exposures, risk-set outcomes, reconciliation totals and the
+comparison with optional control totals, and file fingerprints, and builds
+the point-in-time view at a forecast origin. It is reference tooling only
 (decision V4): standard library, exact decimal arithmetic, never a runtime
 dependency, and written without reference to any toolkit source.
 
@@ -20,6 +22,9 @@ from decimal import Decimal, Inexact, localcontext
 from pathlib import Path
 
 LOANS, PANEL, RATES = 'loans.csv', 'loan_panel.csv', 'market_rates.csv'
+# Optional control totals: the workbook table Controls_Totals, given to the reader as a CSV file.
+CONTROLS, CONTROLS_TABLE = 'controls.csv', 'Controls_Totals'
+FILE_ORDER = (LOANS, PANEL, RATES, CONTROLS_TABLE)
 HEADERS = {
     LOANS: ('loan_id', 'segment', 'currency', 'origination_date', 'maturity_date', 'original_balance',
             'rate_type', 'fixed_until', 'reset_months', 'amortisation', 'payment_months', 'penalty_type',
@@ -36,6 +41,11 @@ PENALTY_TYPES = {'NONE', 'PCT', 'MONTHS_INTEREST'}
 EVENTS = {'NONE', 'PARTIAL', 'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TERMINAL = {'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TOLERANCE = Decimal('0.005')    # decision D9
+KEY = ('as_of_date', 'segment', 'currency')
+EXITS = ('full', 'maturity', 'default', 'reneg', 'sale')    # terminal events in the Controls_Totals order
+RECON_MEASURES = ('loans', 'balance', 'scheduled_principal', 'prepaid_partial', 'prepaid_full', 'other_change',
+                  *(f'{e}_{m}' for e in EXITS for m in ('count', 'balance')))
+COUNT_MEASURES = {'loans', *(f'{e}_count' for e in EXITS)}
 # Arithmetic runs in a wide context that traps rounding, so a result is exact or the reader stops.
 PRECISION = 1000
 
@@ -44,6 +54,7 @@ CCY_RE = re.compile(r'[A-Z]{3}')
 DATE_RE = re.compile(r'(\d{4})-(\d{2})-(\d{2})')
 DECIMAL_RE = re.compile(r'-?\d+(?:\.(\d+))?')
 POSITIVE_INT_RE = re.compile(r'[1-9]\d*')
+COUNT_RE = re.compile(r'\d+')
 
 
 # ---------------------------------------------------------------------------
@@ -88,6 +99,10 @@ def previous_month_end(value: date) -> date:
     return month_end(prior)
 
 
+def next_month_end(value: date) -> date:
+    return month_end(date(value.year + (value.month == 12), value.month % 12 + 1, 1))
+
+
 # ---------------------------------------------------------------------------
 # Result
 # ---------------------------------------------------------------------------
@@ -97,6 +112,12 @@ class Result:
     errors: list[tuple[str, int, str]] = field(default_factory=list)
     warnings: list[tuple[str, int, str]] = field(default_factory=list)
     loan_months: dict[tuple[str, str], tuple[Decimal, Decimal]] = field(default_factory=dict)
+    # Outcome of the loan-month that starts at month end t-1, keyed by (loan_id, t-1).
+    outcomes: dict[tuple[str, str], str] = field(default_factory=dict)
+    # Reconciliation totals per (as_of_date, segment, currency), set only when the three files have no error.
+    totals: dict[tuple[str, ...], dict[str, Decimal]] = field(default_factory=dict)
+    # One (line, key, measure) per E17 finding; the measure is empty for an invalid control row.
+    control_differences: list[tuple[int, str, str]] = field(default_factory=list)
     fingerprints: dict[str, str] = field(default_factory=dict)
 
     @property
@@ -224,6 +245,7 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
     for loan_id, loan_rows in by_loan.items():
         loan_rows.sort(key=lambda r: r.parsed['as_of_date'])  # type: ignore[arg-type, return-value]
         check_loan_history(register[loan_id], loan_rows, fail, ok, result, window_end)
+        record_outcomes(register[loan_id], [r for r in loan_rows if ok(r)], result, window_end)
 
     # E16 RENEG successors (decision D11).
     check_successors(register, inside[PANEL], window_start, window_end, fail, ok, result)
@@ -236,10 +258,17 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
             result.errors.append((PANEL, 0, 'E12'))
         if month >= window_end:    # never build the month after 9999-12
             break
-        month = month_end(date(month.year + (month.month == 12), month.month % 12 + 1, 1))
+        month = next_month_end(month)
 
-    result.errors.sort(key=lambda e: ((LOANS, PANEL, RATES).index(e[0]), e[1]))
-    result.warnings.sort(key=lambda w: ((LOANS, PANEL, RATES).index(w[0]), w[1], w[2]))
+    # Reconciliation (D12) and control totals (E17, D13), only when the three files have no error.
+    if not result.errors:
+        result.totals = reconciliation_totals(register, inside[PANEL])
+        if (folder / CONTROLS).exists():
+            check_controls((folder / CONTROLS).read_bytes(), result)
+
+    result.errors.sort(key=lambda e: (FILE_ORDER.index(e[0]), e[1]))
+    result.warnings.sort(key=lambda w: (FILE_ORDER.index(w[0]), w[1], w[2]))
+    result.control_differences.sort(key=lambda d: d[0])
     return result
 
 
@@ -399,6 +428,29 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
         result.warnings.append((PANEL, previous.line, 'W02'))
 
 
+def record_outcomes(loan: Row, rows: list[Row], result: Result, window_end: date) -> None:
+    """Risk set, missing observations and censoring: one outcome per loan-month starting at a non-terminal row."""
+    maturity = loan.parsed['maturity_date']
+    assert isinstance(maturity, date)
+    maturity_end = month_end(maturity)
+    for index, row in enumerate(rows):
+        if row.values['event'] in TERMINAL:
+            continue
+        start = as_of_of(row)
+        later = rows[index + 1:]
+        if start >= maturity_end:
+            outcome = 'PAST_MATURITY'
+        elif start == window_end:
+            outcome = 'END_OF_WINDOW'
+        elif later and as_of_of(later[0]) == next_month_end(start):
+            outcome = later[0].values['event']
+        elif later:
+            outcome = 'GAP'
+        else:
+            outcome = 'CENSORED'
+        result.outcomes[(row.values['loan_id'], start.isoformat())] = outcome
+
+
 def event_consistent(event: str, bal: Decimal, sched: Decimal, prepaid: Decimal, other: Decimal,
                      opening: Decimal | None, as_of: date, maturity_end: date) -> bool:
     if event == 'NONE':
@@ -430,6 +482,10 @@ def check_successors(register: dict[str, Row], panel: list[Row], window_start: d
     for loan_id, row in reneg.items():
         found = successors.get(loan_id, [])
         transferred = -row.parsed['other_change']  # type: ignore[operator]
+        if transferred <= TOLERANCE:    # D15: a zero-residual RENEG needs no successor and may have none
+            for successor in found:
+                fail(successor, 'E16')
+            continue
         if len(found) != 1:
             fail(row, 'E16')
             continue
@@ -447,3 +503,101 @@ def check_successors(register: dict[str, Row], panel: list[Row], window_start: d
                 ending = reneg.get(pred_id)
                 if ending is None or ending.parsed['as_of_date'] != start:
                     fail(successor, 'E16')
+
+
+# ---------------------------------------------------------------------------
+# Point-in-time availability
+# ---------------------------------------------------------------------------
+
+def read_rows(folder: Path) -> dict[str, list[dict[str, str]]]:
+    """The register and panel rows of an import as field values, without validation."""
+    rows: dict[str, list[dict[str, str]]] = {}
+    for name in (LOANS, PANEL):
+        lines = (folder / name).read_text(encoding='ascii').splitlines()
+        rows[name] = [dict(zip(HEADERS[name], line.split(','))) for line in lines[1:]]
+    return rows
+
+
+def point_in_time_view(rows: dict[str, list[dict[str, str]]], origin: date) -> dict[str, list[tuple[str, ...]]]:
+    """Register rows of loans originated on or before the origin and panel rows dated on or before it."""
+    def known(text: str) -> bool:
+        value = parse_date(text)
+        return value is not None and value <= origin
+
+    view = {LOANS: [r for r in rows[LOANS] if known(r['origination_date'])],
+            PANEL: [r for r in rows[PANEL] if known(r['as_of_date'])]}
+    return {name: sorted(tuple(r[f] for f in HEADERS[name]) for r in kept) for name, kept in view.items()}
+
+
+# ---------------------------------------------------------------------------
+# Reconciliation (D12) and control totals (D13)
+# ---------------------------------------------------------------------------
+
+def reconciliation_totals(register: dict[str, Row], panel: list[Row]) -> dict[tuple[str, ...], dict[str, Decimal]]:
+    totals: dict[tuple[str, ...], dict[str, Decimal]] = {}
+    for row in panel:
+        loan = register[row.values['loan_id']]
+        key = (row.values['as_of_date'], loan.values['segment'], loan.values['currency'])
+        total = totals.setdefault(key, {m: Decimal(0) for m in RECON_MEASURES})
+        p, event = row.parsed, row.values['event']
+        total['loans'] += 1
+        for name in ('balance', 'scheduled_principal', 'other_change'):
+            total[name] += p[name]  # type: ignore[operator]
+        if event in {'PARTIAL', 'FULL'}:
+            total[f'prepaid_{event.lower()}'] += p['prepaid_principal']  # type: ignore[operator]
+        if event in TERMINAL:
+            total[f'{event.lower()}_count'] += 1
+            total[f'{event.lower()}_balance'] += p['balance']  # type: ignore[operator]
+    return totals
+
+
+def parse_control(values: dict[str, str]) -> dict[str, Decimal] | None:
+    """A control row's measures, or None when a cell is empty or does not parse."""
+    as_of = parse_date(values['as_of_date'])
+    if (as_of is None or not is_month_end(as_of) or values['segment'] not in SEGMENTS
+            or not CCY_RE.fullmatch(values['currency'])):
+        return None
+    measures: dict[str, Decimal] = {}
+    for name in RECON_MEASURES:
+        text = values[name]
+        value = (Decimal(text) if COUNT_RE.fullmatch(text) else None) if name in COUNT_MEASURES \
+            else parse_decimal(text, 4)
+        if value is None:
+            return None
+        measures[name] = value
+    return measures
+
+
+def check_controls(data: bytes, result: Result) -> None:
+    def differ(line: int, key: tuple[str, ...], measure: str) -> None:
+        result.errors.append((CONTROLS_TABLE, line, 'E17'))
+        result.control_differences.append((line, '|'.join(key), measure))
+
+    header = ','.join(KEY + RECON_MEASURES)
+    texts = [t[:-1] if t.endswith(b'\r') else t for t in data.split(b'\n')]
+    if texts and texts[-1] == b'':
+        texts.pop()
+    if not texts or texts[0] != header.encode('ascii'):
+        differ(1, (), '')
+        return
+    if len(texts) == 1:    # an empty Controls_Totals table: no control totals were supplied
+        return
+    controls: dict[tuple[str, ...], tuple[int, dict[str, Decimal] | None]] = {}
+    for line, raw in enumerate(texts[1:], start=2):
+        fields = raw.decode('ascii').split(',') if raw.isascii() else []
+        values = dict(zip(KEY + RECON_MEASURES, fields)) if len(fields) == len(KEY + RECON_MEASURES) else None
+        key = tuple(values[k] for k in KEY) if values else ()
+        measures = parse_control(values) if values and all(values.values()) else None
+        if measures is None or key in controls:
+            differ(line, key, '')
+        if key and key not in controls:
+            controls[key] = (line, measures)    # an invalid row still stands for its key
+    for key in sorted(set(result.totals) | set(controls)):
+        line, measures = controls.get(key, (0, None))
+        if key in controls and measures is None:
+            continue
+        computed = result.totals.get(key)
+        for name in RECON_MEASURES:
+            # Counts parse as integers only, so the amount tolerance compares them exactly.
+            if measures is None or computed is None or abs(measures[name] - computed[name]) > TOLERANCE:
+                differ(line, key, name)
