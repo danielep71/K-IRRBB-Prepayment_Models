@@ -1,0 +1,161 @@
+{
+  "case": "DATA-RENEG-01",
+  "provenance": {
+    "tool": "hand construction",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza",
+    "steps": "Decision D11. P1 opens at 100 in 2024-01 and ends with RENEG in 2024-02 (panel line 5): scheduled 10, other_change -90, so T = 90; W03 marks the non-zero other_change. Successor S1 (loans line 4) originates 2024-02-10 with predecessor P1. match-at-tolerance: S1 balance 90.005, difference 0.005, accepted. above-tolerance: 90.0051, E16 on the RENEG row. missing-successor and two-successors (S1, S2): E16 on the RENEG row; both successors of the second variant are reverse-linked correctly. next-month: S1 originates 2024-03-05, so E16 on the RENEG row and, by the reverse link, on S1. other-currency: S1 in USD (allowed), E16 on the RENEG row. predecessor-full: P1 ends FULL instead, so S1 fails the reverse link (E16 on loans line 4). segment-change: S1 in CON_FIX, accepted with W06 on S1. reneg-outside-window: P1's rows are in 2023, outside the window (W04), and S1 (originated 2023-12, balance 50, which would not reconcile) is neither reconciled nor reverse-linked; accepted, warnings not asserted. successor-before-window and successor-after-window: S2 names P2, which has no RENEG row, and originates in 2023-12 or 2024-04, outside the window; accepted."
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-03-31",
+    "currency_allowlist": [
+      "EUR",
+      "USD"
+    ]
+  },
+  "variants": {
+    "match-at-tolerance": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "above-tolerance": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E16"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "missing-successor": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E16"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "two-successors": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E16"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "next-month": {
+      "accepted": false,
+      "errors": [
+        [
+          "loans.csv",
+          4,
+          "E16"
+        ],
+        [
+          "loan_panel.csv",
+          5,
+          "E16"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "other-currency": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E16"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "predecessor-full": {
+      "accepted": false,
+      "errors": [
+        [
+          "loans.csv",
+          4,
+          "E16"
+        ]
+      ],
+      "warnings": []
+    },
+    "segment-change": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loans.csv",
+          4,
+          "W06"
+        ],
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "reneg-outside-window": {
+      "accepted": true,
+      "errors": []
+    },
+    "successor-before-window": {
+      "accepted": true,
+      "errors": [],
+      "warnings": []
+    },
+    "successor-after-window": {
+      "accepted": true,
+      "errors": [],
+      "warnings": []
+    }
+  }
+}

@@ -9,7 +9,7 @@ This document is authoritative for what independent validation a prepayment impl
 | Layer | Establishes | Does not establish | Where recorded | Today |
 | --- | --- | --- | --- | --- |
 | **Static** | Repository integrity: files, links, provenance register, configuration, tooling tests | That VBA compiles, runs, or calculates correctly | CI check `integrity`; `python tools/check.py` | Executed on every PR |
-| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Partly built: four data cases `Built (Python)` and run by `python tools/check.py`; `RATE-CONV-01` and `RATE-CONV-02` built in VBA, not executed; all other cases registered |
+| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Partly built: five data cases `Built (Python)` and run by `python tools/check.py`; `RATE-CONV-01` and `RATE-CONV-02` built in VBA, not executed; all other cases registered |
 | **Real host** | That the workbook built from one exact commit compiles and runs on a stated Excel host | Model correctness beyond the cases it ran | Excel evidence record | Planned; no record exists |
 
 A pass in one layer is never reported as a pass in another. A green CI run or a Python reference check is not Excel evidence.
@@ -105,7 +105,7 @@ Every case and check carries one status:
 | `Built (VBA)` | A VBA test exists in the harness; not yet run in Excel |
 | `Executed (Excel)` | Passed in an Excel evidence record for the candidate commit, linked |
 
-Today `DATA-PARSE-01`, `DATA-IDENT-01`, `DATA-EXPO-01` and `DATA-SHA-01` are `Built (Python)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
+Today `DATA-PARSE-01`, `DATA-IDENT-01`, `DATA-EXPO-01`, `DATA-RENEG-01` and `DATA-SHA-01` are `Built (Python)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
 
 ## Future scope
 
