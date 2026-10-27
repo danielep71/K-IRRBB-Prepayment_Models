@@ -1,0 +1,173 @@
+{
+  "case": "DATA-INVALID-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "One invalid line per rule, each built to pass every earlier rule in the first-error order and to touch no other row. every-rule, window 2024-01-31 to 2024-04-30 with no panel rows for 2024-04 (E12 at loan_panel.csv line 0, D14). Register: 13 fields (E01), empty segment (E03), 2023-02-30 (E02), original balance 0 (E04), segment MTG_XXX (E06), currency GBP (E07), maturity before origination (E11), OK1 repeated (E05), predecessor NOPE (E08), SUC naming OK1, which never ends with RENEG (E16, reverse link). Panel: 9 fields (E01), 2024-02-15 (E02), empty client_rate (E03), client_rate 0.9 (E04), event PREPAY (E06), scheduled -1 (E09), OK1 at 2024-01-31 again (E05), loan GHOST (E08), LATE dated before its origination month (E11), PARTIAL with no prepayment (E14), a DEFAULT row after TM ended FULL (E10), opening 100 - scheduled 10 against balance 89 (E13), prepaid 90.0001 above exposure 90 with an identity difference of 0.0001 (E15), RENEG of 100 without a successor (E16). Market rates: a non-ASCII character (E01), currency GBP (E07), EUR_SWAP_60M with tenor 120 after 60 (E08). file-header: a market-rates header with tenor instead of tenor_months (E01 at line 1); the other files are valid. Warnings are not asserted.",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-04-30",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "every-rule": {
+      "accepted": false,
+      "errors": [
+        [
+          "loans.csv",
+          3,
+          "E01"
+        ],
+        [
+          "loans.csv",
+          4,
+          "E03"
+        ],
+        [
+          "loans.csv",
+          5,
+          "E02"
+        ],
+        [
+          "loans.csv",
+          6,
+          "E04"
+        ],
+        [
+          "loans.csv",
+          7,
+          "E06"
+        ],
+        [
+          "loans.csv",
+          8,
+          "E07"
+        ],
+        [
+          "loans.csv",
+          9,
+          "E11"
+        ],
+        [
+          "loans.csv",
+          10,
+          "E05"
+        ],
+        [
+          "loans.csv",
+          11,
+          "E08"
+        ],
+        [
+          "loans.csv",
+          12,
+          "E16"
+        ],
+        [
+          "loan_panel.csv",
+          0,
+          "E12"
+        ],
+        [
+          "loan_panel.csv",
+          5,
+          "E01"
+        ],
+        [
+          "loan_panel.csv",
+          6,
+          "E02"
+        ],
+        [
+          "loan_panel.csv",
+          7,
+          "E03"
+        ],
+        [
+          "loan_panel.csv",
+          8,
+          "E04"
+        ],
+        [
+          "loan_panel.csv",
+          9,
+          "E06"
+        ],
+        [
+          "loan_panel.csv",
+          10,
+          "E09"
+        ],
+        [
+          "loan_panel.csv",
+          11,
+          "E05"
+        ],
+        [
+          "loan_panel.csv",
+          12,
+          "E08"
+        ],
+        [
+          "loan_panel.csv",
+          13,
+          "E11"
+        ],
+        [
+          "loan_panel.csv",
+          16,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          19,
+          "E10"
+        ],
+        [
+          "loan_panel.csv",
+          21,
+          "E13"
+        ],
+        [
+          "loan_panel.csv",
+          23,
+          "E15"
+        ],
+        [
+          "loan_panel.csv",
+          25,
+          "E16"
+        ],
+        [
+          "market_rates.csv",
+          3,
+          "E01"
+        ],
+        [
+          "market_rates.csv",
+          4,
+          "E07"
+        ],
+        [
+          "market_rates.csv",
+          5,
+          "E08"
+        ]
+      ]
+    },
+    "file-header": {
+      "accepted": false,
+      "errors": [
+        [
+          "market_rates.csv",
+          1,
+          "E01"
+        ]
+      ]
+    }
+  }
+}

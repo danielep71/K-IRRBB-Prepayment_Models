@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- `DATA-VALID-01`, `DATA-INVALID-01`, `DATA-EVENT-01` and `DATA-RECON-01` built (#41): the reference reader applies D12–D15 (reconciliation totals, control totals with `E17`, `E12` at line 0, zero-residual `RENEG`); hand-constructed fixtures cover every event and warning, one invalid line per error `E01`–`E16`, every event boundary and each kind of control-total difference. `DATA-REJECT-01` remains `Registered`.
 - Data decisions D12–D15 (#41), decided by the owner on 2026-10-27: the reconciliation totals use the reported balance of terminal rows (D12); a control-total mismatch is the new error `E17`, with the `Controls_Totals` column order (D13); `E12` is reported at `loan_panel.csv` line 0 (D14); a zero-residual `RENEG` needs no successor (D15, amending D11). Nothing implemented.
 - `DATA-PIT-01` and `DATA-PIT-02` built (#41): the reference reader assigns the risk-set outcome of every loan-month (observed by event, gap, censored, past maturity, end of window) and builds the point-in-time view at a forecast origin; four hand-assigned variants, and a seeded property test with a negative control showing that changes after an origin never reach the view at that origin.
 - `DATA-RENEG-01` built (#41): eleven hand-constructed variants of RENEG successor reconciliation (D11), from the 0.005 boundary to successors outside the data window, checked by the reference reader through `python tools/check.py`.

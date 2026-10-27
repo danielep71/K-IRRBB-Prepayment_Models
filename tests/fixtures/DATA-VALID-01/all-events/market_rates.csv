@@ -1,0 +1,3 @@
+as_of_date,rate_id,currency,tenor_months,rate
+2024-01-31,EUR_SWAP_60M,EUR,60,0.03
+2024-01-31,USD_SWAP_60M,USD,60,0.04

@@ -5,6 +5,7 @@ import random
 import sys
 import tempfile
 import unittest
+from collections import Counter
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -35,6 +36,16 @@ class ImportCases(unittest.TestCase):
                 self.assertEqual([list(e) for e in result.errors], want['errors'])
                 if 'warnings' in want:
                     self.assertEqual([list(w) for w in result.warnings], want['warnings'])
+                if 'warning_counts' in want:
+                    self.assertEqual(dict(Counter(w[2] for w in result.warnings)), want['warning_counts'])
+                if 'totals' in want:
+                    got_totals = {'|'.join(k): v for k, v in result.totals.items()}
+                    self.assertEqual(sorted(got_totals), sorted(want['totals']))
+                    for key, measures in want['totals'].items():
+                        full = {m: Decimal(measures.get(m, '0')) for m in reader.RECON_MEASURES}
+                        self.assertEqual(got_totals[key], full, key)
+                if 'control_differences' in want:
+                    self.assertEqual([list(d) for d in result.control_differences], want['control_differences'])
                 for key, month in want.get('loan_months', {}).items():
                     available, prepaid = result.loan_months[tuple(key.split('|'))]
                     self.assertEqual(available, Decimal(month['available']))
@@ -56,6 +67,20 @@ class ImportCases(unittest.TestCase):
 
     def test_data_pit_01(self) -> None:
         self.run_case('DATA-PIT-01')
+
+    def test_data_valid_01(self) -> None:
+        self.run_case('DATA-VALID-01')
+
+    def test_data_recon_01(self) -> None:
+        self.run_case('DATA-RECON-01')
+
+    def test_data_invalid_01(self) -> None:
+        self.run_case('DATA-INVALID-01')
+        codes = {e[2] for e in expected('DATA-INVALID-01')['variants']['every-rule']['errors']}
+        self.assertEqual(codes, {f'E{n:02d}' for n in range(1, 17)})
+
+    def test_data_event_01(self) -> None:
+        self.run_case('DATA-EVENT-01')
 
 
 class FieldCases(unittest.TestCase):

@@ -1,0 +1,112 @@
+{
+  "case": "DATA-EVENT-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Each loan has a 2024-01-31 row with balance 100 and one 2024-02-29 row testing one side of an event rule; maturity 2030-06-15 unless the row tests the maturity month (2024-02-20, or 2024-03-20 for MATURITY a month early). Accepted rows satisfy the balance identity and exposure. NONE: prepaid 0.0001 or balance 0 is E14. PARTIAL: prepaid 0.0001 accepted; prepaid 0 or balance 0 is E14. FULL: balance 0 with prepaid 0.0001 accepted; prepaid 0, balance 0.0001 or the maturity month is E14. MATURITY: accepted in the maturity month; a month early or balance 0.0001 is E14. DEFAULT and SALE: prepaid 0.0001 is E14. RENEG: zero residual (scheduled 100) and T = 0.005 need no successor and are accepted (D15); T = 0.0051 without a successor is E16 on its row; a zero-residual RENEG named by successor R_ZS2 is E16 on R_ZS2 (D15); opening 100, scheduled 120, other_change 20, closing 0 is E14 although the identity holds; prepaid 100, closing 50 and other_change -99 against -100 are E14. zero-residual: the two accepted zero-residual rows alone, accepted. Warnings are not asserted.",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-02-29",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "boundaries": {
+      "accepted": false,
+      "errors": [
+        [
+          "loans.csv",
+          27,
+          "E16"
+        ],
+        [
+          "loan_panel.csv",
+          28,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          29,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          31,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          32,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          34,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          35,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          36,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          38,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          39,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          41,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          43,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          46,
+          "E16"
+        ],
+        [
+          "loan_panel.csv",
+          48,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          49,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          50,
+          "E14"
+        ],
+        [
+          "loan_panel.csv",
+          51,
+          "E14"
+        ]
+      ]
+    },
+    "zero-residual": {
+      "accepted": true,
+      "errors": []
+    }
+  }
+}
