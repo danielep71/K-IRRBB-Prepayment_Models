@@ -1,0 +1,475 @@
+{
+  "case": "DATA-RECON-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Two EUR MTG_FIX loans over 2024-01 and 2024-02; totals 2024-01-31: 2 loans, balance 1500; 2024-02-29: 2 loans, balance 1350, scheduled 100, partial prepaid 50; other measures 0. controls.csv stands for the workbook table Controls_Totals (header line 1). match: every measure equal except the 2024-02 balance 1350.005, a difference of exactly 0.005, accepted. none: no control totals. amount-off: balance 1350.0051, E17 on line 3. count-off: 3 loans for 2024-01, E17 on line 2. missing-key: no 2024-02 row, E17 at line 0 once per measure (16). extra-key: a CON_FIX row with no data, E17 on line 4 once per measure. invalid-rows: an empty count on line 2 and a balance with five decimals on line 3, one E17 per row. duplicate: the 2024-01 row repeated on line 4. file-error: an E13 on panel line 4 with mismatching controls; E17 is not checked (D13).",
+    "date": "2026-10-27",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-02-29",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "match": {
+      "accepted": true,
+      "errors": [],
+      "control_differences": [],
+      "totals": {
+        "2024-01-31|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1500"
+        },
+        "2024-02-29|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1350",
+          "scheduled_principal": "100",
+          "prepaid_partial": "50"
+        }
+      }
+    },
+    "none": {
+      "accepted": true,
+      "errors": [],
+      "control_differences": [],
+      "totals": {
+        "2024-01-31|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1500"
+        },
+        "2024-02-29|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1350",
+          "scheduled_principal": "100",
+          "prepaid_partial": "50"
+        }
+      }
+    },
+    "amount-off": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          3,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          3,
+          "2024-02-29|MTG_FIX|EUR",
+          "balance"
+        ]
+      ]
+    },
+    "count-off": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          2,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          2,
+          "2024-01-31|MTG_FIX|EUR",
+          "loans"
+        ]
+      ]
+    },
+    "missing-key": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          0,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "loans"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "balance"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "scheduled_principal"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "prepaid_partial"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "prepaid_full"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "other_change"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "full_count"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "full_balance"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "maturity_count"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "maturity_balance"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "default_count"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "default_balance"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "reneg_count"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "reneg_balance"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "sale_count"
+        ],
+        [
+          0,
+          "2024-02-29|MTG_FIX|EUR",
+          "sale_balance"
+        ]
+      ]
+    },
+    "extra-key": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "loans"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "balance"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "scheduled_principal"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "prepaid_partial"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "prepaid_full"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "other_change"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "full_count"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "full_balance"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "maturity_count"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "maturity_balance"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "default_count"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "default_balance"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "reneg_count"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "reneg_balance"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "sale_count"
+        ],
+        [
+          4,
+          "2024-02-29|CON_FIX|EUR",
+          "sale_balance"
+        ]
+      ]
+    },
+    "invalid-rows": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          2,
+          "E17"
+        ],
+        [
+          "Controls_Totals",
+          3,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          2,
+          "2024-01-31|MTG_FIX|EUR",
+          ""
+        ],
+        [
+          3,
+          "2024-02-29|MTG_FIX|EUR",
+          ""
+        ]
+      ]
+    },
+    "duplicate": {
+      "accepted": false,
+      "errors": [
+        [
+          "Controls_Totals",
+          4,
+          "E17"
+        ]
+      ],
+      "control_differences": [
+        [
+          4,
+          "2024-01-31|MTG_FIX|EUR",
+          ""
+        ]
+      ]
+    },
+    "file-error": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          4,
+          "E13"
+        ]
+      ],
+      "control_differences": []
+    }
+  }
+}
