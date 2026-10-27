@@ -1,0 +1,32 @@
+{
+  "case": "DATA-SHA-01",
+  "provenance": {
+    "tool": "FIPS 180-2 published examples; GNU coreutils sha256sum 9.4",
+    "date": "2026-10-26",
+    "producer": "Daniele Penza",
+    "steps": "Messages and digests of FIPS 180-2 Appendix B (one-block 'abc', two-block 448-bit message, one million 'a'). File digests of the DATA-IDENT-01/at-tolerance fixture computed with sha256sum, independently of Python hashlib."
+  },
+  "messages": [
+    {
+      "text": "abc",
+      "repeat": 1,
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    },
+    {
+      "text": "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      "repeat": 1,
+      "sha256": "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
+    },
+    {
+      "text": "a",
+      "repeat": 1000000,
+      "sha256": "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"
+    }
+  ],
+  "fixture": "DATA-IDENT-01/at-tolerance",
+  "files": {
+    "loans.csv": "ea08a355710365e3d2f71cfef8e6ba3a5e260d4a98fcd164f084783a662f5803",
+    "loan_panel.csv": "3761bedc836bfc3a1b262328affe2b9ef227f4e677828707ac59fb48dcc96d16",
+    "market_rates.csv": "42cc50d5958aae52655c26b9c3fe9da5b7cc5131d13e48269aff79e791dd32c7"
+  }
+}

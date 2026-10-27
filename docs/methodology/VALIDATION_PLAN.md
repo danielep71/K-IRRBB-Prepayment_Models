@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** A VBA test harness exists (#42) but has not run in Excel; no fixture, reference script, workbook build or Excel record exists, and every check below is planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
+Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** A VBA test harness (#42) and the first fixtures, expected files and reference reader (#41) exist; the harness has not run in Excel, no workbook build or Excel record exists, and every other check below is planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
@@ -9,7 +9,7 @@ This document is authoritative for what independent validation a prepayment impl
 | Layer | Establishes | Does not establish | Where recorded | Today |
 | --- | --- | --- | --- | --- |
 | **Static** | Repository integrity: files, links, provenance register, configuration, tooling tests | That VBA compiles, runs, or calculates correctly | CI check `integrity`; `python tools/check.py` | Executed on every PR |
-| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Planned; `RATE-CONV-01` and `RATE-CONV-02` built in VBA, not executed; all other cases registered |
+| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Partly built: five data cases `Built (Python)` and run by `python tools/check.py`; `RATE-CONV-01` and `RATE-CONV-02` built in VBA, not executed; all other cases registered |
 | **Real host** | That the workbook built from one exact commit compiles and runs on a stated Excel host | Model correctness beyond the cases it ran | Excel evidence record | Planned; no record exists |
 
 A pass in one layer is never reported as a pass in another. A green CI run or a Python reference check is not Excel evidence.
@@ -105,7 +105,7 @@ Every case and check carries one status:
 | `Built (VBA)` | A VBA test exists in the harness; not yet run in Excel |
 | `Executed (Excel)` | Passed in an Excel evidence record for the candidate commit, linked |
 
-Today `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)` and every other case is `Registered`. A status is raised only in the change that delivers it.
+Today `DATA-PARSE-01`, `DATA-IDENT-01`, `DATA-EXPO-01`, `DATA-RENEG-01` and `DATA-SHA-01` are `Built (Python)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
 
 ## Future scope
 

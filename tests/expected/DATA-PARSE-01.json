@@ -1,0 +1,231 @@
+{
+  "case": "DATA-PARSE-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Each input classified by hand against the File format section of the data contract: ISO YYYY-MM-DD dates from year 1900 to 9999; month ends; '.' decimals with digits on both sides of the point, no thousands separator or exponent, within the field's decimal places; codes exactly as listed, upper case. Locale-like forms are rejected.",
+    "date": "2026-10-26",
+    "producer": "Daniele Penza"
+  },
+  "dates": [
+    {
+      "input": "2024-01-31",
+      "valid": true
+    },
+    {
+      "input": "2024-02-29",
+      "valid": true
+    },
+    {
+      "input": "2023-02-29",
+      "valid": false
+    },
+    {
+      "input": "1900-01-01",
+      "valid": true
+    },
+    {
+      "input": "1899-12-31",
+      "valid": false
+    },
+    {
+      "input": "9999-12-31",
+      "valid": true
+    },
+    {
+      "input": "2024-1-31",
+      "valid": false
+    },
+    {
+      "input": "31/01/2024",
+      "valid": false
+    },
+    {
+      "input": "01/31/2024",
+      "valid": false
+    },
+    {
+      "input": "31.01.2024",
+      "valid": false
+    },
+    {
+      "input": "20240131",
+      "valid": false
+    },
+    {
+      "input": "2024/01/31",
+      "valid": false
+    },
+    {
+      "input": " 2024-01-31",
+      "valid": false
+    },
+    {
+      "input": "2024-13-01",
+      "valid": false
+    },
+    {
+      "input": "",
+      "valid": false
+    }
+  ],
+  "month_ends": [
+    {
+      "input": "2024-02-29",
+      "valid": true
+    },
+    {
+      "input": "2023-02-28",
+      "valid": true
+    },
+    {
+      "input": "2024-02-28",
+      "valid": false
+    },
+    {
+      "input": "2024-04-30",
+      "valid": true
+    },
+    {
+      "input": "2024-04-15",
+      "valid": false
+    },
+    {
+      "input": "2024-12-31",
+      "valid": true
+    }
+  ],
+  "decimals": [
+    {
+      "input": "5",
+      "places": 4,
+      "value": "5"
+    },
+    {
+      "input": "1.5",
+      "places": 4,
+      "value": "1.5"
+    },
+    {
+      "input": "-0.01",
+      "places": 8,
+      "value": "-0.01"
+    },
+    {
+      "input": "0.0001",
+      "places": 4,
+      "value": "0.0001"
+    },
+    {
+      "input": "0.00001",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "0.12345678",
+      "places": 8,
+      "value": "0.12345678"
+    },
+    {
+      "input": "1,5",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "1.000,5",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "1,000.5",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "1 000",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "1e3",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": ".5",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "5.",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": " 1.5",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "",
+      "places": 4,
+      "value": null
+    }
+  ],
+  "codes": [
+    {
+      "set": "rate_type",
+      "input": "FIXED",
+      "valid": true
+    },
+    {
+      "set": "rate_type",
+      "input": "fixed",
+      "valid": false
+    },
+    {
+      "set": "rate_type",
+      "input": "Fixed",
+      "valid": false
+    },
+    {
+      "set": "rate_type",
+      "input": "FIXED ",
+      "valid": false
+    },
+    {
+      "set": "event",
+      "input": "RENEG",
+      "valid": true
+    },
+    {
+      "set": "event",
+      "input": "PREPAID",
+      "valid": false
+    },
+    {
+      "set": "payment_months",
+      "input": "12",
+      "valid": true
+    },
+    {
+      "set": "payment_months",
+      "input": "2",
+      "valid": false
+    },
+    {
+      "set": "payment_months",
+      "input": "1.0",
+      "valid": false
+    },
+    {
+      "set": "segment",
+      "input": "MTG_FIX",
+      "valid": true
+    },
+    {
+      "set": "segment",
+      "input": "MTG-FIX",
+      "valid": false
+    }
+  ]
+}
