@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- Data decisions D12–D15 (#41), decided by the owner on 2026-10-27: the reconciliation totals use the reported balance of terminal rows (D12); a control-total mismatch is the new error `E17`, with the `Controls_Totals` column order (D13); `E12` is reported at `loan_panel.csv` line 0 (D14); a zero-residual `RENEG` needs no successor (D15, amending D11). Nothing implemented.
 - `DATA-PIT-01` and `DATA-PIT-02` built (#41): the reference reader assigns the risk-set outcome of every loan-month (observed by event, gap, censored, past maturity, end of window) and builds the point-in-time view at a forecast origin; four hand-assigned variants, and a seeded property test with a negative control showing that changes after an origin never reach the view at that origin.
 - `DATA-RENEG-01` built (#41): eleven hand-constructed variants of RENEG successor reconciliation (D11), from the 0.005 boundary to successors outside the data window, checked by the reference reader through `python tools/check.py`.
 - First fixtures, expected files and reference reader (#41): `tests/reference/data_reader.py` (standard library, exact decimals) applies the data contract; hand-constructed fixtures and expected files make `DATA-PARSE-01`, `DATA-IDENT-01`, `DATA-EXPO-01` and `DATA-SHA-01` `Built (Python)`, run by `python tools/check.py`. Points the contract leaves open are listed in `tests/reference/README.md` and asserted by no case.
