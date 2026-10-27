@@ -2,7 +2,7 @@
   "case": "DATA-RECON-01",
   "provenance": {
     "tool": "hand construction",
-    "steps": "Two EUR MTG_FIX loans over 2024-01 and 2024-02; totals 2024-01-31: 2 loans, balance 1500; 2024-02-29: 2 loans, balance 1350, scheduled 100, partial prepaid 50; other measures 0. controls.csv stands for the workbook table Controls_Totals (header line 1). match: every measure equal except the 2024-02 balance 1350.005, a difference of exactly 0.005, accepted. none: no control totals. amount-off: balance 1350.0051, E17 on line 3. count-off: 3 loans for 2024-01, E17 on line 2. missing-key: no 2024-02 row, E17 at line 0 once per measure (16). extra-key: a CON_FIX row with no data, E17 on line 4 once per measure. invalid-rows: an empty count on line 2 and a balance with five decimals on line 3, one E17 per row. duplicate: the 2024-01 row repeated on line 4. file-error: an E13 on panel line 4 with mismatching controls; E17 is not checked (D13).",
+    "steps": "Two EUR MTG_FIX loans over 2024-01 and 2024-02; totals 2024-01-31: 2 loans, balance 1500; 2024-02-29: 2 loans, balance 1350, scheduled 100, partial prepaid 50; other measures 0. controls.csv stands for the workbook table Controls_Totals (header line 1). match: every measure equal except the 2024-02 balance 1350.005, a difference of exactly 0.005, accepted. none: no control totals. amount-off: balance 1350.0051, E17 on line 3. count-off: 3 loans for 2024-01, E17 on line 2. missing-key: no 2024-02 row, E17 at line 0 once per measure (16). extra-key: a CON_FIX row with no data, E17 on line 4 once per measure. invalid-rows: an empty count on line 2 and a balance with five decimals on line 3, one E17 per row. duplicate: the 2024-01 row repeated on line 4. file-error: an E13 on panel line 4 with mismatching controls; E17 is not checked (D13). header-only (review of #104): the header without rows is an empty Controls_Totals table, so no control totals were supplied; accepted.",
     "date": "2026-10-27",
     "producer": "Daniele Penza"
   },
@@ -470,6 +470,23 @@
         ]
       ],
       "control_differences": []
+    },
+    "header-only": {
+      "accepted": true,
+      "errors": [],
+      "control_differences": [],
+      "totals": {
+        "2024-01-31|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1500"
+        },
+        "2024-02-29|MTG_FIX|EUR": {
+          "loans": "2",
+          "balance": "1350",
+          "scheduled_principal": "100",
+          "prepaid_partial": "50"
+        }
+      }
     }
   }
 }
