@@ -103,9 +103,10 @@ Every case and check carries one status:
 | `Registered` | Defined here or in the case register; nothing built |
 | `Built (Python)` | Fixture, expected file and independent reference script committed and run by `python tools/check.py` |
 | `Built (VBA)` | A VBA test exists in the harness; not yet run in Excel |
+| `Built (Python, VBA)` | Both of the above |
 | `Executed (Excel)` | Passed in an Excel evidence record for the candidate commit, linked |
 
-Today every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
+Today every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)`, of which `DATA-PARSE-01` and `DATA-SHA-01` are `Built (Python, VBA)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
 
 ## Future scope
 

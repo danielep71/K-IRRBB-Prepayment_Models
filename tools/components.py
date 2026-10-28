@@ -3,6 +3,9 @@
 stage    lists the components of a production or test build from the commit
          object (never the working tree), checks names and encoding, and
          writes manifest.json plus CRLF copies for import by Build-Workbook.ps1.
+         The test build also gets the generated TEST_Fixtures and
+         TEST_FixtureData<n> modules, built by vba_fixtures.py from the
+         commit's tests/fixtures and tests/expected.
 compare  checks a folder exported by Export-Workbook.ps1 against a manifest:
          missing, extra and changed components, components of the wrong VBA
          type (a document module must be a document module), code in
@@ -26,6 +29,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import vba_fixtures  # noqa: E402
 import workbook_layout as layout  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +74,28 @@ def digest(text: str) -> str:
 
 def git(*args: str) -> str:
     return subprocess.check_output(['git', *args], cwd=ROOT, text=True)
+
+
+def git_bytes(*args: str) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def fixture_modules(sha: str, names: list[str]) -> dict[str, str]:
+    """The generated fixture modules {name: text} for the commit's fixtures and expected files."""
+    data = {n: git_bytes('show', f'{sha}:{n}') for n in names
+            if n.startswith((vba_fixtures.FIXTURES, vba_fixtures.EXPECTED))}
+    return vba_fixtures.generate(data, sha)
+
+
+def add_generated(components: list[Component], files: dict[str, str], generated: dict[str, str]) -> list[str]:
+    """Append the generated modules to a test build; a committed module may not use their names."""
+    errors = [f'{c.path}: {c.name} is generated for the test build and must not be committed'
+              for c in components if c.name.casefold().startswith(vba_fixtures.RESERVED.casefold())]
+    for name, text in generated.items():
+        path = f'generated/{name}.bas'
+        files[path] = text
+        components.append(Component(name, 'standard', path, digest(text)))
+    return errors
 
 
 def collect(build: str, files: dict[str, str]) -> tuple[list[Component], list[str]]:
@@ -119,6 +145,8 @@ def stage(build: str, commit: str, out: Path) -> int:
     wanted = [n for n in names if str(PurePosixPath(n).parent) in {*SOURCES, *UNSUPPORTED}]
     files = {n: git('show', f'{sha}:{n}') for n in wanted}
     components, errors = collect(build, files)
+    if build == layout.TEST:
+        errors += add_generated(components, files, fixture_modules(sha, names))
     if errors:
         print('\n'.join(errors), file=sys.stderr)
         return 1

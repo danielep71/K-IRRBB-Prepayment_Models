@@ -43,7 +43,8 @@ Private mInjectActive As Boolean
 Private Function CaseIds() As Variant
     'Every case of the harness, in run order. IDs without a UNIT- prefix are
     'cases of docs/methodology/TEST_CASES.md.
-    CaseIds = Array("UNIT-HARNESS-01", "RATE-CONV-01", "RATE-CONV-02", "UNIT-RATE-BOUNDS-01")
+    CaseIds = Array("UNIT-HARNESS-01", "RATE-CONV-01", "RATE-CONV-02", "UNIT-RATE-BOUNDS-01", _
+                    "UNIT-CSV-01", "DATA-PARSE-01", "DATA-SHA-01")
 End Function
 
 Private Sub RunCase(ByVal CaseId As String)
@@ -52,6 +53,9 @@ Private Sub RunCase(ByVal CaseId As String)
         Case "RATE-CONV-01": TEST_Rates.TEST_RateConv01
         Case "RATE-CONV-02": TEST_Rates.TEST_RateConv02
         Case "UNIT-RATE-BOUNDS-01": TEST_Rates.TEST_RateBounds01
+        Case "UNIT-CSV-01": TEST_Data.TEST_UnitCsv01
+        Case "DATA-PARSE-01": TEST_Data.TEST_DataParse01
+        Case "DATA-SHA-01": TEST_Data.TEST_DataSha01
         Case Else: Err.Raise vbObjectError + 1, "TEST_Harness", "Case not in the registry: " & CaseId
     End Select
 End Sub
@@ -137,6 +141,15 @@ End Sub
 Public Sub TEST_CheckTrue(ByVal Label As String, ByVal Condition As Boolean)
     If mInjectActive Then Condition = Not Condition
     If Not Condition Then AddFailure Label
+End Sub
+
+Public Sub TEST_CheckEqual(ByVal Label As String, ByVal Actual As String, ByVal Expected As String)
+    'Exact, case-sensitive text comparison. An injected case compares with a
+    'changed expected text, so the real comparison path must report it.
+    If mInjectActive Then Expected = Expected & "#"
+    If StrComp(Actual, Expected, vbBinaryCompare) <> 0 Then
+        AddFailure Label & ": got """ & Actual & """, expected """ & Expected & """"
+    End If
 End Sub
 
 '------------------------------------------------------------------------------

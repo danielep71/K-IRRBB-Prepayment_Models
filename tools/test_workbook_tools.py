@@ -1,4 +1,5 @@
 """Offline tests of the workbook layout and component tools; no Excel is used."""
+import json
 import re
 import sys
 import tempfile
@@ -8,6 +9,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import components  # noqa: E402
+import vba_fixtures  # noqa: E402
 import workbook_layout as layout  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -156,7 +158,55 @@ class Compare(unittest.TestCase):
         self.assertEqual(self.errors(), [])
 
 
+class Fixtures(unittest.TestCase):
+    def test_flatten(self) -> None:
+        rows = vba_fixtures.flatten({'a': [1, None, True, 'x'], 'b': {'c': 2.5}})
+        self.assertEqual(rows, [('', 'o', '2'), ('/~0', 's', 'a'), ('/a', 'a', '4'), ('/a/0', 'n', '1'),
+                                ('/a/1', 'z', ''), ('/a/2', 'b', '1'), ('/a/3', 's', 'x'), ('/~1', 's', 'b'),
+                                ('/b', 'o', '1'), ('/b/~0', 's', 'c'), ('/b/c', 'n', '2.5')])
+
+    def test_generate(self) -> None:
+        files = {'tests/fixtures/C/v/f.csv': b'ab\xe9\n', 'tests/fixtures/C/v/empty.csv': b'',
+                 'tests/expected/C.json': b'{"provenance": {"tool": "hand"}, "k": 1}'}
+        modules = vba_fixtures.generate(files, '0' * 40)
+        self.assertEqual(list(modules), ['TEST_Fixtures', 'TEST_FixtureData1'])
+        main, data = modules['TEST_Fixtures'], modules['TEST_FixtureData1']
+        self.assertTrue(all(t.isascii() for t in modules.values()))
+        self.assertIn('Case "C/v/f.csv": TEST_FixtureBytes = Decode(TEST_FixtureData1.F0001(), Length)', main)
+        self.assertIn('Case "C": TEST_ExpectedBytes = Decode(TEST_FixtureData1.X0000(), Length)', main)
+        self.assertIn('"6162e90a"', data)
+        self.assertIn(b'\tn\t1\n'.hex(), data)
+        self.assertNotIn('hand'.encode().hex(), data)    # provenance is left out
+        for name, text in modules.items():
+            self.assertEqual(components.collect(layout.TEST, {f'tests/modules/{name}.bas': text})[1], [])
+
+    def test_data_modules_stay_small(self) -> None:
+        files = {f'tests/fixtures/C/v/f{i:03d}.csv': bytes(range(256)) * 20 for i in range(60)}
+        modules = vba_fixtures.generate(files, '0' * 40)
+        self.assertGreater(len(modules), 3)
+        for name, text in modules.items():
+            self.assertLess(len(text), vba_fixtures.MODULE_LIMIT + 11_000, name)
+            self.assertTrue(all(len(line) < 1023 for line in text.splitlines()), name)
+
+    def test_generated_names_are_reserved(self) -> None:
+        committed, _ = components.collect(layout.TEST, {**VALID, 'tests/modules/TEST_FixtureData1.bas':
+                                                        module('TEST_FixtureData1')})
+        errors = components.add_generated(committed, {}, {'TEST_Fixtures': module('TEST_Fixtures')})
+        self.assertTrue(any('TEST_FixtureData1 is generated' in e for e in errors), errors)
+        self.assertIn('TEST_Fixtures', [c.name for c in committed])
+
+
 class Stage(unittest.TestCase):
+    def test_stage_test_build_adds_fixture_modules(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / 'stage'
+            self.assertEqual(components.stage(layout.TEST, 'HEAD', out), 0)
+            manifest = json.loads((out / 'manifest.json').read_text(encoding='utf-8'))
+            generated = [c for c in manifest['components'] if c['path'].startswith('generated/')]
+            self.assertEqual(generated[0]['name'], 'TEST_Fixtures')
+            for c in generated:
+                self.assertTrue((out / 'components' / f'{c["name"]}.bas').read_bytes().isascii())
+
     def test_stage_head(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / 'stage'

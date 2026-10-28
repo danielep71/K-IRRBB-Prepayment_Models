@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted by the owner on 2026-10-21 (issue #15). Every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)` (#41); `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)` (#42); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted by the owner on 2026-10-21 (issue #15). Every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)` (#41), and `DATA-PARSE-01` and `DATA-SHA-01` are also built in VBA, `Built (Python, VBA)` (#42); `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)` (#42); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -37,8 +37,8 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `DATA-PIT-01` | Risk-set outcome of every loan-month: observed by event, gap, censored, past maturity, end of window | Hand assignment | `exact` | Built (Python) |
 | `DATA-PIT-02` | Leakage: changing information after an origin leaves the point-in-time view at that origin unchanged; negative control without the filter | Property test | `exact` | Built (Python) |
 | `DATA-RECON-01` | Reconciliation against user control totals; a mismatch, a key on one side only or an invalid control row rejects the import with `E17` (D13) | Hand construction | `abs 0.005`; `exact` counts | Built (Python) |
-| `DATA-SHA-01` | SHA-256 fingerprint of each input file | Published FIPS 180 examples and an independent digest | `exact` | Built (Python) |
-| `DATA-PARSE-01` | ISO dates, month ends, decimals and codes; locale-like forms rejected | [File format](DATA_CONTRACT.md#file-format) | `exact` | Built (Python) |
+| `DATA-SHA-01` | SHA-256 fingerprint of each input file | Published FIPS 180 examples and an independent digest | `exact` | Built (Python, VBA) |
+| `DATA-PARSE-01` | ISO dates, month ends, decimals and codes; locale-like forms rejected | [File format](DATA_CONTRACT.md#file-format) | `exact` | Built (Python, VBA) |
 
 ### Prepayment rates
 
