@@ -8,8 +8,8 @@ the point-in-time view at a forecast origin. It is reference tooling only
 (decision V4): standard library, exact decimal arithmetic, never a runtime
 dependency, and written without reference to any toolkit source.
 
-Where the contract does not settle a behaviour, the choice made here is
-listed in tests/reference/README.md and no registered case asserts it.
+The validation conventions of decision D16, which settle what the rules
+leave open, are listed in tests/reference/README.md.
 """
 from __future__ import annotations
 
@@ -407,8 +407,8 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
             fail(row, 'E10')
         elif opening is not None and abs(bal - (opening - sched - prepaid + other)) > TOLERANCE:
             fail(row, 'E13')
-        elif previous is not None and opening is not None and prepaid > opening - sched + max(other, Decimal(0)):
-            fail(row, 'E15')
+        elif opening is not None and prepaid > opening - sched + max(other, Decimal(0)):
+            fail(row, 'E15')    # also on a first row in the origination month, against original_balance (D16)
         if previous is not None and opening is not None and opening > 0 and as_of_of(previous) < maturity_end:
             available = opening - sched + max(other, Decimal(0))
             if available > 0 and event in {'NONE', 'PARTIAL', 'FULL'}:
@@ -420,7 +420,7 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
         if previous is not None and ok(row):
             month = previous_month_end(as_of)
             while month > previous.parsed['as_of_date']:  # type: ignore[operator]
-                result.warnings.append((PANEL, row.line, 'W01'))
+                result.warnings.append((PANEL, 0, 'W01'))    # at the missing month: line 0 (D16)
                 month = previous_month_end(month)
         terminal_seen = terminal_seen or event in TERMINAL
         previous = row

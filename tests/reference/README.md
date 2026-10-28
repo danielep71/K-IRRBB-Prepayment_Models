@@ -6,17 +6,17 @@ Independent offline references for the [case register](../../docs/methodology/TE
 
 Reads the three input files of one import, and optional control totals, and applies the [data contract](../../docs/methodology/DATA_CONTRACT.md): file format, errors `E01`–`E17` in the first-error order, warnings `W01`–`W06`, the data window, RENEG successor reconciliation (D11, D15), reconciliation totals (D12) and control totals (D13), loan-month exposure, the risk-set outcome of each loan-month, the point-in-time view at a forecast origin and SHA-256 fingerprints. Amounts use exact decimal arithmetic in a wide context that traps rounding: an amount is never rounded silently, and an input that would need rounding stops the reader.
 
-### Choices where the contract is silent
+### Validation conventions (D16)
 
-The reader needs a behaviour for the points below. The contract does not settle them, so **no expected file asserts them**; a case that depends on one needs an owner decision first.
+These points were reader choices where the contract was silent. The owner decided them on 2026-10-28 as data decision D16; the [data contract](../../docs/methodology/DATA_CONTRACT.md#validation-conventions) now states them, and expected files may assert them.
 
-| # | Point | Choice in the reader |
+| # | Point | Convention |
 | ---: | --- | --- |
 | 1 | Previous row of a loan | The loan's row at the previous month end. After a gap (`W01`) the balance identity, exposure and RENEG flow checks are not applied; a `RENEG` row without a previous-month row fails `E14` |
-| 2 | Exposure on a loan's first row | `E15` is not checked on a loan's first row, also in its origination month, because no loan-month ends there |
+| 2 | Exposure on a loan's first row | In its origination month, `E15` is checked against `original_balance`, as the balance identity is; any other first row is not checked |
 | 3 | Window exclusion | `W04` is decided after the single-row checks and `E11`; excluded rows enter no cross-row rule (`E05`, `E08`, `E10`, `E12`–`E16`) |
 | 4 | Duplicates | `E05` counts only rows that passed the earlier rules |
-| 5 | Location of `W01` | At the line of the row after the gap, once per missing month (`E12` is at line 0 by D14) |
+| 5 | Location of `W01` | `loan_panel.csv` line 0, once per missing month, as `E12` (D14) |
 | 6 | Decimal sign | An optional leading `-`; `+` is rejected; leading zeros are accepted |
 | 7 | Loan-month table | `NONE`, `PARTIAL` and `FULL` outcomes only, as under the default of D4 and D5; `MATURITY` is left out |
 | 8 | A failed row as previous row | A row that failed an earlier rule still serves as the previous row of the next month |
