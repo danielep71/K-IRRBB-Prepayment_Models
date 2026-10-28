@@ -175,6 +175,7 @@ class Fixtures(unittest.TestCase):
         self.assertIn('Case "C/v/f.csv": TEST_FixtureBytes = Decode(TEST_FixtureData1.F0001(), Length)', main)
         self.assertIn('Case "C": TEST_ExpectedBytes = Decode(TEST_FixtureData1.X0000(), Length)', main)
         self.assertIn('"6162e90a"', data)
+        self.assertIn('Case "C/v/empty.csv": TEST_HasFixture = True', main)
         self.assertIn(b'\tn\t1\n'.hex(), data)
         self.assertNotIn('hand'.encode().hex(), data)    # provenance is left out
         for name, text in modules.items():

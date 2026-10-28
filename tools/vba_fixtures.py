@@ -119,6 +119,7 @@ def generate(files: dict[str, bytes], commit: str) -> dict[str, str]:
         "'",
         "' TEST_FixtureBytes(Path, Length)  the bytes of tests/fixtures/<Path>",
         "' TEST_ExpectedBytes(CaseId, Length)  the flattened tests/expected/<CaseId>.json",
+        "' TEST_HasFixture(Path)            True when tests/fixtures/<Path> exists",
         "'   Both return a 0-based Byte array in a Variant and set Length; an empty",
         f"'   file returns one unused byte and Length 0. The data is in {DATA_NAME}1 to",
         f"'   {DATA_NAME}{len(modules)}.",
@@ -133,6 +134,9 @@ def generate(files: dict[str, bytes], commit: str) -> dict[str, str]:
             out.append(f'        Case {vba_string(item)}: {name} = Decode({where[function]}.{function}(), Length)')
         out += [f'        Case Else: Err.Raise vbObjectError + 1, "{NAME}", "Not in the test build: " & {key}',
                 '    End Select', 'End Function', '']
+    out += ['Public Function TEST_HasFixture(ByVal Path As String) As Boolean', '    Select Case Path']
+    out += [f'        Case {vba_string(item)}: TEST_HasFixture = True' for item in fixtures]
+    out += ['    End Select', 'End Function', '']
     out += [
         'Private Function Decode(ByVal HexText As String, ByRef Length As Long) As Variant',
         '    Dim B() As Byte, I As Long',

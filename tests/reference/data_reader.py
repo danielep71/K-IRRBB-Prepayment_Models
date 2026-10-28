@@ -569,7 +569,8 @@ def parse_control(values: dict[str, str]) -> dict[str, Decimal] | None:
     measures: dict[str, Decimal] = {}
     for name in RECON_MEASURES:
         text = values[name]
-        value = (Decimal(text) if COUNT_RE.fullmatch(text) else None) if name in COUNT_MEASURES \
+        # Counts are unsigned integers, below 10^15 like every decimal (D17).
+        value = (parse_decimal(text, 0) if COUNT_RE.fullmatch(text) else None) if name in COUNT_MEASURES \
             else parse_decimal(text, 4)
         if value is None:
             return None
