@@ -92,7 +92,8 @@ def parse_decimal(text: str, places: int) -> Decimal | None:
     if match.group(1) is not None and len(match.group(1)) > places:
         return None
     value = Decimal(text)
-    return value if abs(value) < DECIMAL_LIMIT else None
+    # Comparisons never round, unlike abs() in the reader's trapping context (review of #110).
+    return value if -DECIMAL_LIMIT < value < DECIMAL_LIMIT else None
 
 
 def previous_month_end(value: date) -> date:

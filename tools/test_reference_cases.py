@@ -132,6 +132,10 @@ class ReaderEdges(unittest.TestCase):
                            ['2024-01-31,L1,1000000000000000,0.03,0,0,0,NONE'], date(2024, 1, 31), date(2024, 1, 31))
         # The month's only row fails E04, so the month also has no panel rows (E12).
         self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 0, 'E12'], [reader.PANEL, 2, 'E04']])
+        # Review of #110: an amount longer than the reader's 1,000-digit context is E04, not a crash.
+        result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           [f'2024-01-31,L1,{"9" * 1001},0.03,0,0,0,NONE'], date(2024, 1, 31), date(2024, 1, 31))
+        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 0, 'E12'], [reader.PANEL, 2, 'E04']])
 
     def test_window_ending_in_9999(self) -> None:
         result = self.read(['L1,MTG_FIX,EUR,9999-01-15,9999-12-31,1,FIXED,,,ANNUITY,1,NONE,,'],
