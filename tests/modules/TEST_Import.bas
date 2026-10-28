@@ -15,10 +15,14 @@ Attribute VB_Name = "TEST_Import"
 '     outcomes                the whole outcome table
 '     loan_months             each listed loan-month: available, prepaid and,
 '                             when given, SMM = prepaid / available, exactly
+'     totals                  every key, each measure exactly (unlisted = 0)
+'     control_differences     as an exact list
+'   A variant with a controls.csv passes its lines as the control totals.
 '
 ' CASES
-'   DATA-IDENT-01, DATA-EXPO-01, DATA-RENEG-01, DATA-EVENT-01,
-'   DATA-INVALID-01 and DATA-PIT-01 through TEST_ImportCase.
+'   DATA-VALID-01, DATA-INVALID-01, DATA-EVENT-01, DATA-IDENT-01,
+'   DATA-EXPO-01, DATA-RENEG-01, DATA-PIT-01 and DATA-RECON-01 through
+'   TEST_ImportCase.
 '==============================================================================
 
 Option Explicit
@@ -45,12 +49,18 @@ End Sub
 Private Sub CheckVariant(ByVal CaseId As String, ByVal Name As String, ByVal V As String, _
                          ByVal Start As Date, ByVal Finish As Date, ByVal Allow As Variant)
     Dim L() As Byte, LN As Long, P() As Byte, PN As Long, R() As Byte, RN As Long, Errors As Long
-    Dim Label As String, Accepted As Boolean
+    Dim Label As String, Accepted As Boolean, Controls As Variant, C() As Byte, CN As Long
     Label = CaseId & "/" & Name & " "
     L = TEST_Fixtures.TEST_FixtureBytes(CaseId & "/" & Name & "/loans.csv", LN)
     P = TEST_Fixtures.TEST_FixtureBytes(CaseId & "/" & Name & "/loan_panel.csv", PN)
     R = TEST_Fixtures.TEST_FixtureBytes(CaseId & "/" & Name & "/market_rates.csv", RN)
-    Errors = CORE_ReadImport(L, LN, P, PN, R, RN, Start, Finish, Allow)
+    If TEST_Fixtures.TEST_HasFixture(CaseId & "/" & Name & "/controls.csv") Then
+        C = TEST_Fixtures.TEST_FixtureBytes(CaseId & "/" & Name & "/controls.csv", CN)
+        Controls = ControlLines(C, CN)
+        Errors = CORE_ReadImport(L, LN, P, PN, R, RN, Start, Finish, Allow, Controls)
+    Else
+        Errors = CORE_ReadImport(L, LN, P, PN, R, RN, Start, Finish, Allow)
+    End If
     Accepted = (TEST_Expected.TEST_Value(CaseId, V & "/accepted") = "1")
     TEST_Harness.TEST_CheckTrue Label & "accepted", (Errors = 0) = Accepted
     TEST_Harness.TEST_CheckEqual Label & "errors", ResultText(CORE_ImportResult("errors"), 3), ExpectedText(CaseId, V & "/errors", 3)
@@ -76,7 +86,77 @@ Private Sub CheckVariant(ByVal CaseId As String, ByVal Name As String, ByVal V A
     If Len(TEST_Expected.TEST_Kind(CaseId, V & "/loan_months")) > 0 Then
         CheckLoanMonths Label, CaseId, V & "/loan_months", CORE_ImportResult("loan_months")
     End If
+    If Len(TEST_Expected.TEST_Kind(CaseId, V & "/totals")) > 0 Then
+        TEST_Harness.TEST_CheckEqual Label & "totals", Totals(CORE_ImportResult("totals")), _
+            ExpectedTotals(CaseId, V & "/totals")
+    End If
+    If Len(TEST_Expected.TEST_Kind(CaseId, V & "/control_differences")) > 0 Then
+        TEST_Harness.TEST_CheckEqual Label & "control differences", _
+            ResultText(CORE_ImportResult("differences"), 3), ExpectedText(CaseId, V & "/control_differences", 3)
+    End If
 End Sub
+
+Private Function ControlLines(ByRef Data() As Byte, ByVal Length As Long) As Variant
+    'The lines of a controls.csv, 1-based; an empty file gives no lines.
+    Dim Lines() As String, Ascii() As Boolean, N As Long
+    N = CORE_SplitLines(Data, Length, Lines, Ascii)
+    If N = 0 Then
+        ControlLines = Array()
+    Else
+        ControlLines = Lines
+    End If
+End Function
+
+'------------------------------------------------------------------------------
+' Reconciliation totals
+'------------------------------------------------------------------------------
+
+Private Function MeasureNames() As Variant
+    MeasureNames = Array("loans", "balance", "scheduled_principal", "prepaid_partial", "prepaid_full", _
+                         "other_change", "full_count", "full_balance", "maturity_count", "maturity_balance", _
+                         "default_count", "default_balance", "reneg_count", "reneg_balance", "sale_count", _
+                         "sale_balance")
+End Function
+
+Private Function Totals(ByVal Table As Variant) As String
+    'Every total as "date|segment|currency=v1,...,v16" in key order, each
+    'value as canonical decimal text.
+    Dim Items() As String, I As Long, J As Long, N As Long
+    If IsEmpty(Table) Then Exit Function
+    N = UBound(Table, 1)
+    ReDim Items(1 To N)
+    For I = 1 To N
+        Items(I) = Table(I, 1) & "|" & Table(I, 2) & "|" & Table(I, 3) & "="
+        For J = 4 To 19
+            If J > 4 Then Items(I) = Items(I) & ","
+            Items(I) = Items(I) & Table(I, J)
+        Next J
+    Next I
+    Totals = JoinSorted(Items, N)
+End Function
+
+Private Function ExpectedTotals(ByVal CaseId As String, ByVal Path As String) As String
+    'The expected totals in the same form; a measure not listed is 0.
+    Dim Items() As String, I As Long, J As Long, N As Long, Key As String, Names As Variant, Item As String
+    N = TEST_Expected.TEST_Count(CaseId, Path)
+    If N = 0 Then Exit Function
+    Names = MeasureNames()
+    ReDim Items(1 To N)
+    For I = 1 To N
+        Key = TEST_Expected.TEST_Key(CaseId, Path, I - 1)
+        Items(I) = Key & "="
+        For J = 0 To 15
+            If J > 0 Then Items(I) = Items(I) & ","
+            Item = Path & "/" & Key & "/" & Names(J)
+            If Len(TEST_Expected.TEST_Kind(CaseId, Item)) > 0 Then
+                Items(I) = Items(I) & CORE_DecimalText(Exact(TEST_Expected.TEST_Value(CaseId, Item)))
+            Else
+                Items(I) = Items(I) & "0"
+            End If
+        Next J
+    Next I
+    ExpectedTotals = JoinSorted(Items, N)
+End Function
 
 '------------------------------------------------------------------------------
 ' Lists as text

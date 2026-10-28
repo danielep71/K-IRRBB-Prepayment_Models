@@ -211,7 +211,7 @@ Decision D16 fixes the points the rules above leave open:
 9. **Order of findings**: by file (register, panel, market rates, then `Controls_Totals`), then line.
 10. **Self-link**: a register row whose `predecessor_id` is its own `loan_id` is `E16`.
 11. **Past maturity at the window end**: a loan-month starting at or after the month end of `maturity_date` is past maturity, also at the window end, and is never right-censored.
-12. **Control totals**: `Controls_Totals` lines are numbered like the input files (header line 1); a wrong header is one `E17` at line 1; a key needs a month-end `as_of_date`, a known segment and a three-letter currency; counts are unsigned integers and amounts decimals with at most four places; an invalid row still stands for its key.
+12. **Control totals**: `Controls_Totals` lines are numbered like the input files (header line 1); a wrong header is one `E17` at line 1; a key needs a month-end `as_of_date`, a known segment and a three-letter currency; counts are unsigned integers below 10^15 (D17) and amounts decimals with at most four places; an invalid row still stands for its key.
 13. **Prepayment on a `MATURITY` row** enters neither `prepaid_partial` nor `prepaid_full`.
 
 ## Risk set, missing observations and censoring

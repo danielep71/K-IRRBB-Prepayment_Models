@@ -106,7 +106,7 @@ Every case and check carries one status:
 | `Built (Python, VBA)` | Both of the above |
 | `Executed (Excel)` | Passed in an Excel evidence record for the candidate commit, linked |
 
-Today every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)`, of which `DATA-PARSE-01`, `DATA-SHA-01`, `DATA-IDENT-01`, `DATA-EXPO-01`, `DATA-RENEG-01`, `DATA-EVENT-01`, `DATA-INVALID-01` and `DATA-PIT-01` are `Built (Python, VBA)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
+Today every `DATA-*` case except `DATA-REJECT-01` is `Built (Python)`, all of which except `DATA-PIT-02` are `Built (Python, VBA)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
 
 ## Future scope
 

@@ -7,16 +7,20 @@ Attribute VB_Name = "CORE_Import"
 '   of its three files: errors E01 to E16 in the contract's first-error
 '   order, warnings W01 to W06, the data window, RENEG successor
 '   reconciliation (D11, D15), loan-month exposures and the risk-set outcome
-'   of every loan-month, with the validation conventions of D16. E17,
-'   reconciliation totals and control totals are not part of this module yet.
+'   of every loan-month, with the validation conventions of D16; and, when
+'   the three files have no error, the reconciliation totals (D12) and the
+'   comparison with optional control totals (E17, D13).
 '
 ' USAGE
 '   CORE_ReadImport reads one import and keeps the results of that import in
 '   module state; CORE_ImportResult returns each kind of result as an array.
-'   The caller reads the files; this module touches no file.
+'   The caller reads the files; this module touches no file. Control totals
+'   come as text lines in the file format (header first), so the workbook
+'   adapter joins the cells of each Controls_Totals row with commas.
 '
 ' ORDER OF FINDINGS
-'   Errors by file (loans.csv, loan_panel.csv, market_rates.csv), then line;
+'   Errors by file (loans.csv, loan_panel.csv, market_rates.csv, then
+'   Controls_Totals), then line;
 '   warnings by file, line and code (D16). E12 and W01 are at line 0, with
 '   their keys in the "missing" and "gaps" results.
 '
@@ -39,6 +43,12 @@ Private Const LOANS_HEADER As String = "loan_id,segment,currency,origination_dat
 Private Const PANEL_HEADER As String = "as_of_date,loan_id,balance,client_rate,scheduled_principal," & _
     "prepaid_principal,other_change,event"
 Private Const RATES_HEADER As String = "as_of_date,rate_id,currency,tenor_months,rate"
+Private Const CONTROLS As String = "Controls_Totals"
+'Reconciliation measures in the Controls_Totals column order (workbook contract, D12, D13).
+Private Const MEASURES As String = "loans,balance,scheduled_principal,prepaid_partial,prepaid_full,other_change," & _
+    "full_count,full_balance,maturity_count,maturity_balance,default_count,default_balance," & _
+    "reneg_count,reneg_balance,sale_count,sale_balance"
+Private Const COUNT_MEASURES As String = "|loans|full_count|maturity_count|default_count|reneg_count|sale_count|"
 Private Const TERMINAL As String = "|FULL|MATURITY|DEFAULT|RENEG|SALE|"
 Private Const SEP As String = vbTab
 
@@ -64,7 +74,9 @@ Private mRN As Long, mRLine() As Long, mRF() As Variant, mROk() As Boolean, mRIn
 
 'Results, each a list of tab-joined records.
 Private mErrors As Collection, mWarnings As Collection, mGaps As Collection, mMissing As Collection
-Private mLoanMonths As Collection, mOutcomes As Collection
+Private mLoanMonths As Collection, mOutcomes As Collection, mDifferences As Collection
+'Reconciliation totals: key "as_of_date<TAB>segment<TAB>currency" -> index into mTotal*.
+Private mTotalIndex As Collection, mTotalN As Long, mTotalKey() As String, mTotalValue() As Variant
 
 Private mTolerance As Variant
 
@@ -76,9 +88,11 @@ Public Function CORE_ReadImport(ByRef LoansData() As Byte, ByVal LoansLength As 
                                 ByRef PanelData() As Byte, ByVal PanelLength As Long, _
                                 ByRef RatesData() As Byte, ByVal RatesLength As Long, _
                                 ByVal WindowStart As Date, ByVal WindowEnd As Date, _
-                                ByVal Allowlist As Variant) As Long
+                                ByVal Allowlist As Variant, Optional ByVal ControlLines As Variant) As Long
     'Validate one import; returns the number of errors (0: accepted).
-    'Allowlist is a 0-based array of ISO currency codes.
+    'Allowlist is a 0-based array of ISO currency codes. ControlLines, when
+    'given, is a 1-based array of the control-total lines, header first; a
+    'header alone means no control totals (D13).
     Dim Register As Collection
     Set mErrors = New Collection
     Set mWarnings = New Collection
@@ -86,6 +100,9 @@ Public Function CORE_ReadImport(ByRef LoansData() As Byte, ByVal LoansLength As 
     Set mMissing = New Collection
     Set mLoanMonths = New Collection
     Set mOutcomes = New Collection
+    Set mDifferences = New Collection
+    Set mTotalIndex = New Collection
+    mTotalN = 0
     mTolerance = CDec(5) / CDec(1000)    'decision D9
     LoadRows LoansData, LoansLength, PanelData, PanelLength, RatesData, RatesLength
     CheckSingleRows Allowlist
@@ -97,6 +114,12 @@ Public Function CORE_ReadImport(ByRef LoansData() As Byte, ByVal LoansLength As 
     CheckHistories Register, WindowEnd
     CheckSuccessors Register, WindowStart, WindowEnd
     CheckExtracts WindowStart, WindowEnd
+    If mErrors.Count = 0 Then    'D13: totals and E17 only when the three files have no error
+        ComputeTotals Register
+        If Not IsMissing(ControlLines) Then
+            If Not IsEmpty(ControlLines) Then CheckControls ControlLines
+        End If
+    End If
     CORE_ReadImport = mErrors.Count
 End Function
 
@@ -108,6 +131,10 @@ Public Function CORE_ImportResult(ByVal Kind As String) As Variant
     '  missing            month end (ISO) of each E12
     '  loan_months        loan_id, as_of_date (ISO), available, prepaid
     '  outcomes           loan_id, start month end t-1 (ISO), outcome
+    '  totals             as_of_date, segment, currency, then the 16 measures
+    '                     of Controls_Totals as decimal text; by key
+    '  differences        Controls_Totals line, key "date|segment|currency",
+    '                     measure (empty for an invalid row), one per E17
     Dim Items As Collection
     Select Case Kind
         Case "errors": CORE_ImportResult = Table(Sorted(mErrors, True), 3)
@@ -122,6 +149,10 @@ Public Function CORE_ImportResult(ByVal Kind As String) As Variant
         Case "outcomes"
             Set Items = mOutcomes
             CORE_ImportResult = Table(Items, 3)
+        Case "totals"
+            CORE_ImportResult = Table(Sorted(TotalRows(), False), 19)
+        Case "differences"
+            CORE_ImportResult = Table(Sorted(mDifferences, True), 3)
         Case Else
             Err.Raise vbObjectError + 1201, "CORE_Import", "Unknown result: " & Kind
     End Select
@@ -628,6 +659,210 @@ Private Sub CheckExtracts(ByVal WindowStart As Date, ByVal WindowEnd As Date)
 End Sub
 
 '------------------------------------------------------------------------------
+' Reconciliation totals (D12) and control totals (E17, D13)
+'------------------------------------------------------------------------------
+
+Private Sub ComputeTotals(ByVal Register As Collection)
+    'Per as_of_date, segment and currency over the panel rows inside the
+    'window: loans, balance, scheduled principal, prepaid principal of
+    'PARTIAL and FULL rows, other_change, and the count and reported balance
+    'of the rows of each terminal event.
+    Dim I As Long, Loan As Long, K As String, T As Long, Values As Variant, Ev As String, M As Long
+    For I = 1 To mPN
+        If mPInside(I) And mPOk(I) Then
+            Loan = Lookup(Register, mPF(I)(P_ID))
+            K = mPF(I)(P_AS_OF) & SEP & mLF(Loan)(L_SEGMENT) & SEP & mLF(Loan)(L_CURRENCY)
+            T = Lookup(mTotalIndex, KeyOf(K), True)
+            If T = 0 Then
+                mTotalN = mTotalN + 1
+                ReDim Preserve mTotalKey(1 To mTotalN)
+                ReDim Preserve mTotalValue(1 To mTotalN)
+                mTotalKey(mTotalN) = K
+                mTotalValue(mTotalN) = ZeroMeasures()
+                mTotalIndex.Add mTotalN, KeyOf(K)
+                T = mTotalN
+            End If
+            Values = mTotalValue(T)
+            Values(0) = Values(0) + 1
+            Values(1) = Values(1) + mPBal(I)
+            Values(2) = Values(2) + mPSched(I)
+            Values(5) = Values(5) + mPOther(I)
+            Ev = mPF(I)(P_EVENT)
+            If Ev = "PARTIAL" Then Values(3) = Values(3) + mPPrepaid(I)
+            If Ev = "FULL" Then Values(4) = Values(4) + mPPrepaid(I)
+            M = ExitColumn(Ev)
+            If M >= 0 Then
+                Values(M) = Values(M) + 1
+                Values(M + 1) = Values(M + 1) + mPBal(I)
+            End If
+            mTotalValue(T) = Values
+        End If
+    Next I
+End Sub
+
+Private Function ExitColumn(ByVal Ev As String) As Long
+    'The 0-based measure column of the count of a terminal event, or -1.
+    Select Case Ev
+        Case "FULL": ExitColumn = 6
+        Case "MATURITY": ExitColumn = 8
+        Case "DEFAULT": ExitColumn = 10
+        Case "RENEG": ExitColumn = 12
+        Case "SALE": ExitColumn = 14
+        Case Else: ExitColumn = -1
+    End Select
+End Function
+
+Private Function ZeroMeasures() As Variant
+    Dim Out(0 To 15) As Variant, I As Long
+    For I = 0 To 15
+        Out(I) = CDec(0)
+    Next I
+    ZeroMeasures = Out
+End Function
+
+Private Function TotalRows() As Collection
+    'The totals as tab-joined rows: the key, then the measures as text.
+    Dim I As Long, J As Long, Row As String, Out As Collection
+    Set Out = New Collection
+    For I = 1 To mTotalN
+        Row = mTotalKey(I)
+        For J = 0 To 15
+            Row = Row & SEP & CORE_DecimalText(mTotalValue(I)(J))
+        Next J
+        Out.Add Row
+    Next I
+    Set TotalRows = Out
+End Function
+
+Private Sub CheckControls(ByVal Lines As Variant)
+    'E17 once per key and measure at its control line (line 0 when the key
+    'has no control row), and once per invalid or duplicated control line;
+    'a header that differs is one E17 at line 1 (D13, D16).
+    Dim Header As String, First As Long, Last As Long, I As Long, J As Long, F As Variant
+    Dim Keys As Collection, Controls As Collection, Parsed() As Variant, Valid As Boolean, HasKey As Boolean
+    Dim K As String, AllKeys() As String, N As Long, Order As Variant, Line As Long, T As Long
+    Dim Names As Variant, Control As Variant, Computed As Variant
+    Header = "as_of_date,segment,currency," & MEASURES
+    Names = Split(MEASURES, ",")
+    First = LBound(Lines)
+    Last = UBound(Lines)
+    If Last < First Then
+        Differ 1, "", ""
+        Exit Sub
+    End If
+    If Not IsAscii(CStr(Lines(First))) Or CStr(Lines(First)) <> Header Then
+        Differ 1, "", ""
+        Exit Sub
+    End If
+    If Last = First Then Exit Sub    'an empty Controls_Totals table: no control totals
+    Set Controls = New Collection    'key -> control line
+    ReDim Parsed(First To Last)
+    For I = First + 1 To Last
+        Line = I - First + 1
+        F = CORE_SplitFields(CStr(Lines(I)))
+        Valid = IsAscii(CStr(Lines(I))) And UBound(F) = 18
+        HasKey = Valid
+        If Valid Then
+            K = F(0) & SEP & F(1) & SEP & F(2)
+            Parsed(I) = ParseControl(F)
+        Else
+            K = ""
+            Parsed(I) = Empty
+        End If
+        If IsEmpty(Parsed(I)) Then
+            Differ Line, Replace(K, SEP, "|"), ""
+        ElseIf Lookup(Controls, KeyOf(K), True) > 0 Then
+            Differ Line, Replace(K, SEP, "|"), ""
+        End If
+        If HasKey Then
+            If Lookup(Controls, KeyOf(K), True) = 0 Then Controls.Add I, KeyOf(K)    'an invalid row still stands for its key
+        End If
+    Next I
+    'Every key of either side, in key order.
+    Set Keys = New Collection
+    ReDim AllKeys(1 To mTotalN + Last - First + 1)
+    For I = 1 To mTotalN
+        AddKey Keys, AllKeys, N, mTotalKey(I)
+    Next I
+    For I = First + 1 To Last
+        F = CORE_SplitFields(CStr(Lines(I)))
+        If IsAscii(CStr(Lines(I))) And UBound(F) = 18 Then AddKey Keys, AllKeys, N, F(0) & SEP & F(1) & SEP & F(2)
+    Next I
+    If N = 0 Then Exit Sub
+    Order = SortedOrder(AllKeys, N)
+    For I = 1 To N
+        K = AllKeys(Order(I))
+        J = Lookup(Controls, KeyOf(K), True)
+        If J > 0 Then
+            Line = J - First + 1
+            Control = Parsed(J)
+        Else
+            Line = 0
+            Control = Empty
+        End If
+        If Not (J > 0 And IsEmpty(Control)) Then
+            T = Lookup(mTotalIndex, KeyOf(K), True)
+            If T > 0 Then Computed = mTotalValue(T) Else Computed = Empty
+            For J = 0 To 15
+                If IsEmpty(Control) Or IsEmpty(Computed) Then
+                    Differ Line, Replace(K, SEP, "|"), CStr(Names(J))
+                ElseIf Abs(Control(J) - Computed(J)) > mTolerance Then
+                    'Counts parse as integers only, so the tolerance compares them exactly.
+                    Differ Line, Replace(K, SEP, "|"), CStr(Names(J))
+                End If
+            Next J
+        End If
+    Next I
+End Sub
+
+Private Function ParseControl(ByVal F As Variant) As Variant
+    'The 16 measures of a control row as Decimals, or Empty when a cell is
+    'empty or does not parse: a month-end as_of_date, a known segment, a
+    'three-letter currency, counts as unsigned integers and amounts with at
+    'most four decimals, all below 10^15 (D16, D17).
+    Dim D As Date, Out(0 To 15) As Variant, J As Long, Names As Variant, V As Variant, Text As String
+    ParseControl = Empty
+    For J = 0 To 18
+        If Len(F(J)) = 0 Then Exit Function
+    Next J
+    If Not CORE_ParseDate(F(0), D) Then Exit Function
+    If Not CORE_IsMonthEnd(D) Then Exit Function
+    If Not CORE_IsCode("segment", F(1)) Or Not IsCurrency(F(2)) Then Exit Function
+    Names = Split(MEASURES, ",")
+    For J = 0 To 15
+        Text = F(J + 3)
+        If InStr(1, COUNT_MEASURES, "|" & Names(J) & "|", vbBinaryCompare) > 0 Then
+            If Left$(Text, 1) = "-" Or Not CORE_ParseDecimal(Text, 0, V) Then Exit Function
+        ElseIf Not CORE_ParseDecimal(Text, 4, V) Then
+            Exit Function
+        End If
+        Out(J) = V
+    Next J
+    ParseControl = Out
+End Function
+
+Private Sub AddKey(ByVal Keys As Collection, ByRef AllKeys() As String, ByRef N As Long, ByVal K As String)
+    If Lookup(Keys, KeyOf(K), True) = 0 Then
+        N = N + 1
+        AllKeys(N) = K
+        Keys.Add N, KeyOf(K)
+    End If
+End Sub
+
+Private Sub Differ(ByVal Line As Long, ByVal Key As String, ByVal Measure As String)
+    AddError CONTROLS, Line, "E17"
+    mDifferences.Add CStr(Line) & SEP & Key & SEP & Measure
+End Sub
+
+Private Function IsAscii(ByVal Text As String) As Boolean
+    Dim I As Long
+    For I = 1 To Len(Text)
+        If AscW(Mid$(Text, I, 1)) > 127 Or AscW(Mid$(Text, I, 1)) < 0 Then Exit Function
+    Next I
+    IsAscii = True
+End Function
+
+'------------------------------------------------------------------------------
 ' Findings
 '------------------------------------------------------------------------------
 
@@ -673,6 +908,8 @@ Private Function Sorted(ByVal Items As Collection, ByVal FileAndLineOnly As Bool
         If Items Is mErrors Or Items Is mWarnings Then
             Keys(I) = CStr(FileRank(CStr(Parts(0)))) & Format$(CLng(Parts(1)), "0000000000")
             If Not FileAndLineOnly Then Keys(I) = Keys(I) & Parts(2)
+        ElseIf Items Is mDifferences Then
+            Keys(I) = Format$(CLng(Parts(0)), "0000000000")
         Else
             Keys(I) = Items.Item(I)
         End If
@@ -687,7 +924,8 @@ Private Function FileRank(ByVal FileName As String) As Long
     Select Case FileName
         Case LOANS: FileRank = 1
         Case PANEL: FileRank = 2
-        Case Else: FileRank = 3
+        Case RATES: FileRank = 3
+        Case Else: FileRank = 4
     End Select
 End Function
 

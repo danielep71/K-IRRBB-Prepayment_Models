@@ -215,6 +215,15 @@ class PointInTime(unittest.TestCase):
                                         reader.point_in_time_view(self.rows, unfiltered))
 
 
+class ControlCounts(unittest.TestCase):
+    def test_counts_follow_d17(self) -> None:
+        row = {'as_of_date': '2024-01-31', 'segment': 'MTG_FIX', 'currency': 'EUR',
+               **{m: '0' for m in reader.RECON_MEASURES}}
+        self.assertIsNotNone(reader.parse_control({**row, 'loans': '999999999999999'}))
+        self.assertIsNone(reader.parse_control({**row, 'loans': '1000000000000000'}))
+        self.assertIsNone(reader.parse_control({**row, 'loans': '-1'}))
+
+
 class Fingerprints(unittest.TestCase):
     def test_data_sha_01(self) -> None:
         spec = expected('DATA-SHA-01')
