@@ -7,13 +7,15 @@ Attribute VB_Name = "CORE_Import"
 '   of its three files: errors E01 to E16 in the contract's first-error
 '   order, warnings W01 to W06, the data window, RENEG successor
 '   reconciliation (D11, D15), loan-month exposures and the risk-set outcome
-'   of every loan-month, with the validation conventions of D16; and, when
-'   the three files have no error, the reconciliation totals (D12) and the
-'   comparison with optional control totals (E17, D13).
+'   of every loan-month, with the validation conventions of D16; the lineage
+'   counts of each file; and, when the three files have no error, the
+'   reconciliation totals (D12) and the comparison with optional control
+'   totals (E17, D13).
 '
 ' USAGE
 '   CORE_ReadImport reads one import and keeps the results of that import in
 '   module state; CORE_ImportResult returns each kind of result as an array.
+'   CORE_SortedOrder, the stable sort used here, is shared with CORE_Dataset.
 '   The caller reads the files; this module touches no file. Control totals
 '   come as text lines in the file format (header first), so the workbook
 '   adapter joins the cells of each Controls_Totals row with commas.
@@ -74,7 +76,9 @@ Private mRN As Long, mRLine() As Long, mRF() As Variant, mROk() As Boolean, mRIn
 
 'Results, each a list of tab-joined records.
 Private mErrors As Collection, mWarnings As Collection, mGaps As Collection, mMissing As Collection
-Private mLoanMonths As Collection, mOutcomes As Collection, mDifferences As Collection
+Private mLoanMonths As Collection, mOutcomes As Collection, mDifferences As Collection, mComparisons As Collection
+'Rows read after the header and rows outside the window, per file (1 loans, 2 panel, 3 rates).
+Private mRead(1 To 3) As Long, mOutside(1 To 3) As Long
 'Reconciliation totals: key "as_of_date<TAB>segment<TAB>currency" -> index into mTotal*.
 Private mTotalIndex As Collection, mTotalN As Long, mTotalKey() As String, mTotalValue() As Variant
 
@@ -101,8 +105,11 @@ Public Function CORE_ReadImport(ByRef LoansData() As Byte, ByVal LoansLength As 
     Set mLoanMonths = New Collection
     Set mOutcomes = New Collection
     Set mDifferences = New Collection
+    Set mComparisons = New Collection
     Set mTotalIndex = New Collection
     mTotalN = 0
+    mOutside(2) = 0
+    mOutside(3) = 0
     mTolerance = CDec(5) / CDec(1000)    'decision D9
     LoadRows LoansData, LoansLength, PanelData, PanelLength, RatesData, RatesLength
     CheckSingleRows Allowlist
@@ -130,11 +137,21 @@ Public Function CORE_ImportResult(ByVal Kind As String) As Variant
     '  gaps               loan_id, missing month end (ISO), sorted
     '  missing            month end (ISO) of each E12
     '  loan_months        loan_id, as_of_date (ISO), available, prepaid
-    '  outcomes           loan_id, start month end t-1 (ISO), outcome
+    '  outcomes           loan_id, start month end t-1 (ISO), outcome, and the
+    '                     loan's segment, currency and balance at t-1
     '  totals             as_of_date, segment, currency, then the 16 measures
     '                     of Controls_Totals as decimal text; by key
     '  differences        Controls_Totals line, key "date|segment|currency",
     '                     measure (empty for an invalid row), one per E17
+    '  comparisons        as_of_date, segment, currency, measure, control,
+    '                     computed, control - computed, MATCH or DIFFER, for
+    '                     every measure of a key with a valid control row and
+    '                     a total; in key and measure order
+    '  counts             file, rows read after the header, rows accepted
+    '                     (valid, and inside the window for panel and rates),
+    '                     rows outside the window, loans (register rows, or
+    '                     distinct loans of the accepted panel rows; empty
+    '                     for market rates); one row per input file
     Dim Items As Collection
     Select Case Kind
         Case "errors": CORE_ImportResult = Table(Sorted(mErrors, True), 3)
@@ -148,11 +165,15 @@ Public Function CORE_ImportResult(ByVal Kind As String) As Variant
             CORE_ImportResult = Table(Items, 4)
         Case "outcomes"
             Set Items = mOutcomes
-            CORE_ImportResult = Table(Items, 3)
+            CORE_ImportResult = Table(Items, 6)
         Case "totals"
             CORE_ImportResult = Table(Sorted(TotalRows(), False), 19)
         Case "differences"
             CORE_ImportResult = Table(Sorted(mDifferences, True), 3)
+        Case "comparisons"
+            Set Items = mComparisons
+            CORE_ImportResult = Table(Items, 8)
+        Case "counts": CORE_ImportResult = Table(CountRows(), 5)
         Case Else
             Err.Raise vbObjectError + 1201, "CORE_Import", "Unknown result: " & Kind
     End Select
@@ -186,6 +207,7 @@ Private Function SplitFile(ByRef Data() As Byte, ByVal Length As Long, ByVal Fil
     N = CORE_SplitLines(Data, Length, Lines, Ascii)
     ReDim LineNo(0 To 0)
     ReDim Fields(0 To 0)
+    mRead(FileRank(FileName)) = MaxOf(N - 1, 0)
     If N = 0 Then
         AddError FileName, 1, "E01"
         Exit Function
@@ -256,12 +278,12 @@ Private Function LoanRowError(ByVal I As Long, ByVal Allowlist As Variant) As St
         mLHasFixed(I) = True
         mLFixed(I) = D
     End If
-    If Not IsId(F(L_ID)) Or Not IsCurrency(F(L_CURRENCY)) Then LoanRowError = "E04": Exit Function
+    If Not CORE_IsId(F(L_ID)) Or Not CORE_IsCurrency(F(L_CURRENCY)) Then LoanRowError = "E04": Exit Function
     If Not CORE_ParseDecimal(F(L_BALANCE), 4, V) Then LoanRowError = "E04": Exit Function
     If V <= 0 Then LoanRowError = "E04": Exit Function
     mLBal(I) = V
-    If Len(F(L_PREDECESSOR)) > 0 And Not IsId(F(L_PREDECESSOR)) Then LoanRowError = "E04": Exit Function
-    If Len(F(L_RESET)) > 0 And Not IsPositiveInteger(F(L_RESET)) Then LoanRowError = "E04": Exit Function
+    If Len(F(L_PREDECESSOR)) > 0 And Not CORE_IsId(F(L_PREDECESSOR)) Then LoanRowError = "E04": Exit Function
+    If Len(F(L_RESET)) > 0 And Not CORE_IsPositiveInteger(F(L_RESET)) Then LoanRowError = "E04": Exit Function
     If Len(F(L_PENALTY_VALUE)) > 0 Then
         If Not CORE_ParseDecimal(F(L_PENALTY_VALUE), 8, V) Then LoanRowError = "E04": Exit Function
         If V < 0 Then LoanRowError = "E04": Exit Function
@@ -283,7 +305,7 @@ Private Function PanelRowError(ByVal I As Long) As String
     If Not CORE_ParseDate(F(P_AS_OF), D) Then PanelRowError = "E02": Exit Function
     If Not CORE_IsMonthEnd(D) Then PanelRowError = "E02": Exit Function
     mPAsOf(I) = D
-    If Not IsId(F(P_ID)) Then PanelRowError = "E04": Exit Function
+    If Not CORE_IsId(F(P_ID)) Then PanelRowError = "E04": Exit Function
     If Not CORE_ParseDecimal(F(2), 4, V) Then PanelRowError = "E04": Exit Function
     mPBal(I) = V
     If Not CORE_ParseDecimal(F(3), 8, V) Then PanelRowError = "E04": Exit Function
@@ -308,7 +330,7 @@ Private Function RateRowError(ByVal I As Long, ByVal Allowlist As Variant) As St
     If Not CORE_ParseDate(F(R_AS_OF), D) Then RateRowError = "E02": Exit Function
     If Not CORE_IsMonthEnd(D) Then RateRowError = "E02": Exit Function
     mRAsOf(I) = D
-    If Not IsId(F(R_ID)) Or Not IsCurrency(F(R_CURRENCY)) Or Not IsPositiveInteger(F(R_TENOR)) Then
+    If Not CORE_IsId(F(R_ID)) Or Not CORE_IsCurrency(F(R_CURRENCY)) Or Not CORE_IsPositiveInteger(F(R_TENOR)) Then
         RateRowError = "E04": Exit Function
     End If
     If Not CORE_ParseDecimal(F(R_RATE), 8, V) Then RateRowError = "E04": Exit Function
@@ -341,7 +363,7 @@ Private Sub CheckDates()
             J = Lookup(Loans, mPF(I)(P_ID))
             If J > 0 Then
                 If mLOk(J) Then
-                    If mPAsOf(I) < MonthEnd(mLOrig(J)) Then FailPanel I, "E11"
+                    If mPAsOf(I) < CORE_MonthEnd(mLOrig(J)) Then FailPanel I, "E11"
                 End If
             End If
         End If
@@ -356,6 +378,7 @@ Private Sub MarkWindow(ByVal WindowStart As Date, ByVal WindowEnd As Date)
                 mPInside(I) = True
             Else
                 AddWarning PANEL, mPLine(I), "W04"
+                mOutside(2) = mOutside(2) + 1
             End If
         End If
     Next I
@@ -365,6 +388,7 @@ Private Sub MarkWindow(ByVal WindowStart As Date, ByVal WindowEnd As Date)
                 mRInside(I) = True
             Else
                 AddWarning RATES, mRLine(I), "W04"
+                mOutside(3) = mOutside(3) + 1
             End If
         End If
     Next I
@@ -453,7 +477,7 @@ Private Sub CheckHistories(ByVal Register As Collection, ByVal WindowEnd As Date
         End If
     Next I
     If N = 0 Then Exit Sub
-    Order = SortedOrder(Keys, N)
+    Order = CORE_SortedOrder(Keys, N)
     First = 1
     For I = 1 To N
         If I = N Then
@@ -477,16 +501,16 @@ End Sub
 Private Sub CheckHistory(ByVal Loan As Long, ByRef Rows() As Long, ByVal WindowEnd As Date)
     Dim MaturityEnd As Date, TerminalSeen As Boolean, Prev As Long, R As Long, I As Long
     Dim Opening As Variant, HasOpening As Boolean, Available As Variant, Month As Date, Ev As String
-    MaturityEnd = MonthEnd(mLMat(Loan))
+    MaturityEnd = CORE_MonthEnd(mLMat(Loan))
     For I = LBound(Rows) To UBound(Rows)
         R = Rows(I)
         HasOpening = False
         If Prev > 0 Then
-            If mPAsOf(Prev) = PreviousMonthEnd(mPAsOf(R)) Then
+            If mPAsOf(Prev) = CORE_PreviousMonthEnd(mPAsOf(R)) Then
                 Opening = mPBal(Prev)
                 HasOpening = True
             End If
-        ElseIf mPAsOf(R) = MonthEnd(mLOrig(Loan)) Then
+        ElseIf mPAsOf(R) = CORE_MonthEnd(mLOrig(Loan)) Then
             Opening = mLBal(Loan)
             HasOpening = True
         End If
@@ -514,11 +538,11 @@ Private Sub CheckHistory(ByVal Loan As Long, ByRef Rows() As Long, ByVal WindowE
         If mPOther(R) <> 0 Then AddWarning PANEL, mPLine(R), "W03"
         If mPBal(R) > 0 And mPAsOf(R) > MaturityEnd Then AddWarning PANEL, mPLine(R), "W05"
         If Prev > 0 And mPOk(R) Then
-            Month = PreviousMonthEnd(mPAsOf(R))
+            Month = CORE_PreviousMonthEnd(mPAsOf(R))
             Do While Month > mPAsOf(Prev)
                 AddWarning PANEL, 0, "W01"    'at the missing month: line 0 (D16)
-                mGaps.Add mPF(R)(P_ID) & SEP & IsoDate(Month)
-                Month = PreviousMonthEnd(Month)
+                mGaps.Add mPF(R)(P_ID) & SEP & CORE_IsoDate(Month)
+                Month = CORE_PreviousMonthEnd(Month)
             Loop
         End If
         If InStr(1, TERMINAL, "|" & Ev & "|", vbBinaryCompare) > 0 Then TerminalSeen = True
@@ -551,7 +575,7 @@ Private Sub RecordOutcomes(ByVal Loan As Long, ByRef Rows() As Long, ByVal Windo
             Valid(N) = Rows(I)
         End If
     Next I
-    MaturityEnd = MonthEnd(mLMat(Loan))
+    MaturityEnd = CORE_MonthEnd(mLMat(Loan))
     For I = 1 To N
         R = Valid(I)
         If InStr(1, TERMINAL, "|" & mPF(R)(P_EVENT) & "|", vbBinaryCompare) = 0 Then
@@ -561,12 +585,13 @@ Private Sub RecordOutcomes(ByVal Loan As Long, ByRef Rows() As Long, ByVal Windo
                 Outcome = "END_OF_WINDOW"
             ElseIf I = N Then
                 Outcome = "CENSORED"
-            ElseIf mPAsOf(Valid(I + 1)) = NextMonthEnd(mPAsOf(R)) Then
+            ElseIf mPAsOf(Valid(I + 1)) = CORE_NextMonthEnd(mPAsOf(R)) Then
                 Outcome = mPF(Valid(I + 1))(P_EVENT)
             Else
                 Outcome = "GAP"
             End If
-            mOutcomes.Add mPF(R)(P_ID) & SEP & mPF(R)(P_AS_OF) & SEP & Outcome
+            mOutcomes.Add Join(Array(mPF(R)(P_ID), mPF(R)(P_AS_OF), Outcome, mLF(Loan)(L_SEGMENT), _
+                                     mLF(Loan)(L_CURRENCY), CORE_DecimalText(mPBal(R))), SEP)
         End If
     Next I
 End Sub
@@ -611,7 +636,7 @@ Private Sub CheckSuccessors(ByVal Register As Collection, ByVal WindowStart As D
         Else
             S = Found(1)
             J = Lookup(Register, mPF(I)(P_ID))
-            If MonthEnd(mLOrig(S)) <> mPAsOf(I) Or mLF(S)(L_CURRENCY) <> mLF(J)(L_CURRENCY) _
+            If CORE_MonthEnd(mLOrig(S)) <> mPAsOf(I) Or mLF(S)(L_CURRENCY) <> mLF(J)(L_CURRENCY) _
                Or Abs(mLBal(S) - Transferred) > mTolerance Then
                 FailPanel I, "E16"
             ElseIf mLF(S)(L_SEGMENT) <> mLF(J)(L_SEGMENT) Then
@@ -623,7 +648,7 @@ Private Sub CheckSuccessors(ByVal Register As Collection, ByVal WindowStart As D
         If IsRegistered(Register, I) Then
             Pred = mLF(I)(L_PREDECESSOR)
             If Len(Pred) > 0 And Pred <> mLF(I)(L_ID) Then
-                Start = MonthEnd(mLOrig(I))
+                Start = CORE_MonthEnd(mLOrig(I))
                 If Start >= WindowStart And Start <= WindowEnd And mLOk(I) Then
                     Ending = Lookup(Reneg, KeyOf(Pred), True)
                     If Ending = 0 Then
@@ -647,14 +672,14 @@ Private Sub CheckExtracts(ByVal WindowStart As Date, ByVal WindowEnd As Date)
             If Lookup(Present, "d" & CLng(mPAsOf(I)), True) = 0 Then Present.Add I, "d" & CLng(mPAsOf(I))
         End If
     Next I
-    Month = MonthEnd(WindowStart)
+    Month = CORE_MonthEnd(WindowStart)
     Do While Month <= WindowEnd
         If Lookup(Present, "d" & CLng(Month), True) = 0 Then
             AddError PANEL, 0, "E12"
-            mMissing.Add IsoDate(Month)
+            mMissing.Add CORE_IsoDate(Month)
         End If
         If Month >= WindowEnd Then Exit Do    'never build the month after 9999-12
-        Month = NextMonthEnd(Month)
+        Month = CORE_NextMonthEnd(Month)
     Loop
 End Sub
 
@@ -741,7 +766,7 @@ Private Sub CheckControls(ByVal Lines As Variant)
     Dim Header As String, First As Long, Last As Long, I As Long, J As Long, F As Variant
     Dim Keys As Collection, Controls As Collection, Parsed() As Variant, Valid As Boolean, HasKey As Boolean
     Dim K As String, AllKeys() As String, N As Long, Order As Variant, Line As Long, T As Long
-    Dim Names As Variant, Control As Variant, Computed As Variant
+    Dim Names As Variant, Control As Variant, Computed As Variant, Matches As Boolean
     Header = "as_of_date,segment,currency," & MEASURES
     Names = Split(MEASURES, ",")
     First = LBound(Lines)
@@ -789,7 +814,7 @@ Private Sub CheckControls(ByVal Lines As Variant)
         If IsAscii(CStr(Lines(I))) And UBound(F) = 18 Then AddKey Keys, AllKeys, N, F(0) & SEP & F(1) & SEP & F(2)
     Next I
     If N = 0 Then Exit Sub
-    Order = SortedOrder(AllKeys, N)
+    Order = CORE_SortedOrder(AllKeys, N)
     For I = 1 To N
         K = AllKeys(Order(I))
         J = Lookup(Controls, KeyOf(K), True)
@@ -806,9 +831,13 @@ Private Sub CheckControls(ByVal Lines As Variant)
             For J = 0 To 15
                 If IsEmpty(Control) Or IsEmpty(Computed) Then
                     Differ Line, Replace(K, SEP, "|"), CStr(Names(J))
-                ElseIf Abs(Control(J) - Computed(J)) > mTolerance Then
+                Else
                     'Counts parse as integers only, so the tolerance compares them exactly.
-                    Differ Line, Replace(K, SEP, "|"), CStr(Names(J))
+                    Matches = (Abs(Control(J) - Computed(J)) <= mTolerance)
+                    If Not Matches Then Differ Line, Replace(K, SEP, "|"), CStr(Names(J))
+                    mComparisons.Add Join(Array(K, Names(J), CORE_DecimalText(Control(J)), _
+                        CORE_DecimalText(Computed(J)), CORE_DecimalText(Control(J) - Computed(J)), _
+                        IIf(Matches, "MATCH", "DIFFER")), SEP)
                 End If
             Next J
         End If
@@ -827,7 +856,7 @@ Private Function ParseControl(ByVal F As Variant) As Variant
     Next J
     If Not CORE_ParseDate(F(0), D) Then Exit Function
     If Not CORE_IsMonthEnd(D) Then Exit Function
-    If Not CORE_IsCode("segment", F(1)) Or Not IsCurrency(F(2)) Then Exit Function
+    If Not CORE_IsCode("segment", F(1)) Or Not CORE_IsCurrency(F(2)) Then Exit Function
     Names = Split(MEASURES, ",")
     For J = 0 To 15
         Text = F(J + 3)
@@ -860,6 +889,31 @@ Private Function IsAscii(ByVal Text As String) As Boolean
         If AscW(Mid$(Text, I, 1)) > 127 Or AscW(Mid$(Text, I, 1)) < 0 Then Exit Function
     Next I
     IsAscii = True
+End Function
+
+Private Function CountRows() As Collection
+    'The lineage counts of each input file as tab-joined rows.
+    Dim Out As Collection, I As Long, Accepted As Long, Distinct As Collection
+    Set Out = New Collection
+    For I = 1 To mLN
+        If mLOk(I) Then Accepted = Accepted + 1
+    Next I
+    Out.Add Join(Array(LOANS, CStr(mRead(1)), CStr(Accepted), "0", CStr(Accepted)), SEP)
+    Accepted = 0
+    Set Distinct = New Collection
+    For I = 1 To mPN
+        If mPOk(I) And mPInside(I) Then
+            Accepted = Accepted + 1
+            If Lookup(Distinct, mPF(I)(P_ID)) = 0 Then Distinct.Add I, KeyOf(mPF(I)(P_ID))
+        End If
+    Next I
+    Out.Add Join(Array(PANEL, CStr(mRead(2)), CStr(Accepted), CStr(mOutside(2)), CStr(Distinct.Count)), SEP)
+    Accepted = 0
+    For I = 1 To mRN
+        If mROk(I) And mRInside(I) Then Accepted = Accepted + 1
+    Next I
+    Out.Add Join(Array(RATES, CStr(mRead(3)), CStr(Accepted), CStr(mOutside(3)), ""), SEP)
+    Set CountRows = Out
 End Function
 
 '------------------------------------------------------------------------------
@@ -914,7 +968,7 @@ Private Function Sorted(ByVal Items As Collection, ByVal FileAndLineOnly As Bool
             Keys(I) = Items.Item(I)
         End If
     Next I
-    Order = SortedOrder(Keys, Items.Count)
+    Order = CORE_SortedOrder(Keys, Items.Count)
     For I = 1 To Items.Count
         Result.Add Items.Item(Order(I))
     Next I
@@ -1028,8 +1082,9 @@ End Function
 ' Sorting, dates and field checks
 '------------------------------------------------------------------------------
 
-Private Function SortedOrder(ByRef Keys() As String, ByVal N As Long) As Variant
-    'Stable merge sort: the order (1-based) of Keys(1 To N) by binary text.
+Public Function CORE_SortedOrder(ByRef Keys() As String, ByVal N As Long) As Variant
+    'Stable merge sort: the order (1-based) of Keys(1 To N) by binary text;
+    'also used by CORE_Dataset.
     Dim Order() As Long, Buffer() As Long, Width As Long, Lo As Long, Middle As Long, Hi As Long
     Dim I As Long, J As Long, K As Long
     ReDim Order(1 To N)
@@ -1063,7 +1118,7 @@ Private Function SortedOrder(ByRef Keys() As String, ByVal N As Long) As Variant
         Next I
         Width = Width * 2
     Loop
-    SortedOrder = Order
+    CORE_SortedOrder = Order
 End Function
 
 Private Function MinOf(ByVal A As Long, ByVal B As Long) As Long
@@ -1072,25 +1127,6 @@ End Function
 
 Private Function MaxOf(ByVal A As Long, ByVal B As Long) As Long
     If A > B Then MaxOf = A Else MaxOf = B
-End Function
-
-Private Function MonthEnd(ByVal D As Date) As Date
-    MonthEnd = DateSerial(Year(D), Month(D), CORE_DaysInMonth(Year(D), Month(D)))
-End Function
-
-Private Function PreviousMonthEnd(ByVal D As Date) As Date
-    PreviousMonthEnd = DateSerial(Year(D), Month(D), 1) - 1
-End Function
-
-Private Function NextMonthEnd(ByVal D As Date) As Date
-    Dim Y As Long, M As Long
-    Y = Year(D) + IIf(Month(D) = 12, 1, 0)
-    M = Month(D) Mod 12 + 1
-    NextMonthEnd = DateSerial(Y, M, CORE_DaysInMonth(Y, M))
-End Function
-
-Private Function IsoDate(ByVal D As Date) As String
-    IsoDate = Format$(Year(D), "0000") & "-" & Format$(Month(D), "00") & "-" & Format$(Day(D), "00")
 End Function
 
 Private Function Positive(ByVal V As Variant) As Variant
@@ -1104,37 +1140,3 @@ Private Function InList(ByVal Text As String, ByVal Items As Variant) As Boolean
     Next Item
 End Function
 
-Private Function IsId(ByVal Text As String) As Boolean
-    '[A-Za-z0-9_-]{1,32}
-    Dim I As Long, C As Long
-    If Len(Text) < 1 Or Len(Text) > 32 Then Exit Function
-    For I = 1 To Len(Text)
-        C = AscW(Mid$(Text, I, 1))
-        If Not ((C >= 48 And C <= 57) Or (C >= 65 And C <= 90) Or (C >= 97 And C <= 122) Or C = 95 Or C = 45) Then
-            Exit Function
-        End If
-    Next I
-    IsId = True
-End Function
-
-Private Function IsCurrency(ByVal Text As String) As Boolean
-    '[A-Z]{3}
-    Dim I As Long, C As Long
-    If Len(Text) <> 3 Then Exit Function
-    For I = 1 To 3
-        C = AscW(Mid$(Text, I, 1))
-        If C < 65 Or C > 90 Then Exit Function
-    Next I
-    IsCurrency = True
-End Function
-
-Private Function IsPositiveInteger(ByVal Text As String) As Boolean
-    '[1-9][0-9]*
-    Dim I As Long, C As Long
-    If Len(Text) = 0 Then Exit Function
-    For I = 1 To Len(Text)
-        C = AscW(Mid$(Text, I, 1))
-        If C < 48 Or C > 57 Or (I = 1 And C = 48) Then Exit Function
-    Next I
-    IsPositiveInteger = True
-End Function

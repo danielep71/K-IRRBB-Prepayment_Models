@@ -4,9 +4,10 @@ Attribute VB_Name = "CORE_Parse"
 '------------------------------------------------------------------------------
 ' PURPOSE
 '   Locale-independent parsing of the field types of the file format in
-'   docs/methodology/DATA_CONTRACT.md: ISO dates, month ends, decimals and
-'   codes, and the canonical text of a decimal. Never uses CDate, CDbl, Val
-'   or any other conversion that depends on the host locale.
+'   docs/methodology/DATA_CONTRACT.md: ISO dates, month ends, decimals,
+'   codes, identifiers, currency codes and positive integers; the canonical
+'   text of a decimal and of a date; and month-end steps. Never uses CDate,
+'   CDbl, Val or any other conversion that depends on the host locale.
 '
 ' DATES
 '   YYYY-MM-DD, year 1900 to 9999, a real calendar date.
@@ -20,7 +21,9 @@ Attribute VB_Name = "CORE_Parse"
 '   Decimal, built digit by digit.
 '
 ' CODES
-'   Exact, case-sensitive members of the code lists of the data contract.
+'   Exact, case-sensitive members of the code lists of the data contract;
+'   identifiers [A-Za-z0-9_-]{1,32}, currencies [A-Z]{3} and positive
+'   integers [1-9][0-9]*.
 '
 ' DEPENDENCIES
 '   None. Scalars only; no workbook, UI, file or COM access.
@@ -156,6 +159,64 @@ Public Function CORE_IsCode(ByVal CodeSet As String, ByVal Text As String) As Bo
     End Select
     If Len(Text) = 0 Or InStr(1, Text, "|", vbBinaryCompare) > 0 Then Exit Function
     CORE_IsCode = (InStr(1, Members, "|" & Text & "|", vbBinaryCompare) > 0)
+End Function
+
+Public Function CORE_MonthEnd(ByVal D As Date) As Date
+    'The month end of the month of D.
+    CORE_MonthEnd = DateSerial(Year(D), Month(D), CORE_DaysInMonth(Year(D), Month(D)))
+End Function
+
+Public Function CORE_PreviousMonthEnd(ByVal D As Date) As Date
+    'The month end before the month of D.
+    CORE_PreviousMonthEnd = DateSerial(Year(D), Month(D), 1) - 1
+End Function
+
+Public Function CORE_NextMonthEnd(ByVal D As Date) As Date
+    'The month end after the month of D.
+    Dim Y As Long, M As Long
+    Y = Year(D) + IIf(Month(D) = 12, 1, 0)
+    M = Month(D) Mod 12 + 1
+    CORE_NextMonthEnd = DateSerial(Y, M, CORE_DaysInMonth(Y, M))
+End Function
+
+Public Function CORE_IsoDate(ByVal D As Date) As String
+    'D as YYYY-MM-DD, locale-independent.
+    CORE_IsoDate = Format$(Year(D), "0000") & "-" & Format$(Month(D), "00") & "-" & Format$(Day(D), "00")
+End Function
+
+Public Function CORE_IsId(ByVal Text As String) As Boolean
+    '[A-Za-z0-9_-]{1,32}
+    Dim I As Long, C As Long
+    If Len(Text) < 1 Or Len(Text) > 32 Then Exit Function
+    For I = 1 To Len(Text)
+        C = AscW(Mid$(Text, I, 1))
+        If Not ((C >= 48 And C <= 57) Or (C >= 65 And C <= 90) Or (C >= 97 And C <= 122) Or C = 95 Or C = 45) Then
+            Exit Function
+        End If
+    Next I
+    CORE_IsId = True
+End Function
+
+Public Function CORE_IsCurrency(ByVal Text As String) As Boolean
+    '[A-Z]{3}
+    Dim I As Long, C As Long
+    If Len(Text) <> 3 Then Exit Function
+    For I = 1 To 3
+        C = AscW(Mid$(Text, I, 1))
+        If C < 65 Or C > 90 Then Exit Function
+    Next I
+    CORE_IsCurrency = True
+End Function
+
+Public Function CORE_IsPositiveInteger(ByVal Text As String) As Boolean
+    '[1-9][0-9]*
+    Dim I As Long, C As Long
+    If Len(Text) = 0 Then Exit Function
+    For I = 1 To Len(Text)
+        C = AscW(Mid$(Text, I, 1))
+        If C < 48 Or C > 57 Or (I = 1 And C = 48) Then Exit Function
+    Next I
+    CORE_IsPositiveInteger = True
 End Function
 
 Private Function Digits(ByVal Text As String, ByRef Value As Long) As Boolean

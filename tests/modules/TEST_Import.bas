@@ -17,12 +17,17 @@ Attribute VB_Name = "TEST_Import"
 '                             when given, SMM = prepaid / available, exactly
 '     totals                  every key, each measure exactly (unlisted = 0)
 '     control_differences     as an exact list
+'     counts                  rows read, accepted and outside the window,
+'                             and loans, per file
+'     comparison_count,       the number of control comparisons and those
+'     comparison_differences  with a nonzero difference
 '   A variant with a controls.csv passes its lines as the control totals.
 '
 ' CASES
 '   DATA-VALID-01, DATA-INVALID-01, DATA-EVENT-01, DATA-IDENT-01,
 '   DATA-EXPO-01, DATA-RENEG-01, DATA-PIT-01 and DATA-RECON-01 through
-'   TEST_ImportCase.
+'   TEST_ImportCase; DATA-REJECT-01 through TEST_ImportCase and then
+'   TEST_ImportAdapter.
 '==============================================================================
 
 Option Explicit
@@ -94,6 +99,57 @@ Private Sub CheckVariant(ByVal CaseId As String, ByVal Name As String, ByVal V A
         TEST_Harness.TEST_CheckEqual Label & "control differences", _
             ResultText(CORE_ImportResult("differences"), 3), ExpectedText(CaseId, V & "/control_differences", 3)
     End If
+    If Len(TEST_Expected.TEST_Kind(CaseId, V & "/counts")) > 0 Then
+        TEST_Harness.TEST_CheckEqual Label & "counts", ResultText(CORE_ImportResult("counts"), 5), _
+            ExpectedCounts5(CaseId, V & "/counts")
+    End If
+    If Len(TEST_Expected.TEST_Kind(CaseId, V & "/comparison_count")) > 0 Then
+        CheckComparisons Label, CaseId, V, CORE_ImportResult("comparisons")
+    End If
+End Sub
+
+Private Function ExpectedCounts5(ByVal CaseId As String, ByVal Path As String) As String
+    'The expected counts as "file:read:accepted:outside:loans; ...", null
+    'loans as empty text.
+    Dim I As Long, File As String, Item As String
+    For I = 0 To TEST_Expected.TEST_Count(CaseId, Path) - 1
+        File = TEST_Expected.TEST_Key(CaseId, Path, I)
+        Item = Path & "/" & File
+        If I > 0 Then ExpectedCounts5 = ExpectedCounts5 & SEP
+        ExpectedCounts5 = ExpectedCounts5 & File & ":" & TEST_Expected.TEST_Value(CaseId, Item & "/rows_read") & ":" & _
+            TEST_Expected.TEST_Value(CaseId, Item & "/rows_accepted") & ":" & _
+            TEST_Expected.TEST_Value(CaseId, Item & "/rows_outside_window") & ":" & _
+            TEST_Expected.TEST_Value(CaseId, Item & "/loans")
+    Next I
+End Function
+
+Private Sub CheckComparisons(ByVal Label As String, ByVal CaseId As String, ByVal V As String, ByVal Table As Variant)
+    'The number of comparisons, every one MATCH, and those with a nonzero
+    'difference as "key:measure:control:computed:difference".
+    Dim I As Long, N As Long, Got As String, Want As String, J As Long, Path As String, Matches As Boolean
+    If Not IsEmpty(Table) Then N = UBound(Table, 1)
+    TEST_Harness.TEST_CheckEqual Label & "comparison count", CStr(N), _
+        TEST_Expected.TEST_Value(CaseId, V & "/comparison_count")
+    Matches = True
+    For I = 1 To N
+        If Table(I, 8) <> "MATCH" Then Matches = False
+        If Table(I, 7) <> "0" Then
+            If Len(Got) > 0 Then Got = Got & SEP
+            Got = Got & Table(I, 1) & "|" & Table(I, 2) & "|" & Table(I, 3) & ":" & Table(I, 4) & ":" & _
+                  Table(I, 5) & ":" & Table(I, 6) & ":" & Table(I, 7)
+        End If
+    Next I
+    TEST_Harness.TEST_CheckTrue Label & "every comparison MATCH", Matches
+    Path = V & "/comparison_differences"
+    For I = 0 To TEST_Expected.TEST_Count(CaseId, Path) - 1
+        If I > 0 Then Want = Want & SEP
+        Want = Want & TEST_Expected.TEST_Value(CaseId, Path & "/" & I & "/0") & ":" & _
+               TEST_Expected.TEST_Value(CaseId, Path & "/" & I & "/1")
+        For J = 2 To 4
+            Want = Want & ":" & CORE_DecimalText(Exact(TEST_Expected.TEST_Value(CaseId, Path & "/" & I & "/" & J)))
+        Next J
+    Next I
+    TEST_Harness.TEST_CheckEqual Label & "comparison differences", Got, Want
 End Sub
 
 Private Function ControlLines(ByRef Data() As Byte, ByVal Length As Long) As Variant

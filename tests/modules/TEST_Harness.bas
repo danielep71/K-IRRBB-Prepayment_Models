@@ -22,9 +22,11 @@ Attribute VB_Name = "TEST_Harness"
 '   NOT RUN  the case was not reached because the run stopped.
 '
 ' STATE OWNERSHIP
-'   Writes only the Tests_Cases table and Tests_Status. Saves Calculation,
-'   EnableEvents, ScreenUpdating and DisplayAlerts and restores them on
-'   every exit path.
+'   Writes the Tests_Cases table and Tests_Status. DATA-REJECT-01 drives the
+'   import adapter, which writes the Import, Findings, Reconciliation and
+'   Log areas and the statuses; the case restores the settings and control
+'   totals it sets. Saves Calculation, EnableEvents, ScreenUpdating and
+'   DisplayAlerts and restores them on every exit path.
 '==============================================================================
 
 Option Explicit
@@ -46,7 +48,7 @@ Private Function CaseIds() As Variant
     CaseIds = Array("UNIT-HARNESS-01", "RATE-CONV-01", "RATE-CONV-02", "UNIT-RATE-BOUNDS-01", _
                     "UNIT-CSV-01", "DATA-PARSE-01", "DATA-SHA-01", "DATA-IDENT-01", "DATA-EXPO-01", _
                     "DATA-RENEG-01", "DATA-EVENT-01", "DATA-INVALID-01", "DATA-PIT-01", "DATA-VALID-01", _
-                    "DATA-RECON-01")
+                    "DATA-RECON-01", "DATA-REJECT-01")
 End Function
 
 Private Sub RunCase(ByVal CaseId As String)
@@ -61,6 +63,7 @@ Private Sub RunCase(ByVal CaseId As String)
         Case "DATA-IDENT-01", "DATA-EXPO-01", "DATA-RENEG-01", "DATA-EVENT-01", "DATA-INVALID-01", _
              "DATA-PIT-01", "DATA-VALID-01", "DATA-RECON-01"
             TEST_Import.TEST_ImportCase CaseId
+        Case "DATA-REJECT-01": TEST_ImportAdapter.TEST_DataReject01
         Case Else: Err.Raise vbObjectError + 1, "TEST_Harness", "Case not in the registry: " & CaseId
     End Select
 End Sub

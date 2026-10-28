@@ -4,7 +4,7 @@ Independent offline references for the [case register](../../docs/methodology/TE
 
 ## `data_reader.py`
 
-Reads the three input files of one import, and optional control totals, and applies the [data contract](../../docs/methodology/DATA_CONTRACT.md): file format, errors `E01`–`E17` in the first-error order, warnings `W01`–`W06`, the data window, RENEG successor reconciliation (D11, D15), reconciliation totals (D12) and control totals (D13), loan-month exposure, the risk-set outcome of each loan-month, the point-in-time view at a forecast origin and SHA-256 fingerprints. Amounts use exact decimal arithmetic in a wide context that traps rounding: an amount is never rounded silently, and an input that would need rounding stops the reader.
+Reads the three input files of one import, and optional control totals, and applies the [data contract](../../docs/methodology/DATA_CONTRACT.md): file format, errors `E01`–`E17` in the first-error order, warnings `W01`–`W06`, the data window, RENEG successor reconciliation (D11, D15), reconciliation totals (D12) and control totals (D13) with every measure compared, loan-month exposure, the risk-set outcome of each loan-month, the lineage counts of each file and the outcome summary of an accepted import (W12), the point-in-time view at a forecast origin and SHA-256 fingerprints. Amounts use exact decimal arithmetic in a wide context that traps rounding: an amount is never rounded silently, and an input that would need rounding stops the reader.
 
 ### Validation conventions (D16)
 
