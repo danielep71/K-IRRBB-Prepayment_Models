@@ -44,7 +44,8 @@ Private Function CaseIds() As Variant
     'Every case of the harness, in run order. IDs without a UNIT- prefix are
     'cases of docs/methodology/TEST_CASES.md.
     CaseIds = Array("UNIT-HARNESS-01", "RATE-CONV-01", "RATE-CONV-02", "UNIT-RATE-BOUNDS-01", _
-                    "UNIT-CSV-01", "DATA-PARSE-01", "DATA-SHA-01")
+                    "UNIT-CSV-01", "DATA-PARSE-01", "DATA-SHA-01", "DATA-IDENT-01", "DATA-EXPO-01", _
+                    "DATA-RENEG-01", "DATA-EVENT-01", "DATA-INVALID-01", "DATA-PIT-01")
 End Function
 
 Private Sub RunCase(ByVal CaseId As String)
@@ -56,6 +57,8 @@ Private Sub RunCase(ByVal CaseId As String)
         Case "UNIT-CSV-01": TEST_Data.TEST_UnitCsv01
         Case "DATA-PARSE-01": TEST_Data.TEST_DataParse01
         Case "DATA-SHA-01": TEST_Data.TEST_DataSha01
+        Case "DATA-IDENT-01", "DATA-EXPO-01", "DATA-RENEG-01", "DATA-EVENT-01", "DATA-INVALID-01", "DATA-PIT-01"
+            TEST_Import.TEST_ImportCase CaseId
         Case Else: Err.Raise vbObjectError + 1, "TEST_Harness", "Case not in the registry: " & CaseId
     End Select
 End Sub
