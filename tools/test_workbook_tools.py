@@ -125,6 +125,32 @@ class Compare(unittest.TestCase):
         self.assertIn('non-default reference: Scripting', errors)
         self.assertIn('missing default reference: Office', errors)
 
+    def types(self) -> dict[str, int]:
+        kinds = {c['name']: components.VBA_TYPES[c['kind']] for c in self.manifest['components']}
+        return {**kinds, **{n: 100 for n in self.manifest['document_modules']}}
+
+    def test_vba_types(self) -> None:
+        types = self.types()
+        self.assertEqual(components.compare(self.manifest, self.export, self.refs, types), [])
+        types['shGap'] = 1
+        types['CORE_Math'] = 2
+        errors = components.compare(self.manifest, self.export, self.refs, types)
+        self.assertIn('wrong VBA type for shGap: 1, expected 100', errors)
+        self.assertIn('wrong VBA type for CORE_Math: 2, expected 1', errors)
+        del types['WB_Main']
+        self.assertIn('component list and exported files differ: WB_Main',
+                      components.compare(self.manifest, self.export, self.refs, types))
+
+    def test_document_module_replaced_by_standard_module(self) -> None:
+        # Review of #87: a deleted sheet whose CodeName is reused by an empty standard module.
+        self.export['shGap.bas'] = 'Attribute VB_Name = "shGap"\r\nOption Explicit\r\n'
+        del self.export['shGap.cls']
+        self.assertIn('not a document module: shGap.bas', self.errors())
+        types = self.types()
+        types['shGap'] = 1
+        self.assertIn('wrong VBA type for shGap: 1, expected 100',
+                      components.compare(self.manifest, self.export, self.refs, types))
+
     def test_line_endings_and_trailing_space_are_not_changes(self) -> None:
         self.export['CORE_Math.bas'] = 'Attribute VB_Name = "CORE_Math"   \r\nOption Explicit\r\n\r\n\r\n'
         self.assertEqual(self.errors(), [])

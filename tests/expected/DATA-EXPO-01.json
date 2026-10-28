@@ -1,0 +1,82 @@
+{
+  "case": "DATA-EXPO-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "A = balance(t-1) - scheduled_principal(t) + max(other_change(t), 0), compared with prepaid_principal at input precision without tolerance. equal-with-drawdown: opening 100, scheduled 10, drawdown 50, so A = 140 = P; accepted, W03 for the drawdown. smallest-excess: the same with P = 140.0001; the balance identity passes (difference 0.0001) and E15 is raised on panel line 5. tiny-exposure: A = 0.0001, P = 0.0051; the identity difference is exactly 0.005, so E13 passes and E15 is raised. review-24 (review of #24): opening 100, drawdown 100, prepayment 150, closing 50; A = 200, SMM = 150 / 200 = 0.75; accepted with W03.",
+    "date": "2026-10-26",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-03-31",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "equal-with-drawdown": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ],
+      "loan_months": {
+        "L1|2024-02-29": {
+          "available": "140",
+          "prepaid": "140",
+          "smm": "1"
+        }
+      }
+    },
+    "smallest-excess": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E15"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ]
+    },
+    "tiny-exposure": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E15"
+        ]
+      ],
+      "warnings": []
+    },
+    "review-24": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          5,
+          "W03"
+        ]
+      ],
+      "loan_months": {
+        "L1|2024-02-29": {
+          "available": "200",
+          "prepaid": "150",
+          "smm": "0.75"
+        }
+      }
+    }
+  }
+}

@@ -94,7 +94,7 @@ Table `Assumptions_Segments`, one row per segment in `segment_list`: `segment`, 
 
 ### Controls
 
-Table `Controls_Totals`, optional, one row per (`as_of_date`, `segment`, `currency`) with the reconciliation measures of the data contract. An empty table means no control totals were supplied.
+Table `Controls_Totals`, optional, one row per (`as_of_date`, `segment`, `currency`) with the reconciliation measures of the data contract, in this column order: `loans`, `balance`, `scheduled_principal`, `prepaid_partial`, `prepaid_full`, `other_change`, `full_count`, `full_balance`, `maturity_count`, `maturity_balance`, `default_count`, `default_balance`, `reneg_count`, `reneg_balance`, `sale_count`, `sale_balance`. Every cell of a supplied row is required. An empty table means no control totals were supplied; any difference is `E17` (data decision D13).
 
 ## Output, parameter and diagnostics areas
 

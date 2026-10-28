@@ -4,8 +4,9 @@ stage    lists the components of a production or test build from the commit
          object (never the working tree), checks names and encoding, and
          writes manifest.json plus CRLF copies for import by Build-Workbook.ps1.
 compare  checks a folder exported by Export-Workbook.ps1 against a manifest:
-         missing, extra and changed components, code in document modules and
-         non-default references all fail.
+         missing, extra and changed components, components of the wrong VBA
+         type (a document module must be a document module), code in
+         document modules and non-default references all fail.
 
 Usage:
   python tools/components.py stage --build test --commit HEAD --out build/stage
@@ -41,6 +42,9 @@ SOURCES = {
 UNSUPPORTED = {'src/forms': 'UserForms need a reviewed .frx binary exception first'}
 GUIDES = {'README.md'}
 DEFAULT_REFERENCES = {'VBA', 'Excel', 'stdole', 'Office'}
+# vbext_ComponentType values written by Export-Workbook.ps1 to components.json.
+VBA_TYPES = {'standard': 1, 'class': 2, 'document': 100}
+EXPORT_METADATA = {'references.json', 'components.json'}
 NAME_RE = re.compile(r'^Attribute VB_Name = "([A-Za-z][A-Za-z0-9_]{0,30})"$', re.M)
 
 
@@ -149,8 +153,12 @@ def document_code(text: str) -> list[str]:
             if line.strip() and not line.startswith('Attribute ') and line.strip() != 'Option Explicit']
 
 
-def compare(manifest: dict[str, Any], export: dict[str, str], references: list[str] | None) -> list[str]:
-    """Differences between a manifest and {exported file name: text}; empty when they match."""
+def compare(manifest: dict[str, Any], export: dict[str, str], references: list[str] | None,
+            types: dict[str, int] | None = None) -> list[str]:
+    """Differences between a manifest and {exported file name: text}; empty when they match.
+
+    types maps each exported component to its VBA type; without it only file extensions are checked.
+    """
     errors: list[str] = []
     expected = {c['name']: c for c in manifest['components']}
     documents = set(manifest['document_modules'])
@@ -169,9 +177,20 @@ def compare(manifest: dict[str, Any], export: dict[str, str], references: list[s
         elif digest(export[exported[name]]) != entry['sha256']:
             errors.append(f'changed component: {name} differs from {entry["path"]} at {manifest["commit"]}')
     for name in sorted(documents & exported.keys()):
+        if PurePosixPath(exported[name]).suffix != '.cls':
+            errors.append(f'not a document module: {exported[name]}')
+            continue
         code = document_code(export[exported[name]])
         if code:
             errors.append(f'document module {name} contains code: {code[0]!r}')
+    if types is not None:
+        for name in sorted(types.keys() ^ exported.keys()):
+            errors.append(f'component list and exported files differ: {name}')
+        wanted = {**{n: VBA_TYPES[c['kind']] for n, c in expected.items()},
+                  **{n: VBA_TYPES['document'] for n in documents}}
+        for name in sorted(wanted.keys() & types.keys()):
+            if types[name] != wanted[name]:
+                errors.append(f'wrong VBA type for {name}: {types[name]}, expected {wanted[name]}')
     if references is not None:
         actual = set(references)
         allowed = set(manifest['references'])
@@ -204,17 +223,21 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f'unsupported manifest schema: {manifest.get("schema")}')
     refs_file = args.export / 'references.json'
     references = json.loads(refs_file.read_text(encoding='utf-8-sig')) if refs_file.exists() else None
-    export = {n: t for n, t in read_export(args.export).items() if n != 'references.json'}
-    errors = compare(manifest, export, references)
+    types_file = args.export / 'components.json'
+    types = json.loads(types_file.read_text(encoding='utf-8-sig')) if types_file.exists() else None
+    export = {n: t for n, t in read_export(args.export).items() if n not in EXPORT_METADATA}
+    errors = compare(manifest, export, references, types)
     if references is None:
         errors.append('references.json missing from the export; references not checked')
+    if types is None:
+        errors.append('components.json missing from the export; VBA types not checked')
     if errors:
         print('\n'.join(errors), file=sys.stderr)
         print(f'FAIL: export does not match the {manifest["build"]} build of {manifest["commit"]}')
         return 1
     print(f'PASS: export matches the {manifest["build"]} build of {manifest["commit"]}: '
           f'{len(manifest["components"])} components, {len(manifest["document_modules"])} document modules, '
-          'default references only')
+          'expected VBA types, default references only')
     return 0
 
 

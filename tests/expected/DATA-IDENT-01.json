@@ -1,0 +1,40 @@
+{
+  "case": "DATA-IDENT-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Loan L1 opens at 500 in 2024-01 with scheduled principal 10 in each later month. In 2024-02 the reported balance differs from 500 - 10 = 490 by exactly 0.005 (489.995, accepted) or by 0.0051 (489.9949, E13 on that row, panel line 5). The 2024-03 row is consistent with the 2024-02 balance in both variants. Filler loan F1 covers every month end of the window.",
+    "date": "2026-10-26",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-03-31",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "at-tolerance": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [],
+      "loan_months": {
+        "L1|2024-02-29": {
+          "available": "490",
+          "prepaid": "0"
+        }
+      }
+    },
+    "above-tolerance": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          5,
+          "E13"
+        ]
+      ],
+      "warnings": []
+    }
+  }
+}
