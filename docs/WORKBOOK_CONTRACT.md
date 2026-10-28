@@ -152,6 +152,7 @@ Stage 1 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) requires every co
 | Standard modules from `src/core/` (`CORE_`), `src/modules/` (`PREPAY_`) and `src/workbook/` (`WB_`) | ✅ | ✅ |
 | `src/classes/` and `src/forms/`, when introduced | ✅ | ✅ |
 | `tests/modules/` (`TEST_`) and the `Tests` sheet | | ✅ |
+| `TEST_Fixtures` and `TEST_FixtureData<n>`, generated at staging from `tests/fixtures/` and `tests/expected/` and never committed, so the tests read no file (W10; #42) | | ✅ |
 | `examples/` | | |
 
 `tools/components.py stage` derives the expected component list of each build from the commit, and `tools/Build-Workbook.ps1` fails on any missing, extra or changed component, on code in a document module and on a non-default reference; `tools/Export-Workbook.ps1` and `tools/components.py compare` check the same list in stage 6. CodeNames and defined names are set by `tools/build_template.py` from `tools/workbook_layout.py`, which offline tests keep in line with this contract ([tooling](../tools/README.md#workbook-build)).
