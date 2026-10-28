@@ -41,6 +41,7 @@ PENALTY_TYPES = {'NONE', 'PCT', 'MONTHS_INTEREST'}
 EVENTS = {'NONE', 'PARTIAL', 'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TERMINAL = {'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TOLERANCE = Decimal('0.005')    # decision D9
+DECIMAL_LIMIT = Decimal(10) ** 15    # decision D17: every decimal is below this in absolute value
 KEY = ('as_of_date', 'segment', 'currency')
 EXITS = ('full', 'maturity', 'default', 'reneg', 'sale')    # terminal events in the Controls_Totals order
 RECON_MEASURES = ('loans', 'balance', 'scheduled_principal', 'prepaid_partial', 'prepaid_full', 'other_change',
@@ -84,13 +85,15 @@ def is_month_end(value: date) -> bool:
 
 
 def parse_decimal(text: str, places: int) -> Decimal | None:
-    """A '.' decimal with digits on both sides of the point and at most `places` decimals."""
+    """A '.' decimal with digits on both sides of the point, at most `places` decimals and below 10^15 (D17)."""
     match = DECIMAL_RE.fullmatch(text)
     if match is None:
         return None
     if match.group(1) is not None and len(match.group(1)) > places:
         return None
-    return Decimal(text)
+    value = Decimal(text)
+    # Comparisons never round, unlike abs() in the reader's trapping context (review of #110).
+    return value if -DECIMAL_LIMIT < value < DECIMAL_LIMIT else None
 
 
 def previous_month_end(value: date) -> date:

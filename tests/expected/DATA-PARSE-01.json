@@ -2,7 +2,7 @@
   "case": "DATA-PARSE-01",
   "provenance": {
     "tool": "hand construction",
-    "steps": "Each input classified by hand against the File format section of the data contract: ISO YYYY-MM-DD dates from year 1900 to 9999; month ends; '.' decimals with digits on both sides of the point, no thousands separator or exponent, within the field's decimal places; codes exactly as listed, upper case. Locale-like forms are rejected.",
+    "steps": "Each input classified by hand against the File format section of the data contract: ISO YYYY-MM-DD dates from year 1900 to 9999; month ends; '.' decimals with digits on both sides of the point, no thousands separator or exponent, within the field's decimal places; codes exactly as listed, upper case. Locale-like forms are rejected. D17 (2026-10-28): a decimal must be below 10^15 in absolute value, so 999999999999999.9999 is valid and 1000000000000000 is not; leading zeros do not count.",
     "date": "2026-10-26",
     "producer": "Daniele Penza"
   },
@@ -169,6 +169,31 @@
       "input": "",
       "places": 4,
       "value": null
+    },
+    {
+      "input": "999999999999999.9999",
+      "places": 4,
+      "value": "999999999999999.9999"
+    },
+    {
+      "input": "-999999999999999.9999",
+      "places": 4,
+      "value": "-999999999999999.9999"
+    },
+    {
+      "input": "1000000000000000",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "-1000000000000000.0",
+      "places": 4,
+      "value": null
+    },
+    {
+      "input": "0000000000000001.5",
+      "places": 4,
+      "value": "1.5"
     }
   ],
   "codes": [
