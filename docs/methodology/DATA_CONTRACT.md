@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27 (issue #41)**. Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27**, and decision D16 on 2026-10-28 (issue #41). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -189,12 +189,30 @@ Segment is supplied per loan and never inferred or re-assigned by the toolkit. B
 
 | Code | Warning | Reported at |
 | --- | --- | --- |
-| `W01` | **Gap**: loan missing in a month between its first and last row | The missing month |
+| `W01` | **Gap**: loan missing in a month between its first and last row | The missing month: `loan_panel.csv` line 0, once per missing month, with the loan and month end as key (D16) |
 | `W02` | **Censored disappearance**: loan stops before the window end without a terminal event | Its last row |
 | `W03` | Non-zero `other_change` | The row |
 | `W04` | Row outside the data window; excluded and counted | The row |
 | `W05` | **Past maturity**: positive balance after the month end of `maturity_date` | The row |
 | `W06` | **Segment change at RENEG** (D11): the successor is in another segment than its predecessor | The successor's register row |
+
+### Validation conventions
+
+Decision D16 fixes the points the rules above leave open:
+
+1. **Previous row**: the loan's row at the previous month end. After a gap (`W01`), `E13`, `E15` and the `RENEG` flow check are not applied to the next row; a `RENEG` row without a previous-month row fails `E14`.
+2. **First row**: a loan's first row in its origination month is checked for `E13` and `E15` against `original_balance`; any other first row opens the loan without them.
+3. **Data window**: `W04` is decided after the single-row rules and `E11`; excluded rows enter no cross-row rule (`E05`, `E08`, `E10`, `E12`–`E16`).
+4. **Duplicates**: `E05` counts only rows that passed the earlier rules.
+5. **Gaps**: `W01` is reported at `loan_panel.csv` line 0, as `E12` (D14).
+6. **Decimals**: an optional leading `-`; a leading `+` is `E04`; leading zeros are accepted.
+7. **SMM loan-months**: under the defaults of D4 and D5, only `NONE`, `PARTIAL` and `FULL` outcomes enter the SMM; `MATURITY` is in neither the numerator nor the denominator.
+8. **Failed previous row**: a row that fails a cross-row rule still serves as the previous row of the next month.
+9. **Order of findings**: by file (register, panel, market rates, then `Controls_Totals`), then line.
+10. **Self-link**: a register row whose `predecessor_id` is its own `loan_id` is `E16`.
+11. **Past maturity at the window end**: a loan-month starting at or after the month end of `maturity_date` is past maturity, also at the window end, and is never right-censored.
+12. **Control totals**: `Controls_Totals` lines are numbered like the input files (header line 1); a wrong header is one `E17` at line 1; a key needs a month-end `as_of_date`, a known segment and a three-letter currency; counts are unsigned integers and amounts decimals with at most four places; an invalid row still stands for its key.
+13. **Prepayment on a `MATURITY` row** enters neither `prepaid_partial` nor `prepaid_full`.
 
 ## Risk set, missing observations and censoring
 
@@ -270,3 +288,4 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D13 | Control-total mismatch | Error `E17`, once per key and measure (once per row for an invalid control row) at the `Controls_Totals` row (line 0 for a missing control row); a key on only one side, or an empty, duplicated or unparseable control row, is a mismatch; ordered after the three files and checked only when they have no other error | Decided 2026-10-27 (#41) |
 | D14 | Location of `E12` | `loan_panel.csv`, line 0, once per missing month end, with the month end as key | Decided 2026-10-27 (#41) |
 | D15 | Zero-residual `RENEG` | A `RENEG` row transferring `T <= 0.005` needs no successor; a successor naming it is `E16` | Decided 2026-10-27 (#41); amends D11 |
+| D16 | Validation conventions | The thirteen points of [validation conventions](#validation-conventions), including `E15` on a first row in the origination month and `W01` at panel line 0 | Decided 2026-10-28 (#41) |

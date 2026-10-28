@@ -2,7 +2,7 @@
   "case": "DATA-INVALID-01",
   "provenance": {
     "tool": "hand construction",
-    "steps": "One invalid line per rule, each built to pass every earlier rule in the first-error order and to touch no other row. every-rule, window 2024-01-31 to 2024-04-30 with no panel rows for 2024-04 (E12 at loan_panel.csv line 0, D14). Register: 13 fields (E01), empty segment (E03), 2023-02-30 (E02), original balance 0 (E04), segment MTG_XXX (E06), currency GBP (E07), maturity before origination (E11), OK1 repeated (E05), predecessor NOPE (E08), SUC naming OK1, which never ends with RENEG (E16, reverse link). Panel: 9 fields (E01), 2024-02-15 (E02), empty client_rate (E03), client_rate 0.9 (E04), event PREPAY (E06), scheduled -1 (E09), OK1 at 2024-01-31 again (E05), loan GHOST (E08), LATE dated before its origination month (E11), PARTIAL with no prepayment (E14), a DEFAULT row after TM ended FULL (E10), opening 100 - scheduled 10 against balance 89 (E13), prepaid 90.0001 above exposure 90 with an identity difference of 0.0001 (E15), RENEG of 100 without a successor (E16). Market rates: a non-ASCII character (E01), currency GBP (E07), EUR_SWAP_60M with tenor 120 after 60 (E08). file-header: a market-rates header with tenor instead of tenor_months (E01 at line 1); the other files are valid. Warnings are not asserted.",
+    "steps": "One invalid line per rule, each built to pass every earlier rule in the first-error order and to touch no other row. every-rule, window 2024-01-31 to 2024-04-30 with no panel rows for 2024-04 (E12 at loan_panel.csv line 0, D14). Register: 13 fields (E01), empty segment (E03), 2023-02-30 (E02), original balance 0 (E04), segment MTG_XXX (E06), currency GBP (E07), maturity before origination (E11), OK1 repeated (E05), predecessor NOPE (E08), SUC naming OK1, which never ends with RENEG (E16, reverse link). Panel: 9 fields (E01), 2024-02-15 (E02), empty client_rate (E03), client_rate 0.9 (E04), event PREPAY (E06), scheduled -1 (E09), OK1 at 2024-01-31 again (E05), loan GHOST (E08), LATE dated before its origination month (E11), PARTIAL with no prepayment (E14), a DEFAULT row after TM ended FULL (E10), opening 100 - scheduled 10 against balance 89 (E13), prepaid 90.0001 above exposure 90 with an identity difference of 0.0001 (E15), RENEG of 100 without a successor (E16). Market rates: a non-ASCII character (E01), currency GBP (E07), EUR_SWAP_60M with tenor 120 after 60 (E08). file-header: a market-rates header with tenor instead of tenor_months (E01 at line 1); the other files are valid. Warnings are not asserted. The E12 key: 2024-04-30.",
     "date": "2026-10-27",
     "producer": "Daniele Penza"
   },
@@ -157,6 +157,9 @@
           5,
           "E08"
         ]
+      ],
+      "missing_extracts": [
+        "2024-04-30"
       ]
     },
     "file-header": {

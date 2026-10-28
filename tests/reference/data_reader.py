@@ -8,8 +8,8 @@ the point-in-time view at a forecast origin. It is reference tooling only
 (decision V4): standard library, exact decimal arithmetic, never a runtime
 dependency, and written without reference to any toolkit source.
 
-Where the contract does not settle a behaviour, the choice made here is
-listed in tests/reference/README.md and no registered case asserts it.
+The validation conventions of decision D16, which settle what the rules
+leave open, are listed in tests/reference/README.md.
 """
 from __future__ import annotations
 
@@ -119,6 +119,9 @@ class Result:
     # One (line, key, measure) per E17 finding; the measure is empty for an invalid control row.
     control_differences: list[tuple[int, str, str]] = field(default_factory=list)
     fingerprints: dict[str, str] = field(default_factory=dict)
+    # Keys of the line-0 findings: (loan_id, missing month end) per W01 and the month end of each E12 (D14, D16).
+    gaps: list[tuple[str, str]] = field(default_factory=list)
+    missing_extracts: list[str] = field(default_factory=list)
 
     @property
     def accepted(self) -> bool:
@@ -256,6 +259,7 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
     while month <= window_end:
         if month not in present:
             result.errors.append((PANEL, 0, 'E12'))
+            result.missing_extracts.append(month.isoformat())
         if month >= window_end:    # never build the month after 9999-12
             break
         month = next_month_end(month)
@@ -269,6 +273,7 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
     result.errors.sort(key=lambda e: (FILE_ORDER.index(e[0]), e[1]))
     result.warnings.sort(key=lambda w: (FILE_ORDER.index(w[0]), w[1], w[2]))
     result.control_differences.sort(key=lambda d: d[0])
+    result.gaps.sort()
     return result
 
 
@@ -407,8 +412,8 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
             fail(row, 'E10')
         elif opening is not None and abs(bal - (opening - sched - prepaid + other)) > TOLERANCE:
             fail(row, 'E13')
-        elif previous is not None and opening is not None and prepaid > opening - sched + max(other, Decimal(0)):
-            fail(row, 'E15')
+        elif opening is not None and prepaid > opening - sched + max(other, Decimal(0)):
+            fail(row, 'E15')    # also on a first row in the origination month, against original_balance (D16)
         if previous is not None and opening is not None and opening > 0 and as_of_of(previous) < maturity_end:
             available = opening - sched + max(other, Decimal(0))
             if available > 0 and event in {'NONE', 'PARTIAL', 'FULL'}:
@@ -420,7 +425,8 @@ def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, win
         if previous is not None and ok(row):
             month = previous_month_end(as_of)
             while month > previous.parsed['as_of_date']:  # type: ignore[operator]
-                result.warnings.append((PANEL, row.line, 'W01'))
+                result.warnings.append((PANEL, 0, 'W01'))    # at the missing month: line 0 (D16)
+                result.gaps.append((row.values['loan_id'], month.isoformat()))
                 month = previous_month_end(month)
         terminal_seen = terminal_seen or event in TERMINAL
         previous = row
