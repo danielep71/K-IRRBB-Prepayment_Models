@@ -2,7 +2,7 @@
   "case": "DATA-PIT-01",
   "provenance": {
     "tool": "hand assignment",
-    "steps": "Each loan-month runs from a non-terminal row at month end t-1 to t and is keyed by loan and t-1. Assigned from the risk-set table of the data contract: t-1 not before the month end of maturity_date gives PAST_MATURITY; t-1 at the window end gives END_OF_WINDOW; a row at t gives that row's event; no row at t with a later row gives GAP; no later row gives CENSORED. A loan's first row opens it and ends no loan-month; a terminal row starts none. events: every event observed (P1 PARTIAL then FULL, M1 MATURITY, D1 DEFAULT, S1 SALE, R1 RENEG with successor R2), loans opened inside the window (R2, N1) and END_OF_WINDOW at 2024-04-30; W03 for the RENEG transfer. gap: G1 misses 2024-03 and G2 misses 2024-02 and 2024-03, so the loan-month after the last row before the gap is GAP; W01 at loan_panel.csv line 0 once per missing month (D16): once for G1, twice for G2. censored: C1 stops after 2024-02 and C2 after 2024-01 without a terminal event (W02 at the last row). past-maturity: X1 matures 2024-02-15; the loan-months from 2024-02-29 and 2024-03-31 are PAST_MATURITY, with W05 on its rows after 2024-02-29. No variant has a loan-month that is both past maturity and at the window end.",
+    "steps": "Each loan-month runs from a non-terminal row at month end t-1 to t and is keyed by loan and t-1. Assigned from the risk-set table of the data contract: t-1 not before the month end of maturity_date gives PAST_MATURITY; t-1 at the window end gives END_OF_WINDOW; a row at t gives that row's event; no row at t with a later row gives GAP; no later row gives CENSORED. A loan's first row opens it and ends no loan-month; a terminal row starts none. events: every event observed (P1 PARTIAL then FULL, M1 MATURITY, D1 DEFAULT, S1 SALE, R1 RENEG with successor R2), loans opened inside the window (R2, N1) and END_OF_WINDOW at 2024-04-30; W03 for the RENEG transfer. gap: G1 misses 2024-03 and G2 misses 2024-02 and 2024-03, so the loan-month after the last row before the gap is GAP; W01 at loan_panel.csv line 0 once per missing month (D16): once for G1, twice for G2. censored: C1 stops after 2024-02 and C2 after 2024-01 without a terminal event (W02 at the last row). past-maturity: X1 matures 2024-02-15; the loan-months from 2024-02-29 and 2024-03-31 are PAST_MATURITY, with W05 on its rows after 2024-02-29. No variant has a loan-month that is both past maturity and at the window end. The W01 keys (review of #107): G1 at 2024-03-31, G2 at 2024-02-29 and 2024-03-31.",
     "date": "2026-10-27",
     "producer": "Daniele Penza"
   },
@@ -71,6 +71,20 @@
           "loan_panel.csv",
           0,
           "W01"
+        ]
+      ],
+      "gaps": [
+        [
+          "G1",
+          "2024-03-31"
+        ],
+        [
+          "G2",
+          "2024-02-29"
+        ],
+        [
+          "G2",
+          "2024-03-31"
         ]
       ]
     },

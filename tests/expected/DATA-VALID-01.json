@@ -2,7 +2,7 @@
   "case": "DATA-VALID-01",
   "provenance": {
     "tool": "hand computation",
-    "steps": "Window 2024-01-31 to 2024-03-31, currencies EUR and USD, segments MTG_FIX and CON_FIX. Every event occurs: A NONE, PARTIAL (prepaid 100) and FULL (prepaid 880); B MATURITY (scheduled 200); D DEFAULT (balance 300); E SALE (balance 400); R RENEG transferring 650 to successor S; G stops after 2024-02 without a terminal event; C misses 2024-02 and draws 100 in 2024-03; X is past its 2023-12 maturity. Totals sum the accepted rows inside the window per as_of_date, segment and currency; terminal rows contribute their reported balance (D12): 0 for FULL, MATURITY and RENEG, 300 for DEFAULT, 400 for SALE. Measures not listed are 0. Warnings by count: W01 once (C, 2024-02 missing), W02 at G's last row, W03 for R's transfer and C's drawdown, W04 for A at 2023-12-31 and S at 2024-04-30 (excluded from every total), W05 for X's three rows. Locations: W01 at panel line 0 (D16), W04 lines 2 and 23, W05 lines 10, 18 and 22, W02 line 15, W03 lines 16 and 20.",
+    "steps": "Window 2024-01-31 to 2024-03-31, currencies EUR and USD, segments MTG_FIX and CON_FIX. Every event occurs: A NONE, PARTIAL (prepaid 100) and FULL (prepaid 880); B MATURITY (scheduled 200); D DEFAULT (balance 300); E SALE (balance 400); R RENEG transferring 650 to successor S; G stops after 2024-02 without a terminal event; C misses 2024-02 and draws 100 in 2024-03; X is past its 2023-12 maturity. Totals sum the accepted rows inside the window per as_of_date, segment and currency; terminal rows contribute their reported balance (D12): 0 for FULL, MATURITY and RENEG, 300 for DEFAULT, 400 for SALE. Measures not listed are 0. Warnings by count: W01 once (C, 2024-02 missing), W02 at G's last row, W03 for R's transfer and C's drawdown, W04 for A at 2023-12-31 and S at 2024-04-30 (excluded from every total), W05 for X's three rows. Locations: W01 at panel line 0 (D16), W04 lines 2 and 23, W05 lines 10, 18 and 22, W02 line 15, W03 lines 16 and 20. The W01 key: C at 2024-02-29.",
     "date": "2026-10-27",
     "producer": "Daniele Penza"
   },
@@ -122,6 +122,12 @@
           "loan_panel.csv",
           23,
           "W04"
+        ]
+      ],
+      "gaps": [
+        [
+          "C",
+          "2024-02-29"
         ]
       ]
     }
