@@ -3,8 +3,9 @@
 It reads the three input files of one import, applies the validation rules
 in the contract's first-error order and returns the findings, warnings,
 loan-month exposures, risk-set outcomes, reconciliation totals and the
-comparison with optional control totals, and file fingerprints, and builds
-the point-in-time view at a forecast origin. It is reference tooling only
+comparison with optional control totals, the lineage counts and outcome
+summary (workbook contract W12), and file fingerprints, and builds the
+point-in-time view at a forecast origin. It is reference tooling only
 (decision V4): standard library, exact decimal arithmetic, never a runtime
 dependency, and written without reference to any toolkit source.
 
@@ -41,6 +42,7 @@ PENALTY_TYPES = {'NONE', 'PCT', 'MONTHS_INTEREST'}
 EVENTS = {'NONE', 'PARTIAL', 'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TERMINAL = {'FULL', 'MATURITY', 'DEFAULT', 'RENEG', 'SALE'}
 TOLERANCE = Decimal('0.005')    # decision D9
+DECIMAL_LIMIT = Decimal(10) ** 15    # decision D17: every decimal is below this in absolute value
 KEY = ('as_of_date', 'segment', 'currency')
 EXITS = ('full', 'maturity', 'default', 'reneg', 'sale')    # terminal events in the Controls_Totals order
 RECON_MEASURES = ('loans', 'balance', 'scheduled_principal', 'prepaid_partial', 'prepaid_full', 'other_change',
@@ -84,13 +86,15 @@ def is_month_end(value: date) -> bool:
 
 
 def parse_decimal(text: str, places: int) -> Decimal | None:
-    """A '.' decimal with digits on both sides of the point and at most `places` decimals."""
+    """A '.' decimal with digits on both sides of the point, at most `places` decimals and below 10^15 (D17)."""
     match = DECIMAL_RE.fullmatch(text)
     if match is None:
         return None
     if match.group(1) is not None and len(match.group(1)) > places:
         return None
-    return Decimal(text)
+    value = Decimal(text)
+    # Comparisons never round, unlike abs() in the reader's trapping context (review of #110).
+    return value if -DECIMAL_LIMIT < value < DECIMAL_LIMIT else None
 
 
 def previous_month_end(value: date) -> date:
@@ -122,6 +126,15 @@ class Result:
     # Keys of the line-0 findings: (loan_id, missing month end) per W01 and the month end of each E12 (D14, D16).
     gaps: list[tuple[str, str]] = field(default_factory=list)
     missing_extracts: list[str] = field(default_factory=list)
+    # Lineage counts per file: rows read (after the header), accepted and outside the window, and loans
+    # (register rows, or distinct loans of the accepted panel rows; None for market rates).
+    counts: dict[str, dict[str, int | None]] = field(default_factory=dict)
+    # Segment, currency and balance at t-1 of each outcome, keyed like outcomes.
+    outcome_starts: dict[tuple[str, str], tuple[str, str, Decimal]] = field(default_factory=dict)
+    # Lineage outcomes (W12), set only when accepted: (t-1, segment, currency, outcome) -> (loan-months, balance).
+    outcome_summary: dict[tuple[str, str, str, str], tuple[int, Decimal]] = field(default_factory=dict)
+    # Every control measure compared with its total: (key, measure, control, computed, control - computed).
+    comparisons: list[tuple[str, str, Decimal, Decimal, Decimal]] = field(default_factory=list)
 
     @property
     def accepted(self) -> bool:
@@ -270,6 +283,20 @@ def _read_import(folder: Path, window_start: date, window_end: date, allowlist: 
         if (folder / CONTROLS).exists():
             check_controls((folder / CONTROLS).read_bytes(), result)
 
+    # Lineage (W12): counts always, the outcome summary only for an accepted import.
+    for name in (LOANS, PANEL, RATES):
+        accepted = [r for r in (inside[name] if name != LOANS else rows[LOANS]) if ok(r)]
+        result.counts[name]['rows_accepted'] = len(accepted)
+        result.counts[name]['rows_outside_window'] = sum(1 for w in result.warnings if w[0] == name and w[2] == 'W04')
+        result.counts[name]['loans'] = (len(accepted) if name == LOANS else
+                                        len({r.values['loan_id'] for r in accepted}) if name == PANEL else None)
+    if not result.errors:
+        for key, outcome in result.outcomes.items():
+            segment, currency, balance = result.outcome_starts[key]
+            cell = (key[1], segment, currency, outcome)
+            count, total = result.outcome_summary.get(cell, (0, Decimal(0)))
+            result.outcome_summary[cell] = (count + 1, total + balance)
+
     result.errors.sort(key=lambda e: (FILE_ORDER.index(e[0]), e[1]))
     result.warnings.sort(key=lambda w: (FILE_ORDER.index(w[0]), w[1], w[2]))
     result.control_differences.sort(key=lambda d: d[0])
@@ -284,6 +311,7 @@ def split_file(name: str, data: bytes, result: Result) -> list[Row]:
     if lines and lines[-1] == b'':
         lines.pop()
     texts = [line[:-1] if line.endswith(b'\r') else line for line in lines]
+    result.counts[name] = {'rows_read': max(len(texts) - 1, 0)}
     if not texts or not texts[0].isascii() or texts[0].decode('ascii') != header:
         result.errors.append((name, 1, 'E01'))
         return []
@@ -455,6 +483,8 @@ def record_outcomes(loan: Row, rows: list[Row], result: Result, window_end: date
         else:
             outcome = 'CENSORED'
         result.outcomes[(row.values['loan_id'], start.isoformat())] = outcome
+        result.outcome_starts[(row.values['loan_id'], start.isoformat())] = (
+            loan.values['segment'], loan.values['currency'], row.parsed['balance'])  # type: ignore[assignment]
 
 
 def event_consistent(event: str, bal: Decimal, sched: Decimal, prepaid: Decimal, other: Decimal,
@@ -566,7 +596,8 @@ def parse_control(values: dict[str, str]) -> dict[str, Decimal] | None:
     measures: dict[str, Decimal] = {}
     for name in RECON_MEASURES:
         text = values[name]
-        value = (Decimal(text) if COUNT_RE.fullmatch(text) else None) if name in COUNT_MEASURES \
+        # Counts are unsigned integers, below 10^15 like every decimal (D17).
+        value = (parse_decimal(text, 0) if COUNT_RE.fullmatch(text) else None) if name in COUNT_MEASURES \
             else parse_decimal(text, 4)
         if value is None:
             return None
@@ -604,6 +635,9 @@ def check_controls(data: bytes, result: Result) -> None:
             continue
         computed = result.totals.get(key)
         for name in RECON_MEASURES:
+            if measures is not None and computed is not None:
+                result.comparisons.append(('|'.join(key), name, measures[name], computed[name],
+                                           measures[name] - computed[name]))
             # Counts parse as integers only, so the amount tolerance compares them exactly.
             if measures is None or computed is None or abs(measures[name] - computed[name]) > TOLERANCE:
                 differ(line, key, name)

@@ -48,6 +48,27 @@ class Template(unittest.TestCase):
             refs = [cells[t.name] for t in sheet.tables]
             self.assertEqual(len({re.sub(r'\$[A-Z]+\$', '', r) for r in refs}), min(len(refs), 1))
 
+    def test_input_cells_are_text(self) -> None:
+        # W11: a setting or control-total cell keeps what is typed, in the file format.
+        xml = self.build(layout.TEST)
+        book = xml['xl/workbook.xml']
+        cells = dict(re.findall(r'<definedName name="([^"]+)">([^<]+)<', book))
+        styles = xml['xl/styles.xml']
+        codes = {'49': '@', **dict(re.findall(r'<numFmt numFmtId="(\d+)" formatCode="([^"]*)"', styles))}
+        formats = [codes.get(i, i) for i in re.findall(r'<xf numFmtId="(\d+)"', styles.split('<cellXfs')[1])]
+        tabs = [s.tab for s in layout.sheets_for(layout.TEST)]
+
+        def number_format(ref: str, row_offset: int = 0) -> str:
+            sheet, col, row = re.fullmatch(r"'?([^'!]+)'?!\$([A-Z]+)\$(\d+)", ref).groups()  # type: ignore[union-attr]
+            cell = f'{col}{int(row) + row_offset}'
+            part = xml[f'xl/worksheets/sheet{tabs.index(sheet) + 1}.xml']
+            style = re.search(rf'<c r="{cell}" s="(\d+)"', part).group(1)  # type: ignore[union-attr]
+            return formats[int(style)]
+
+        self.assertEqual(number_format(cells['cfg_data_window_start']), '@')
+        self.assertEqual(number_format(cells['cfg_currency_allowlist']), '@')
+        self.assertEqual(number_format(cells['Controls_Totals'], 1), '@')
+
     def test_output_location_is_checked(self) -> None:
         with self.assertRaises(SystemExit):
             build_template.check_output(ROOT / 'template.xlsx', False)

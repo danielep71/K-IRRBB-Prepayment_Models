@@ -114,6 +114,7 @@ SHEETS = (
         Table('Import_Lineage', ('item', 'value')),
         Table('Import_Counts', ('file', 'size_bytes', 'sha256', 'rows_read', 'rows_accepted',
                                 'rows_outside_window', 'loans')),
+        Table('Import_Outcomes', ('as_of_date', 'segment', 'currency', 'outcome', 'loan_months', 'balance')),
     )),
     Sheet('Findings', 'shFindings', 'Diagnostics', (
         Table('Findings_Summary', ('code', 'severity', 'count')),

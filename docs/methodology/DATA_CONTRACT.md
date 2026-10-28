@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27**, and decision D16 on 2026-10-28 (issue #41). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27**, and decisions D16 and D17 on 2026-10-28 (issue #41). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -24,7 +24,7 @@ All three files use the same plain, locale-independent CSV subset:
 - comma separator, no quoting, no embedded commas or line breaks;
 - the first line is the exact header given below, fields in the listed order;
 - dates as `YYYY-MM-DD`, year 1900 to 9999;
-- decimals with `.`, no thousands separator or exponent, at least one digit on each side of the `.`;
+- decimals with `.`, no thousands separator or exponent, at least one digit on each side of the `.`, and an absolute value below 10^15 (decision D17; leading zeros do not count); a larger value is `E04`;
 - an empty field means *missing*. No sentinel values (`0`, `-999`, `N/A`).
 
 Parsing never uses Excel's locale-dependent conversions, so the same file gives the same result on every host.
@@ -211,7 +211,7 @@ Decision D16 fixes the points the rules above leave open:
 9. **Order of findings**: by file (register, panel, market rates, then `Controls_Totals`), then line.
 10. **Self-link**: a register row whose `predecessor_id` is its own `loan_id` is `E16`.
 11. **Past maturity at the window end**: a loan-month starting at or after the month end of `maturity_date` is past maturity, also at the window end, and is never right-censored.
-12. **Control totals**: `Controls_Totals` lines are numbered like the input files (header line 1); a wrong header is one `E17` at line 1; a key needs a month-end `as_of_date`, a known segment and a three-letter currency; counts are unsigned integers and amounts decimals with at most four places; an invalid row still stands for its key.
+12. **Control totals**: `Controls_Totals` lines are numbered like the input files (header line 1); a wrong header is one `E17` at line 1; a key needs a month-end `as_of_date`, a known segment and a three-letter currency; counts are unsigned integers below 10^15 (D17) and amounts decimals with at most four places; an invalid row still stands for its key.
 13. **Prepayment on a `MATURITY` row** enters neither `prepaid_partial` nor `prepaid_full`.
 
 ## Risk set, missing observations and censoring
@@ -289,3 +289,4 @@ None yet. Before an importer is implemented, hand-constructed fixtures must cove
 | D14 | Location of `E12` | `loan_panel.csv`, line 0, once per missing month end, with the month end as key | Decided 2026-10-27 (#41) |
 | D15 | Zero-residual `RENEG` | A `RENEG` row transferring `T <= 0.005` needs no successor; a successor naming it is `E16` | Decided 2026-10-27 (#41); amends D11 |
 | D16 | Validation conventions | The thirteen points of [validation conventions](#validation-conventions), including `E15` on a first row in the origination month and `W01` at panel line 0 | Decided 2026-10-28 (#41) |
+| D17 | Size of decimals | Every decimal field is below 10^15 in absolute value, so the VBA import holds every value and every total exactly in its 28-digit `Decimal`; a larger value is `E04` | Decided 2026-10-28 (#41, #42) |

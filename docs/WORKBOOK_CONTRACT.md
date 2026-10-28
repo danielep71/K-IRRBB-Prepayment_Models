@@ -1,6 +1,6 @@
 # Workbook contract
 
-Status: **accepted by the owner on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed. No workbook, template, builder or VBA exists. This is a specification only; nothing here is built, compiled or run.
+Status: **accepted by the owner on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed; W11–W13 decided on 2026-10-28 (#42). The builder (#43) and the import adapter (module `WB_ImportAdapter`, entry point `WB_Import`; #42) are committed; none of it has been compiled or run in Excel.
 
 This document is authoritative for the layout of the future analysis workbook: sheet order, names and CodeNames, defined names, the input, parameter, result and diagnostics areas, and which areas the toolkit writes. What is calculated is specified in the [data contract](methodology/DATA_CONTRACT.md) and the [model contracts](methodology/MODEL_CONTRACTS.md); the code boundaries are in [repository structure](REPOSITORY_STRUCTURE.md); what a real Excel run must record is in [Excel evidence](EXCEL_EVIDENCE.md).
 
@@ -59,7 +59,7 @@ All sheets share one layout, following the prototype template of #19, whose visu
 
 ### Settings
 
-Table `Settings_Run`, one row per setting: code, description, value, unit and contract reference. The value cell is named `cfg_<code>`.
+Table `Settings_Run`, one row per setting: code, description, value, unit and contract reference. The value cell is named `cfg_<code>`. Input cells are formatted as Text, so a value is read as typed, in the file format (W11).
 
 | Code | Type | Rule | Contract |
 | --- | --- | --- | --- |
@@ -94,13 +94,13 @@ Table `Assumptions_Segments`, one row per segment in `segment_list`: `segment`, 
 
 ### Controls
 
-Table `Controls_Totals`, optional, one row per (`as_of_date`, `segment`, `currency`) with the reconciliation measures of the data contract, in this column order: `loans`, `balance`, `scheduled_principal`, `prepaid_partial`, `prepaid_full`, `other_change`, `full_count`, `full_balance`, `maturity_count`, `maturity_balance`, `default_count`, `default_balance`, `reneg_count`, `reneg_balance`, `sale_count`, `sale_balance`. Every cell of a supplied row is required. An empty table means no control totals were supplied; any difference is `E17` (data decision D13).
+Table `Controls_Totals`, optional, one row per (`as_of_date`, `segment`, `currency`) with the reconciliation measures of the data contract, in this column order: `loans`, `balance`, `scheduled_principal`, `prepaid_partial`, `prepaid_full`, `other_change`, `full_count`, `full_balance`, `maturity_count`, `maturity_balance`, `default_count`, `default_balance`, `reneg_count`, `reneg_balance`, `sale_count`, `sale_balance`. Every cell of a supplied row is required and is read as its text in the file format (ISO dates, `.` decimals); a cell holding a number or date value instead of text makes its row invalid (W11). The table runs from its header down to the last row with a value in any of its columns, so a blank row above that is an invalid row. The adapter passes each row to the import as one comma-joined line, a non-text cell as `?`, so the rules of D13 and D16 apply unchanged. An empty table means no control totals were supplied; any difference is `E17` (data decision D13).
 
 ## Output, parameter and diagnostics areas
 
 | Sheet | Tables | Written by | Content |
 | --- | --- | --- | --- |
-| `Import` | `Import_Lineage`, `Import_Counts` | Import | Every lineage item of the data contract: file name without directory, size and SHA-256, counts, settings, attestation, commit SHA, timestamp |
+| `Import` | `Import_Lineage`, `Import_Counts`, `Import_Outcomes` | Import | Every lineage item of the data contract: file name without directory, size and SHA-256, counts, settings, attestation, commit SHA, timestamp; and in `Import_Outcomes` the loan-months per month end `t-1`, segment, currency and outcome, with the sum of their balances at `t-1`, which for a censored outcome is the censored last balance (W12) |
 | `Findings` | `Findings_Summary`, `Findings_Rows` | Import, every run | Count per code; then one row per finding in the contract order: code, file, line, key, message. At most 100,000 rows are listed; the summary always has every count (W4) |
 | `Reconciliation` | `Reconciliation_Totals`, `Reconciliation_Controls` | Import | Totals per month end, segment and currency; control-total differences |
 | `Parameters` | `Parameters_Sets`, `Parameters_Values` | Calibration | One header row per set (every item of a [parameter set](methodology/MODEL_CONTRACTS.md#parameter-and-scenario-outputs)) and one row per value with unit and layer. Append only (W5) |
@@ -128,11 +128,13 @@ Every result row that depends on parameters carries the parameter-set ID; layers
 
 Names are fixed by W6; the facade signatures they call are recorded in the facade register (#39). Every entry point saves `Calculation`, `EnableEvents`, `ScreenUpdating` and `DisplayAlerts` and restores them on every exit path, as stage 3 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) checks.
 
+**Import.** `WB_Import` asks for the three files and reads each whole, read-only; a cancelled selection changes and logs nothing. Before reading, it checks every name it uses and the attestation. Its outcome is `ACCEPTED` (no error), `REJECTED` (an error in the data or control totals; the accepted dataset is unchanged) or `FAILED` (a missing name, a setting that is not text in the file format, or a VBA error; `Findings` is cleared). `Findings_Rows` lists errors, then warnings, each with its code, file, line, the key of a line-0 finding (`E12` month end, `W01` loan and month end, `E17` key) and the rule's wording; an `E17` message names the measure. `Import_Lineage` records the run ID, timestamp, commit, the selected file names, the run settings of the data contract's lineage, the number of control-total rows and the warnings by code; `Import_Counts` gives each file's size, SHA-256 and counts; `Reconciliation_Controls` lists every compared measure with `MATCH` or `DIFFER`. Every value the toolkit writes is text in the file format, so no value depends on the host locale or loses a decimal. `Log_Runs` records the outcome, whether the Excel state was restored and the first error.
+
 **In-memory dataset (W7).** The accepted dataset lives in memory for the Excel session only; the workbook keeps its lineage, not its rows. After the workbook is reopened or the VBA project is reset, operations that need the dataset stop and ask for a new import. A re-import of the same files is recognised by the SHA-256 fingerprints in `Import_Lineage`.
 
 ## Status and staleness
 
-`Run_Status` and each `<Sheet>_Status` hold one of `CURRENT`, `STALE` or `FAILED`, with the run ID and timestamp.
+`Run_Status` and each `<Sheet>_Status` hold one of `CURRENT`, `STALE` or `FAILED`, then the run ID and the timestamp. A run ID is the operation and the host local start time (D8), `IMPORT-yyyymmdd-hhnnss` for an import, with `-2`, `-3`, ... when `Log_Runs` already holds that ID (W13).
 
 - A successful import makes `Import`, `Findings` and `Reconciliation` `CURRENT` and every result sheet `STALE`. A rejected import keeps the previously accepted dataset and lineage and marks every result sheet `STALE`, as `DATA-REJECT-01` requires.
 - Areas fall into four kinds, each with its own failure rule:
@@ -152,6 +154,7 @@ Stage 1 of [Excel evidence](EXCEL_EVIDENCE.md#required-stages) requires every co
 | Standard modules from `src/core/` (`CORE_`), `src/modules/` (`PREPAY_`) and `src/workbook/` (`WB_`) | ✅ | ✅ |
 | `src/classes/` and `src/forms/`, when introduced | ✅ | ✅ |
 | `tests/modules/` (`TEST_`) and the `Tests` sheet | | ✅ |
+| `TEST_Fixtures` and `TEST_FixtureData<n>`, generated at staging from `tests/fixtures/` and `tests/expected/` and never committed, so the tests read no file (W10; #42) | | ✅ |
 | `examples/` | | |
 
 `tools/components.py stage` derives the expected component list of each build from the commit, and `tools/Build-Workbook.ps1` fails on any missing, extra or changed component, on code in a document module and on a non-default reference; `tools/Export-Workbook.ps1` and `tools/components.py compare` check the same list in stage 6. CodeNames and defined names are set by `tools/build_template.py` from `tools/workbook_layout.py`, which offline tests keep in line with this contract ([tooling](../tools/README.md#workbook-build)).
@@ -174,6 +177,9 @@ Under W10, the workbook reads exactly three user-selected CSV files, read-only, 
 | W8 | Test build | A separate build with `tests/modules/` and the `Tests` sheet; production excludes both | Accepted 2026-10-26 (#38) |
 | W9 | Event handlers | None; staleness detected by input fingerprints at the next operation | Accepted 2026-10-26 (#38) |
 | W10 | File access | Three user-selected CSV inputs, read-only; CSV exports to a user-selected folder; nothing else | Accepted 2026-10-26 (#38) |
+| W11 | Input cells | Formatted as Text and read as typed, in the file format; a control-total cell holding a number or date value makes its row invalid | Decided 2026-10-28 (#42) |
+| W12 | Outcomes in the lineage | Table `Import_Outcomes` on `Import`: as_of_date (`t-1`), segment, currency, outcome, loan_months, balance | Decided 2026-10-28 (#42) |
+| W13 | Run ID | Operation and host local start time, `IMPORT-yyyymmdd-hhnnss`, with a `-n` suffix when `Log_Runs` already holds the ID | Decided 2026-10-28 (#42) |
 
 ## Not covered
 
