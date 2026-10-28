@@ -65,7 +65,8 @@ class Styles:
                                         'bg_color': NAVY, 'text_wrap': True})
         self.header_out = wb.add_format({**base, **border, 'bold': True, 'font_color': 'white',
                                          'bg_color': BLUE, 'text_wrap': True})
-        self.input = wb.add_format({**base, **border, 'bg_color': YELLOW, 'locked': False})
+        # Input cells are Text, so a typed date or amount stays the exact text of the file format (W11).
+        self.input = wb.add_format({**base, **border, 'bg_color': YELLOW, 'locked': False, 'num_format': '@'})
         self.cell = wb.add_format({**base, **border})
 
 

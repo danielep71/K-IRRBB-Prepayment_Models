@@ -24,14 +24,16 @@ def expected(case: str) -> dict:
 
 
 class ImportCases(unittest.TestCase):
-    def run_case(self, case: str) -> None:
+    def run_case(self, case: str) -> dict[str, reader.Result]:
         spec = expected(case)
         settings = spec['settings']
+        results: dict[str, reader.Result] = {}
         for variant, want in spec['variants'].items():
             with self.subTest(case=case, variant=variant):
                 result = reader.read_import(FIXTURES / case / variant, date.fromisoformat(settings['window_start']),
                                             date.fromisoformat(settings['window_end']),
                                             set(settings['currency_allowlist']))
+                results[variant] = result
                 self.assertEqual(result.accepted, want['accepted'])
                 self.assertEqual([list(e) for e in result.errors], want['errors'])
                 if 'warnings' in want:
@@ -59,6 +61,23 @@ class ImportCases(unittest.TestCase):
                 if 'outcomes' in want:
                     got = {f'{loan}|{start}': outcome for (loan, start), outcome in result.outcomes.items()}
                     self.assertEqual(got, want['outcomes'])
+                if 'counts' in want:
+                    self.assertEqual(result.counts, want['counts'])
+                if 'fingerprints' in want:
+                    self.assertEqual(result.fingerprints, want['fingerprints'])
+                if 'sizes' in want:
+                    folder = FIXTURES / case / variant
+                    self.assertEqual({n: (folder / n).stat().st_size for n in want['sizes']}, want['sizes'])
+                if 'import_outcomes' in want:
+                    got_summary = {'|'.join(k): {'loan_months': n, 'balance': b}
+                                   for k, (n, b) in result.outcome_summary.items()}
+                    self.assertEqual(got_summary, {k: {'loan_months': v['loan_months'], 'balance': Decimal(v['balance'])}
+                                                   for k, v in want['import_outcomes'].items()})
+                if 'comparison_count' in want:
+                    self.assertEqual(len(result.comparisons), want['comparison_count'])
+                    self.assertEqual([[k, m, *(str(x) for x in values)] for k, m, *values in result.comparisons
+                                      if values[2] != 0], want['comparison_differences'])
+        return results
 
     def test_data_ident_01(self) -> None:
         self.run_case('DATA-IDENT-01')
@@ -85,6 +104,38 @@ class ImportCases(unittest.TestCase):
 
     def test_data_event_01(self) -> None:
         self.run_case('DATA-EVENT-01')
+
+    def test_data_reject_01(self) -> None:
+        results = self.run_case('DATA-REJECT-01')
+        folder = FIXTURES / 'DATA-REJECT-01'
+        files = (reader.LOANS, reader.PANEL, reader.RATES, reader.CONTROLS)
+        base = {name: (folder / 'accepted' / name).read_bytes().splitlines() for name in files}
+        # The previously accepted dataset is kept: a rejected import replaces nothing.
+        dataset = results['accepted']
+        self.assertTrue(dataset.accepted)
+        for variant in ('invalid-loans', 'invalid-panel', 'invalid-rates'):
+            with self.subTest(variant=variant):
+                result = results[variant]
+                # One row of one file differs from the accepted import: changed in place or added.
+                changed = []
+                for name in files:
+                    lines = (folder / variant / name).read_bytes().splitlines()
+                    if lines != base[name]:
+                        changed.append(name)
+                        diff = [i for i in range(max(len(lines), len(base[name])))
+                                if i >= len(lines) or i >= len(base[name]) or lines[i] != base[name][i]]
+                        self.assertEqual(len(diff), 1, name)
+                self.assertEqual(changed, [variant_file(variant)])
+                # All or nothing: no totals, comparisons or outcome summary of a rejected import.
+                self.assertFalse(result.accepted)
+                self.assertEqual((result.totals, result.comparisons, result.outcome_summary), ({}, [], {}))
+                if result.accepted:
+                    dataset = result
+        self.assertIs(dataset, results['accepted'])
+
+
+def variant_file(variant: str) -> str:
+    return {'invalid-loans': reader.LOANS, 'invalid-panel': reader.PANEL, 'invalid-rates': reader.RATES}[variant]
 
 
 class FieldCases(unittest.TestCase):
