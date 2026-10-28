@@ -123,11 +123,15 @@ class ReaderEdges(unittest.TestCase):
         self.assertIn([reader.LOANS, 2, 'E16'], [list(e) for e in result.errors])
 
     def test_large_amounts_are_not_rounded(self) -> None:
-        big = '10000000000000000000000000000'
+        big = '999999999999999.9999'    # the largest amount D17 allows
         result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
-                           [f'2024-01-31,L1,{big},0.03,0,0,0,NONE', f'2024-02-29,L1,{big},0.03,0.01,0,0,NONE'],
+                           [f'2024-01-31,L1,{big},0.03,0,0,0,NONE', f'2024-02-29,L1,{big},0.03,0.0001,0,0,NONE'],
                            date(2024, 1, 31), date(2024, 2, 29))
-        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 3, 'E13']])
+        self.assertEqual([list(e) for e in result.errors], [])
+        result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           ['2024-01-31,L1,1000000000000000,0.03,0,0,0,NONE'], date(2024, 1, 31), date(2024, 1, 31))
+        # The month's only row fails E04, so the month also has no panel rows (E12).
+        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 0, 'E12'], [reader.PANEL, 2, 'E04']])
 
     def test_window_ending_in_9999(self) -> None:
         result = self.read(['L1,MTG_FIX,EUR,9999-01-15,9999-12-31,1,FIXED,,,ANNUITY,1,NONE,,'],
