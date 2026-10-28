@@ -44,6 +44,10 @@ class ImportCases(unittest.TestCase):
                     for key, measures in want['totals'].items():
                         full = {m: Decimal(measures.get(m, '0')) for m in reader.RECON_MEASURES}
                         self.assertEqual(got_totals[key], full, key)
+                if 'gaps' in want:
+                    self.assertEqual([list(g) for g in result.gaps], want['gaps'])
+                if 'missing_extracts' in want:
+                    self.assertEqual(result.missing_extracts, want['missing_extracts'])
                 if 'control_differences' in want:
                     self.assertEqual([list(d) for d in result.control_differences], want['control_differences'])
                 for key, month in want.get('loan_months', {}).items():
