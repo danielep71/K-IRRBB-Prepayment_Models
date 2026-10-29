@@ -24,14 +24,16 @@ def expected(case: str) -> dict:
 
 
 class ImportCases(unittest.TestCase):
-    def run_case(self, case: str) -> None:
+    def run_case(self, case: str) -> dict[str, reader.Result]:
         spec = expected(case)
         settings = spec['settings']
+        results: dict[str, reader.Result] = {}
         for variant, want in spec['variants'].items():
             with self.subTest(case=case, variant=variant):
                 result = reader.read_import(FIXTURES / case / variant, date.fromisoformat(settings['window_start']),
                                             date.fromisoformat(settings['window_end']),
                                             set(settings['currency_allowlist']))
+                results[variant] = result
                 self.assertEqual(result.accepted, want['accepted'])
                 self.assertEqual([list(e) for e in result.errors], want['errors'])
                 if 'warnings' in want:
@@ -44,6 +46,10 @@ class ImportCases(unittest.TestCase):
                     for key, measures in want['totals'].items():
                         full = {m: Decimal(measures.get(m, '0')) for m in reader.RECON_MEASURES}
                         self.assertEqual(got_totals[key], full, key)
+                if 'gaps' in want:
+                    self.assertEqual([list(g) for g in result.gaps], want['gaps'])
+                if 'missing_extracts' in want:
+                    self.assertEqual(result.missing_extracts, want['missing_extracts'])
                 if 'control_differences' in want:
                     self.assertEqual([list(d) for d in result.control_differences], want['control_differences'])
                 for key, month in want.get('loan_months', {}).items():
@@ -55,6 +61,23 @@ class ImportCases(unittest.TestCase):
                 if 'outcomes' in want:
                     got = {f'{loan}|{start}': outcome for (loan, start), outcome in result.outcomes.items()}
                     self.assertEqual(got, want['outcomes'])
+                if 'counts' in want:
+                    self.assertEqual(result.counts, want['counts'])
+                if 'fingerprints' in want:
+                    self.assertEqual(result.fingerprints, want['fingerprints'])
+                if 'sizes' in want:
+                    folder = FIXTURES / case / variant
+                    self.assertEqual({n: (folder / n).stat().st_size for n in want['sizes']}, want['sizes'])
+                if 'import_outcomes' in want:
+                    got_summary = {'|'.join(k): {'loan_months': n, 'balance': b}
+                                   for k, (n, b) in result.outcome_summary.items()}
+                    self.assertEqual(got_summary, {k: {'loan_months': v['loan_months'], 'balance': Decimal(v['balance'])}
+                                                   for k, v in want['import_outcomes'].items()})
+                if 'comparison_count' in want:
+                    self.assertEqual(len(result.comparisons), want['comparison_count'])
+                    self.assertEqual([[k, m, *(str(x) for x in values)] for k, m, *values in result.comparisons
+                                      if values[2] != 0], want['comparison_differences'])
+        return results
 
     def test_data_ident_01(self) -> None:
         self.run_case('DATA-IDENT-01')
@@ -81,6 +104,38 @@ class ImportCases(unittest.TestCase):
 
     def test_data_event_01(self) -> None:
         self.run_case('DATA-EVENT-01')
+
+    def test_data_reject_01(self) -> None:
+        results = self.run_case('DATA-REJECT-01')
+        folder = FIXTURES / 'DATA-REJECT-01'
+        files = (reader.LOANS, reader.PANEL, reader.RATES, reader.CONTROLS)
+        base = {name: (folder / 'accepted' / name).read_bytes().splitlines() for name in files}
+        # The previously accepted dataset is kept: a rejected import replaces nothing.
+        dataset = results['accepted']
+        self.assertTrue(dataset.accepted)
+        for variant in ('invalid-loans', 'invalid-panel', 'invalid-rates'):
+            with self.subTest(variant=variant):
+                result = results[variant]
+                # One row of one file differs from the accepted import: changed in place or added.
+                changed = []
+                for name in files:
+                    lines = (folder / variant / name).read_bytes().splitlines()
+                    if lines != base[name]:
+                        changed.append(name)
+                        diff = [i for i in range(max(len(lines), len(base[name])))
+                                if i >= len(lines) or i >= len(base[name]) or lines[i] != base[name][i]]
+                        self.assertEqual(len(diff), 1, name)
+                self.assertEqual(changed, [variant_file(variant)])
+                # All or nothing: no totals, comparisons or outcome summary of a rejected import.
+                self.assertFalse(result.accepted)
+                self.assertEqual((result.totals, result.comparisons, result.outcome_summary), ({}, [], {}))
+                if result.accepted:
+                    dataset = result
+        self.assertIs(dataset, results['accepted'])
+
+
+def variant_file(variant: str) -> str:
+    return {'invalid-loans': reader.LOANS, 'invalid-panel': reader.PANEL, 'invalid-rates': reader.RATES}[variant]
 
 
 class FieldCases(unittest.TestCase):
@@ -119,11 +174,19 @@ class ReaderEdges(unittest.TestCase):
         self.assertIn([reader.LOANS, 2, 'E16'], [list(e) for e in result.errors])
 
     def test_large_amounts_are_not_rounded(self) -> None:
-        big = '10000000000000000000000000000'
+        big = '999999999999999.9999'    # the largest amount D17 allows
         result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
-                           [f'2024-01-31,L1,{big},0.03,0,0,0,NONE', f'2024-02-29,L1,{big},0.03,0.01,0,0,NONE'],
+                           [f'2024-01-31,L1,{big},0.03,0,0,0,NONE', f'2024-02-29,L1,{big},0.03,0.0001,0,0,NONE'],
                            date(2024, 1, 31), date(2024, 2, 29))
-        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 3, 'E13']])
+        self.assertEqual([list(e) for e in result.errors], [])
+        result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           ['2024-01-31,L1,1000000000000000,0.03,0,0,0,NONE'], date(2024, 1, 31), date(2024, 1, 31))
+        # The month's only row fails E04, so the month also has no panel rows (E12).
+        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 0, 'E12'], [reader.PANEL, 2, 'E04']])
+        # Review of #110: an amount longer than the reader's 1,000-digit context is E04, not a crash.
+        result = self.read(['L1,MTG_FIX,EUR,2023-01-15,2030-01-15,1,FIXED,,,ANNUITY,1,NONE,,'],
+                           [f'2024-01-31,L1,{"9" * 1001},0.03,0,0,0,NONE'], date(2024, 1, 31), date(2024, 1, 31))
+        self.assertEqual([list(e) for e in result.errors], [[reader.PANEL, 0, 'E12'], [reader.PANEL, 2, 'E04']])
 
     def test_window_ending_in_9999(self) -> None:
         result = self.read(['L1,MTG_FIX,EUR,9999-01-15,9999-12-31,1,FIXED,,,ANNUITY,1,NONE,,'],
@@ -201,6 +264,15 @@ class PointInTime(unittest.TestCase):
                     self.assertEqual(reader.point_in_time_view(rows, origin), before)
                     self.assertNotEqual(reader.point_in_time_view(rows, unfiltered),
                                         reader.point_in_time_view(self.rows, unfiltered))
+
+
+class ControlCounts(unittest.TestCase):
+    def test_counts_follow_d17(self) -> None:
+        row = {'as_of_date': '2024-01-31', 'segment': 'MTG_FIX', 'currency': 'EUR',
+               **{m: '0' for m in reader.RECON_MEASURES}}
+        self.assertIsNotNone(reader.parse_control({**row, 'loans': '999999999999999'}))
+        self.assertIsNone(reader.parse_control({**row, 'loans': '1000000000000000'}))
+        self.assertIsNone(reader.parse_control({**row, 'loans': '-1'}))
 
 
 class Fingerprints(unittest.TestCase):

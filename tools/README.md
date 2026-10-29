@@ -6,7 +6,7 @@ Run `python tools/check.py` from a fresh clone with Git, Python 3.10+ and Node.j
 
 The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; issue #4 records the separate owner confirmation for the inspected snapshots. New material still requires provenance and permission review.
 
-It runs metadata regression tests, negative integrity/source fixtures and both label-script self-tests. Markdown anchors, external link availability, VBA compilation and numerical correctness are outside this gate.
+It runs metadata regressions, negative integrity/source fixtures, workbook-tooling tests, independent DATA reference cases and both label-script self-tests. Markdown anchors, external link availability, VBA compilation and numerical correctness are outside this gate.
 
 ## Full quality gate
 
@@ -35,12 +35,13 @@ The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK
 | --- | --- | --- |
 | `workbook_layout.py` | Any | The sheets, CodeNames, tables, settings and defined names of the workbook contract, as data |
 | `build_template.py` | Any, with `requirements-build.txt` | Generates the macro-free `.xlsx` template of a `production` or `test` build; refuses outputs in the checkout outside `build/` and `out/` |
-| `components.py stage` | Any, Git | Lists the components of a build from the commit object, checks prefixes, `VB_Name`, ASCII and name clashes, and writes `manifest.json` with CRLF copies |
+| `components.py stage` | Any, Git | Lists the components of a build from the commit object, checks prefixes, `VB_Name`, ASCII and name clashes, adds the generated fixture modules to a test build, and writes `manifest.json` with CRLF copies |
+| `vba_fixtures.py` | Any | Generates `TEST_Fixtures` (dispatch) and `TEST_FixtureData<n>` (hex data, about 48,000 characters each) from a commit's `tests/fixtures/` and `tests/expected/`; called by `components.py stage`, never committed |
 | `components.py compare` | Any | Compares an export with a manifest: missing, extra or changed components, a wrong VBA type (a sheet's module must be a document module), code in document modules and non-default references fail |
 | `Build-Workbook.ps1` | Windows Excel | Stage 1: stages, generates the template, imports the components with macros disabled, saves, exports again and compares; writes the `.xlsm` and its `.build.json` record only on `PASS` |
 | `Export-Workbook.ps1` | Windows Excel | Stage 6: exports every component, its VBA type and the reference names of a saved workbook into a new folder, without saving it |
 
-The **test build** adds `tests/modules/` (`TEST_`) and the `Tests` sheet; the **production build** excludes them and `examples/`. Source folders map to prefixes: `src/core/` `CORE_`, `src/modules/` `PREPAY_`, `src/workbook/` `WB_`, `tests/modules/` `TEST_`; `src/classes/` holds `.cls` files. UserForms are rejected until a reviewed `.frx` binary exception exists. VBA source must be ASCII, because Git holds UTF-8 and the VBE imports Windows-1252.
+The **test build** adds `tests/modules/` (`TEST_`), the generated fixture modules and the `Tests` sheet; the **production build** excludes them and `examples/`. Source folders map to prefixes: `src/core/` `CORE_`, `src/modules/` `PREPAY_`, `src/workbook/` `WB_`, `tests/modules/` `TEST_`; `src/classes/` holds `.cls` files. UserForms are rejected until a reviewed `.frx` binary exception exists. VBA source must be ASCII, because Git holds UTF-8 and the VBE imports Windows-1252.
 
 On Windows, from a clean checkout of the candidate commit:
 

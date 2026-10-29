@@ -26,3 +26,37 @@ Function PREPAY_SmmFromCpr(ByVal Cpr As Double) As Double
     SMM = 1 - (1 - CPR)^(1/12). Cpr is an annual decimal rate in [0, 1];
     returns the monthly decimal rate in [0, 1].
     Raises vbObjectError + 1001 when Cpr is outside [0, 1] or not a number.
+
+Module PREPAY_Dataset (docs/methodology/DATA_CONTRACT.md; docs/WORKBOOK_CONTRACT.md, W7)
+---------------------------------------------------------------------------------------
+Function PREPAY_Import(ByRef LoansData() As Byte, ByVal LoansLength As Long,
+                       ByRef PanelData() As Byte, ByVal PanelLength As Long,
+                       ByRef RatesData() As Byte, ByVal RatesLength As Long,
+                       ByVal WindowStart As String, ByVal WindowEnd As String,
+                       ByVal Allowlist As String, ByVal ControlLines As Variant,
+                       ByVal RunId As String) As Long
+    Validates one import of loans.csv, loan_panel.csv and market_rates.csv
+    from the first Length bytes of each 0-based array; returns the number
+    of errors. WindowStart and WindowEnd are month ends YYYY-MM-DD, start not
+    after end; Allowlist is comma-separated ISO 4217 codes; ControlLines is
+    Empty without a Controls_Totals table, else an array of its lines,
+    header first, fields joined with commas. With no error the import
+    becomes the accepted dataset under RunId, with each file's size and
+    SHA-256; with any error the accepted dataset is unchanged. Invalid data
+    is reported as findings, never raised.
+    Raises vbObjectError + 1002 for an argument of the wrong form.
+
+Function PREPAY_ImportResult(ByVal Kind As String) As Variant
+    The findings and results of the last import, accepted or not, as a
+    1-based (n x k) array or Empty: errors, warnings, gaps, missing,
+    differences, counts, loan_months, outcomes, totals, comparisons.
+    Raises vbObjectError + 1002 for another Kind.
+
+Function PREPAY_DatasetRunId() As String
+    The run ID of the accepted dataset; "" when no import has been accepted
+    in this Excel session.
+
+Function PREPAY_DatasetResult(ByVal Kind As String) As Variant
+    A result of the accepted dataset as a 1-based (n x k) array or Empty:
+    counts, outcomes, loan_outcomes, totals, comparisons, warnings, gaps,
+    loan_months. Raises vbObjectError + 1002 for another Kind.

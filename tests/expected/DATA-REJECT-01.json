@@ -1,0 +1,168 @@
+{
+  "case": "DATA-REJECT-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Four EUR loans over 2024-01 to 2024-03: L1, L2 and L4 MTG_FIX, L3 CON_FIX. accepted: L1 amortises 1000, 900, 880 and has a 2023-12-31 row outside the window (W04, panel line 2); L2 opens at 800, prepays 50 (PARTIAL) and then its remaining 750 (FULL, 2024-03-31); L3 opens at 600, amortises 10 and stops after 2024-02-29 (W02 at panel line 9, CENSORED); L4 stays at 400; one market rate outside the window (W04, line 2). Totals per month end and segment by hand; controls.csv matches them, with the 2024-01-31 MTG_FIX balance 0.004 above (within D9), so 80 comparisons and one nonzero difference. Counts per file: rows after the header, rows accepted (inside the window and valid), rows outside the window, loans (register rows; distinct panel loans). Sizes and SHA-256 fingerprints of the accepted files by Python os.stat and hashlib (independent digest, as DATA-SHA-01). Outcomes per t-1, segment, currency and outcome: loan-months and the sum of their balances at t-1 (W12). Each rejected variant changes one row of one file of accepted: invalid-loans adds L5 with a five-decimal original_balance (E04, loans.csv line 6); invalid-panel gives the 2024-02-29 L4 row the client_rate x (E04, panel line 10); invalid-rates gives the 2024-01-31 rate the value 3% (E04, market_rates.csv line 3). A rejected import has no totals and no outcome summary, and leaves the accepted dataset unchanged (data contract, all-or-nothing import).",
+    "date": "2026-10-28",
+    "producer": "Daniele Penza"
+  },
+  "settings": {
+    "window_start": "2024-01-31",
+    "window_end": "2024-03-31",
+    "currency_allowlist": [
+      "EUR"
+    ]
+  },
+  "variants": {
+    "accepted": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          2,
+          "W04"
+        ],
+        [
+          "loan_panel.csv",
+          9,
+          "W02"
+        ],
+        [
+          "market_rates.csv",
+          2,
+          "W04"
+        ]
+      ],
+      "totals": {
+        "2024-01-31|MTG_FIX|EUR": {
+          "loans": "3",
+          "balance": "2200"
+        },
+        "2024-01-31|CON_FIX|EUR": {
+          "loans": "1",
+          "balance": "600"
+        },
+        "2024-02-29|MTG_FIX|EUR": {
+          "loans": "3",
+          "balance": "2050",
+          "scheduled_principal": "100",
+          "prepaid_partial": "50"
+        },
+        "2024-02-29|CON_FIX|EUR": {
+          "loans": "1",
+          "balance": "590",
+          "scheduled_principal": "10"
+        },
+        "2024-03-31|MTG_FIX|EUR": {
+          "loans": "3",
+          "balance": "1280",
+          "scheduled_principal": "20",
+          "prepaid_full": "750",
+          "full_count": "1"
+        }
+      },
+      "control_differences": [],
+      "comparison_count": 80,
+      "comparison_differences": [
+        [
+          "2024-01-31|MTG_FIX|EUR",
+          "balance",
+          "2200.004",
+          "2200",
+          "0.004"
+        ]
+      ],
+      "counts": {
+        "loans.csv": {
+          "rows_read": 4,
+          "rows_accepted": 4,
+          "rows_outside_window": 0,
+          "loans": 4
+        },
+        "loan_panel.csv": {
+          "rows_read": 12,
+          "rows_accepted": 11,
+          "rows_outside_window": 1,
+          "loans": 4
+        },
+        "market_rates.csv": {
+          "rows_read": 2,
+          "rows_accepted": 1,
+          "rows_outside_window": 1,
+          "loans": null
+        }
+      },
+      "fingerprints": {
+        "loans.csv": "d1d77528fc1caa545cf8541de348355ef48405a6c2533429a5ad675d058895d0",
+        "loan_panel.csv": "e7e05cf2decf993e70b4fcaccf7d0dc8d39f2a2db0ee7e1bf8221e73a15a1b8d",
+        "market_rates.csv": "ca888a61e82d434307df672e9ee956b339f87be772d6016215e55b3612916c34"
+      },
+      "sizes": {
+        "loans.csv": 443,
+        "loan_panel.csv": 514,
+        "market_rates.csv": 118
+      },
+      "import_outcomes": {
+        "2024-01-31|MTG_FIX|EUR|NONE": {
+          "loan_months": 2,
+          "balance": "1400"
+        },
+        "2024-01-31|MTG_FIX|EUR|PARTIAL": {
+          "loan_months": 1,
+          "balance": "800"
+        },
+        "2024-01-31|CON_FIX|EUR|NONE": {
+          "loan_months": 1,
+          "balance": "600"
+        },
+        "2024-02-29|MTG_FIX|EUR|NONE": {
+          "loan_months": 2,
+          "balance": "1300"
+        },
+        "2024-02-29|MTG_FIX|EUR|FULL": {
+          "loan_months": 1,
+          "balance": "750"
+        },
+        "2024-02-29|CON_FIX|EUR|CENSORED": {
+          "loan_months": 1,
+          "balance": "590"
+        },
+        "2024-03-31|MTG_FIX|EUR|END_OF_WINDOW": {
+          "loan_months": 2,
+          "balance": "1280"
+        }
+      }
+    },
+    "invalid-loans": {
+      "accepted": false,
+      "errors": [
+        [
+          "loans.csv",
+          6,
+          "E04"
+        ]
+      ]
+    },
+    "invalid-panel": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          10,
+          "E04"
+        ]
+      ]
+    },
+    "invalid-rates": {
+      "accepted": false,
+      "errors": [
+        [
+          "market_rates.csv",
+          3,
+          "E04"
+        ]
+      ]
+    }
+  }
+}

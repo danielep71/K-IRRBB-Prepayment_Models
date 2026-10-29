@@ -2,7 +2,7 @@
   "case": "DATA-EXPO-01",
   "provenance": {
     "tool": "hand construction",
-    "steps": "A = balance(t-1) - scheduled_principal(t) + max(other_change(t), 0), compared with prepaid_principal at input precision without tolerance. equal-with-drawdown: opening 100, scheduled 10, drawdown 50, so A = 140 = P; accepted, W03 for the drawdown. smallest-excess: the same with P = 140.0001; the balance identity passes (difference 0.0001) and E15 is raised on panel line 5. tiny-exposure: A = 0.0001, P = 0.0051; the identity difference is exactly 0.005, so E13 passes and E15 is raised. review-24 (review of #24): opening 100, drawdown 100, prepayment 150, closing 50; A = 200, SMM = 150 / 200 = 0.75; accepted with W03.",
+    "steps": "A = balance(t-1) - scheduled_principal(t) + max(other_change(t), 0), compared with prepaid_principal at input precision without tolerance. equal-with-drawdown: opening 100, scheduled 10, drawdown 50, so A = 140 = P; accepted, W03 for the drawdown. smallest-excess: the same with P = 140.0001; the balance identity passes (difference 0.0001) and E15 is raised on panel line 5. tiny-exposure: A = 0.0001, P = 0.0051; the identity difference is exactly 0.005, so E13 passes and E15 is raised. review-24 (review of #24): opening 100, drawdown 100, prepayment 150, closing 50; A = 200, SMM = 150 / 200 = 0.75; accepted with W03. origination-equal and origination-excess (D16): O1 originates 2024-02-10 with original balance 100 and ends FULL in its origination month with a drawdown of 50, so A = 100 + 50 = 150 against original_balance; prepaid 150 is accepted, prepaid 150.0001 is E15 on panel line 4 (identity difference 0.0001). W03 for the drawdown in both.",
     "date": "2026-10-26",
     "producer": "Daniele Penza"
   },
@@ -77,6 +77,34 @@
           "smm": "0.75"
         }
       }
+    },
+    "origination-equal": {
+      "accepted": true,
+      "errors": [],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          4,
+          "W03"
+        ]
+      ]
+    },
+    "origination-excess": {
+      "accepted": false,
+      "errors": [
+        [
+          "loan_panel.csv",
+          4,
+          "E15"
+        ]
+      ],
+      "warnings": [
+        [
+          "loan_panel.csv",
+          4,
+          "W03"
+        ]
+      ]
     }
   }
 }
