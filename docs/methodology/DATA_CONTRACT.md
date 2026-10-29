@@ -1,6 +1,6 @@
 # Data contract
 
-Status: **accepted by the owner on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted by the owner on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27**, and decisions D16 and D17 on 2026-10-28 (issue #41). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
+Status: **accepted on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed; decision D10 was accepted on 2026-10-21 (issue #72). Decision D11 and the [RENEG successors](#reneg-successors) section were **accepted on 2026-10-26 (issue #49)**. Decisions D12–D15 were **decided by the owner on 2026-10-27**, and decisions D16 and D17 on 2026-10-28 (issue #41). Only synthetic data is ever committed or attached; real loan data is loaded locally and never enters Git, issues or pull requests.
 
 This document is authoritative for the input datasets, their fields, units and validation, the classification of loan events, censoring and missing observations, reconciliation and lineage. Model definitions are in the [model contracts](MODEL_CONTRACTS.md); units follow [repository structure](../REPOSITORY_STRUCTURE.md).
 
@@ -103,7 +103,7 @@ Each panel row carries exactly one event, the one that describes the loan's mont
 
 ## RENEG successors
 
-Status: **accepted by the owner on 2026-10-26 (issue #49)** (decision D11, amending D4 and D6). Nothing here is implemented or validated.
+Status: **accepted on 2026-10-26 (issue #49)** (decision D11, amending D4 and D6). The independent reader and VBA importer implement these rules, with `DATA-RENEG-01` built in Python and VBA (#41, #42). No Windows Excel execution or model validation is established.
 
 A `RENEG` row ends a loan and transfers its remaining principal, `T = -other_change(t)`, to exactly one successor: the register row whose `predecessor_id` is the renegotiated loan (decision D6). The import reconciles the two, so a source cannot transfer one amount and open the successor with another.
 
@@ -138,7 +138,7 @@ The key is (`as_of_date`, `rate_id`). Which series form the refinancing curve, a
 
 ## Tier 1 capital
 
-Status: **accepted by the owner on 2026-10-21 (issue #72, decision D10).**
+Status: **accepted on 2026-10-21 (issue #72, decision D10).**
 
 Tier 1 capital is a run setting, not a dataset. The user enters one amount and one currency for the run; the toolkit never derives it. It is used only for the ΔEVE / Tier 1 ratio of the [model contracts](MODEL_CONTRACTS.md#eve-sensitivity-and-repricing-gap) and is recorded with every scenario result that uses it.
 
@@ -267,7 +267,7 @@ The same files, settings and commit give the same dataset, findings in the same 
 
 ## Synthetic fixtures
 
-None yet. Before an importer is implemented, hand-constructed fixtures must cover every event, error and warning code above, with hand-computed expected totals and outcomes and an independent reference reader. The cases are registered in [TEST_CASES.md](TEST_CASES.md).
+Hand-constructed synthetic inputs and independently derived expected files for all twelve `DATA-*` cases are committed under `tests/fixtures/` and `tests/expected/`. The independent reader in `tests/reference/` runs through `python tools/check.py` (#41). Eleven of those cases also have VBA harness tests, including the import-adapter rejection case; `DATA-PIT-02` remains Python-only. No case has run in Excel. The authoritative statuses and provenance requirements are in [TEST_CASES.md](TEST_CASES.md).
 
 ## Decisions
 
