@@ -1,6 +1,6 @@
 # Workbook contract
 
-Status: **accepted by the owner on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed; W11–W13 decided on 2026-10-28 (#42). The builder (#43) and the import adapter (module `WB_ImportAdapter`, entry point `WB_Import`; #42) are committed; none of it has been compiled or run in Excel.
+Status: **accepted on 2026-10-26 (issue #38)**, with decisions W1–W10 as proposed; W11–W13 decided on 2026-10-28 (#42). The builder (#43) and the import adapter (module `WB_ImportAdapter`, entry point `WB_Import`; #42) are committed; none of it has been compiled or run in Excel.
 
 This document is authoritative for the layout of the future analysis workbook: sheet order, names and CodeNames, defined names, the input, parameter, result and diagnostics areas, and which areas the toolkit writes. What is calculated is specified in the [data contract](methodology/DATA_CONTRACT.md) and the [model contracts](methodology/MODEL_CONTRACTS.md); the code boundaries are in [repository structure](REPOSITORY_STRUCTURE.md); what a real Excel run must record is in [Excel evidence](EXCEL_EVIDENCE.md).
 
