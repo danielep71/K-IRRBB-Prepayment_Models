@@ -4,7 +4,7 @@
 
 Run `python tools/check.py` from a fresh clone with Git, Python 3.10+ and Node.js 22+. No Python packages are required. Stage new files before checking: the gate inspects Git's tracked file list and current working contents.
 
-The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; issue #4 records the separate owner confirmation for the inspected snapshots. New material still requires provenance and permission review.
+The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The operational guides (`CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `INSTALLATION.md`, `docs/GOVERNANCE.md`, `docs/REPOSITORY_SETTINGS.md`, `docs/TRAFFIC.md`) must not say "the owner" or "the maintainer": they state my rules in the first person. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; my separate confirmation for the inspected snapshots is recorded in [provenance](../docs/PROVENANCE.md). New material still requires provenance and permission review.
 
 It runs metadata regression tests, negative integrity/source fixtures and both label-script self-tests. `tools/check_links.py` checks every relative link and anchor in the tracked Markdown files, through `tools/test_check_links.py`. External link availability is checked weekly instead, by the *Link check* workflow (`python tools/check_links.py --external`), because external sites change without a commit. VBA compilation and numerical correctness are outside this gate.
 
@@ -29,7 +29,7 @@ Dependabot checks GitHub Actions and the hash-locked Python requirements weekly 
 
 ## Workbook build
 
-The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK_CONTRACT.md), decision of #43). The tools are build tooling only; the workbook never depends on them.
+The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK_CONTRACT.md)). The tools are build tooling only; the workbook never depends on them.
 
 | Tool | Runs on | Does |
 | --- | --- | --- |

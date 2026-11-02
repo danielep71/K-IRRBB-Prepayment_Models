@@ -40,6 +40,6 @@ Visibility (public), the default branch (`main`), the About text and topics, and
 
 ## Branches
 
-One release branch per milestone, named `release/<milestone version>`, is created from main when the milestone opens and retired after its final integration into main. The active release branch, the one `target-branch` names in [`.github/dependabot.yml`](../.github/dependabot.yml), is the integration target for task PRs and Dependabot. Task PRs into it are squash-merged once `integrity` passes and review findings are resolved. I review the release branch and integrate it into main with a merge commit.
+Each milestone has one release branch, named `release/<milestone version>`, which I create from main when the milestone opens and retire after its final integration into main. The active release branch, the one `target-branch` names in [`.github/dependabot.yml`](../.github/dependabot.yml), is the integration target for task PRs and Dependabot. Task PRs into it are squash-merged once `integrity` passes and review findings are resolved. I review the release branch and integrate it into main with a merge commit.
 
 After each integration into main, the release branch is levelled with main: I fast-forward it, or the main merge commit is merged into the release branch. Merged task branches are deleted automatically. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).
