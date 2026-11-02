@@ -14,6 +14,16 @@ Default branch: **main**. Active release branch: the branch that `target-branch`
 
 Issue #9 records activation and read-back verification of the main-branch rules. The required policy is: PR before merge, all review conversations resolved, GitHub Actions `integrity` passing, and branch up to date with main. Force pushes and deletion are blocked, with no bypass actors. There is no mandatory approval count for this sole-maintainer repository; maintainer review remains required by policy. Integration into main uses merge commits. Do not bypass failing checks or rewrite published history.
 
+Pull requests link issues by kind:
+
+| Pull request | Base ← head | Issue link |
+| --- | --- | --- |
+| Task | active release branch ← task branch | `Resolves #N` |
+| Integration | main ← active release branch | `Refs #N` for the issues and PRs it carries |
+| Sync | active release branch ← main | `Refs #N` for the integration PR |
+
+GitHub closes an issue from a keyword only when the PR merges into main, so close a task's issue by hand once its evidence is complete. An integration or sync PR never uses a closing keyword: it would close every named issue, including one still waiting for evidence. Before merging any PR, record its final-head review in the template: the final head SHA, the reviewed SHA, the review result and the CI run. Any push after that renews the review, the CI run and the record.
+
 See [repository settings](REPOSITORY_SETTINGS.md) for the settings baseline and the release-branch rules. The saved GitHub ruleset is authoritative; an issue is not complete until it has been read back and verified.
 
 ## Definition of done
