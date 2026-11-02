@@ -1,13 +1,19 @@
-"""Enforce the owner's issue policy with narrow API updates and read-back checks."""
+"""Enforce the owner's issue policy with narrow API updates and read-back checks.
+
+It sets what has a rule: the assignee, and the milestone of an issue that has
+none. It never sets or changes a priority; the read-only triage check
+(tools/check_issues.py) reports a missing or conflicting one for a person to decide.
+"""
 from __future__ import annotations
 
+import datetime
+import functools
 import json
 import os
 import re
 import subprocess
 import sys
 
-PRIORITIES = ("P1", "P2", "P3")
 OWNER = "danielep71"
 SECRET = re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})")
 DETAIL_LIMIT = 500
@@ -35,52 +41,35 @@ def api(endpoint, method="GET", payload=None, paginate=False):
     return json.loads(completed.stdout) if completed.stdout.strip() else None
 
 
-def desired_priority(issue):
-    labels = {label["name"] for label in issue["labels"]}
-    return next((priority for priority in PRIORITIES if priority in labels), "P3")
-
-
 def reconcile(repository, number, default_milestone):
+    """default_milestone is called only when the issue has no milestone."""
     endpoint = f"repos/{repository}/issues/{number}"
     issue = api(endpoint)
     if "pull_request" in issue:
         return
     if OWNER not in {person["login"] for person in issue["assignees"]}:
         api(endpoint + "/assignees", "POST", {"assignees": [OWNER]})
-    priority = desired_priority(issue)
-    labels = {label["name"] for label in issue["labels"]}
-    if priority not in labels:
-        api(endpoint + "/labels", "POST", {"labels": [priority]})
-    for other in PRIORITIES:
-        if other != priority and other in labels:
-            api(endpoint + f"/labels/{other}", "DELETE")
     if issue["milestone"] is None:
-        milestone = api(f"repos/{repository}/milestones/{default_milestone}")
-        if milestone["state"] != "open":
-            raise RuntimeError("Configured default milestone must be open")
-        api(endpoint, "PATCH", {"milestone": default_milestone})
+        api(endpoint, "PATCH", {"milestone": default_milestone()})
     verified = api(endpoint)
-    if (OWNER not in {person["login"] for person in verified["assignees"]}
-            or verified["milestone"] is None
-            or len({label["name"] for label in verified["labels"]} & set(PRIORITIES)) != 1):
+    if OWNER not in {person["login"] for person in verified["assignees"]} or verified["milestone"] is None:
         raise RuntimeError(f"Issue #{number}: post-update metadata verification failed")
-    print(f"Issue #{number}: owner, milestone and one priority verified")
+    print(f"Issue #{number}: owner and milestone verified")
 
 
-def configured_milestone():
-    # No fallback: a missing variable must not silently select a retired milestone.
-    raw = os.environ.get("ISSUE_MILESTONE_NUMBER", "").strip()
-    if not raw:
-        raise RuntimeError("Repository variable ISSUE_MILESTONE_NUMBER is not set; "
-                           "set it to the number of the active milestone")
-    if not raw.isdigit() or int(raw) < 1:
-        raise ValueError(f"ISSUE_MILESTONE_NUMBER must be a positive milestone number, not {raw!r}")
-    return int(raw)
+def active_milestone(repository, today=None):
+    """The open milestone with the earliest due date after today (UTC); no fallback."""
+    today = today or datetime.datetime.now(datetime.timezone.utc).date()
+    pages = api(f"repos/{repository}/milestones?state=open&per_page=100", paginate=True)
+    due = sorted((milestone["due_on"][:10], milestone["number"]) for page in pages for milestone in page
+                 if milestone.get("due_on") and milestone["due_on"][:10] > today.isoformat())
+    if not due:
+        raise RuntimeError("No open milestone is due after today; give the active milestone a due date")
+    return due[0][1]
 
 
 def main():
     repository = os.environ["GITHUB_REPOSITORY"]
-    milestone = configured_milestone()
     number = os.environ.get("ISSUE_NUMBER", "")
     if number and os.environ.get("ISSUE_IS_PULL_REQUEST", "") == "true":
         # GitHub also sends issues events (for example milestoned) for pull requests. The
@@ -88,6 +77,7 @@ def main():
         # API fails; pull requests are out of scope, so skip before any API call.
         print(f"#{number} is a pull request; issue metadata policy does not apply")
         return 0
+    milestone = functools.cache(lambda: active_milestone(repository))
     if number:
         numbers = [int(number)]
     else:

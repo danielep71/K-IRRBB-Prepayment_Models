@@ -197,18 +197,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          ISSUE_MILESTONE_NUMBER: ${{ vars.ISSUE_MILESTONE_NUMBER }}
         run: |
           set -euo pipefail
-          # Explicit milestone number, checked before any early exit, so an
-          # unset variable fails every run instead of only one with an alert.
-          if ! [[ "$ISSUE_MILESTONE_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-            echo "::error::Repository variable ISSUE_MILESTONE_NUMBER must name the active milestone"
-            exit 1
-          fi
-          read -r state milestone < <(gh api "repos/$GH_REPO/milestones/$ISSUE_MILESTONE_NUMBER" --jq '[.state, .title] | @tsv')
-          if [ "$state" != "open" ]; then
-            echo "::error::Configured traffic-alert milestone must be open"
+          # The active milestone: the open one with the earliest due date after
+          # today (UTC), as the metadata workflow chooses it. Checked before any
+          # early exit, so a missing due date fails every run, not only one with
+          # an alert. `// empty` prints nothing when there is none.
+          titles="$(TODAY="$(date -u +%F)" gh api --paginate \
+            "repos/$GH_REPO/milestones?state=open&sort=due_on&direction=asc&per_page=100" \
+            --jq '.[] | select(.due_on != null and .due_on[0:10] > env.TODAY) | .title')"
+          milestone="${titles%%$'\n'*}"
+          if [ -z "$milestone" ]; then
+            echo "::error::No open milestone is due after today; give the active milestone a due date"
             exit 1
           fi
           alert="$RUNNER_TEMP/alert.json"
