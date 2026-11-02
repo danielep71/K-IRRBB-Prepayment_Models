@@ -37,7 +37,7 @@ class ConfigTests(unittest.TestCase):
             self.assertTrue(any('unpinned action' in error for error in inspect_config(root)))
 
     def test_dependabot_must_target_release_branch(self):
-        for target in ('main', 'release/next', 'release/999.0.0', None):
+        for target in ('main', 'release/next', 'release/0.2', None):
             with self.subTest(target=target), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 (root / '.github').mkdir()
@@ -94,3 +94,13 @@ class ConfigTests(unittest.TestCase):
             update = {'package-ecosystem': 'github-actions', 'directory': '/', 'target-branch': 'release/0.2.0'}
             (root / '.github/dependabot.yml').write_text(json.dumps({'version': 2, 'updates': [update]}))
             self.assertTrue(any('pip requirements in /tools' in e for e in inspect_config(root)))
+
+    def test_dependabot_entries_share_one_release_branch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / '.github').mkdir()
+            (root / '.github/labels.json').write_text('{"core": []}')
+            updates = [{'package-ecosystem': 'github-actions', 'directory': '/', 'target-branch': 'release/0.2.0'},
+                       {'package-ecosystem': 'pip', 'directory': '/tools', 'target-branch': 'release/0.3.0'}]
+            (root / '.github/dependabot.yml').write_text(json.dumps({'version': 2, 'updates': updates}))
+            self.assertTrue(any('same active release branch' in e for e in inspect_config(root)))

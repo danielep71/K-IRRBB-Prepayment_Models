@@ -6,7 +6,8 @@ from typing import Any
 
 import yaml
 
-ACTIVE_RELEASE_BRANCH = 'release/0.2.0'
+# Dependabot's target-branch names the active release branch; CI checks that it exists.
+RELEASE_BRANCH = re.compile(r'release/\d+\.\d+\.\d+')
 # Every pip install of the hash-locked tools must verify hashes and refuse source builds.
 PIP_FLAGS = ('--require-hashes', '--only-binary=:all:')
 REQUIREMENT = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]*==[^\s;]+(?:\s+--hash=sha256:[0-9a-f]{64})+')
@@ -68,8 +69,10 @@ def inspect_config(root: Path) -> list[str]:
                 for update in data['updates']:
                     if set(update.get('labels', [])) - labels:
                         raise ValueError('unknown Dependabot label')
-                    if update.get('target-branch') != ACTIVE_RELEASE_BRANCH:
-                        raise ValueError(f'Dependabot must target the active release branch {ACTIVE_RELEASE_BRANCH}')
+                    if not RELEASE_BRANCH.fullmatch(str(update.get('target-branch', ''))):
+                        raise ValueError('Dependabot must target the active release branch, release/X.Y.Z')
+                if len({update['target-branch'] for update in data['updates']}) != 1:
+                    raise ValueError('every Dependabot entry must target the same active release branch')
                 if not any(update.get('package-ecosystem') == 'pip' and update.get('directory') == '/tools'
                            for update in data['updates']):
                     raise ValueError('Dependabot must update the pip requirements in /tools')
