@@ -1,1 +1,6 @@
-XlsxWriter==3.2.9
+# Workbook template builder (tools/build_template.py), hash-locked: the
+# SHA-256 of every wheel PyPI publishes for this version. Install with:
+#   python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-build.txt
+# Dependabot proposes updates (.github/dependabot.yml).
+XlsxWriter==3.2.9 \
+    --hash=sha256:9a5db42bc5dff014806c58a20b9eae7322a134abb6fce3c92c181bfb275ec5b3

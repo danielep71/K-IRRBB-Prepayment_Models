@@ -10,12 +10,12 @@ It runs metadata regression tests, negative integrity/source fixtures and both l
 
 ## Full quality gate
 
-Create a virtual environment and install the version-pinned dependencies:
+Create a virtual environment and install the hash-locked dependencies. Both requirement files list the SHA-256 of every wheel PyPI publishes for each pinned version, so the install verifies every download and never builds from source; the repository checks reject a requirement without a pin and hash, and a `pip install` without both flags. Dependabot proposes updates to them:
 
 ```sh
 python -m venv .venv-quality
 # Windows: use .venv-quality\Scripts\python.exe below.
-.venv-quality/bin/python -m pip install -r tools/requirements-quality-ci.txt
+.venv-quality/bin/python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-quality-ci.txt
 .venv-quality/bin/python tools/quality.py
 ```
 
@@ -46,7 +46,7 @@ The **test build** adds `tests/modules/` (`TEST_`), the generated fixture module
 On Windows, from a clean checkout of the candidate commit:
 
 ```powershell
-python -m pip install -r tools/requirements-build.txt
+python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-build.txt
 powershell.exe -NoProfile -File .\tools\Build-Workbook.ps1 -Build Test -OutputPath C:\Work\prepay-test.xlsm
 powershell.exe -NoProfile -File .\tools\Export-Workbook.ps1 -WorkbookPath C:\Work\prepay-test.xlsm -OutputFolder C:\Work\export
 python tools/components.py stage --build test --commit HEAD --out C:\Work\stage
