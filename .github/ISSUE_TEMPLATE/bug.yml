@@ -48,7 +48,7 @@ body:
     id: dependencies
     attributes:
       label: "Dependencies"
-      description: "Issues or pull requests this needs first (#N), an external condition, or None. Label the issue blocked while a named prerequisite is open; triage reports a mismatch."
+      description: "Issues or pull requests this needs first (#N), a line starting External condition: (for example External condition: Windows Excel host access), or None. Label the issue blocked while a named prerequisite is open or an external condition holds; triage reports a mismatch."
       value: "None."
     validations:
       required: true

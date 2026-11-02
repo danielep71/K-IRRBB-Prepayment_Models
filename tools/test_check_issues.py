@@ -266,5 +266,17 @@ class MainTests(unittest.TestCase):
             self.assertEqual(check_issues.main(['--repository', REPOSITORY]), 2)
 
 
+
+class FormGuidanceTests(unittest.TestCase):
+    def test_forms_document_the_external_condition_prefix(self) -> None:
+        # The checker recognises an external blocker only by this prefix (review of #129).
+        for name in check_issues.FORM_PRIORITIES:
+            with self.subTest(form=name):
+                text = (ROOT / '.github/ISSUE_TEMPLATE' / name).read_text(encoding='utf-8')
+                self.assertIn('External condition:', text)
+        example = '### Dependencies\n\nExternal condition: Windows Excel host access\n'
+        self.assertTrue(any(check_issues.EXTERNAL.match(line) for line in check_issues.dependency_section(example) or []))
+
+
 if __name__ == '__main__':
     unittest.main()
