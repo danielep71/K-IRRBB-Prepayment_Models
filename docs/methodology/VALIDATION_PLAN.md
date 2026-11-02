@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **accepted by the owner on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. **Nothing in this plan has been executed.** A VBA test harness (#42) and the first fixtures, expected files and reference reader (#41) exist; the harness has not run in Excel, no workbook build or Excel record exists, and every other check below is planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
+Status: **accepted on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. All twelve `DATA-*` cases are `Built (Python)` and run through `python tools/check.py` (#41); eleven also have VBA tests, including `DATA-REJECT-01` through the import adapter (#42). A VBA test harness (#42) and workbook build/export tooling (#43) exist, but no Windows Excel build, compile or run evidence exists. The remaining validation checks are planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
@@ -9,7 +9,7 @@ This document is authoritative for what independent validation a prepayment impl
 | Layer | Establishes | Does not establish | Where recorded | Today |
 | --- | --- | --- | --- | --- |
 | **Static** | Repository integrity: files, links, provenance register, configuration, tooling tests | That VBA compiles, runs, or calculates correctly | CI check `integrity`; `python tools/check.py` | Executed on every PR |
-| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Partly built: five data cases `Built (Python)` and run by `python tools/check.py`; `RATE-CONV-01` and `RATE-CONV-02` built in VBA, not executed; all other cases registered |
+| **Numerical** | That each calculation matches an independent reference within a stated tolerance, and that models behave as specified out of time | That the workbook runs on a real host | Case register, fixtures and expected files | Partly built: twelve DATA cases run independently in Python, eleven also built in VBA; two RATE-CONV cases built in VBA; no Excel execution; all other cases registered |
 | **Real host** | That the workbook built from one exact commit compiles and runs on a stated Excel host | Model correctness beyond the cases it ran | Excel evidence record | Planned; no record exists |
 
 A pass in one layer is never reported as a pass in another. A green CI run or a Python reference check is not Excel evidence.
@@ -110,13 +110,12 @@ Today every `DATA-*` case is `Built (Python)`, all of which except `DATA-PIT-02`
 
 ## Future scope
 
-This plan does not build anything. The following work needs its own issues in a later milestone:
+Delivery is tracked in the open prototype-setup milestone:
 
-1. independent reference scripts and pinned offline tooling for the expected values (decision V4);
-2. synthetic fixtures and expected files for the data contract and each registered case;
-3. the VBA test harness, its failure-injection path and its case registry;
-4. the workbook builder and the source round-trip export/compare tool;
-5. the first Excel evidence record on a release candidate.
+1. #41 delivers independent fixtures, expected files and offline references. All DATA cases are built; the remaining register still needs independent references (decision V4).
+2. #42 delivers VBA and the harness. The registry and failure-injection path exist; the remaining W6 operations, accepted-case alignment and real Excel execution are outstanding.
+3. #43 delivers the workbook builder and source round-trip tools. Offline checks pass; Windows Excel build/export/compare evidence is outstanding.
+4. The first complete Excel evidence record must identify one candidate commit and the required host; no release readiness follows from source delivery.
 
 ## Decisions
 

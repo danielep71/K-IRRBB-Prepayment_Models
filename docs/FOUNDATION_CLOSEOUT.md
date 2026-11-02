@@ -6,7 +6,7 @@ First recorded on 2026-10-21 against `release/0.1.0` at `2755bb0247c70e398a96de6
 
 ## Gates
 
-| Gate (issue #16) | State on 2026-10-21 | Owner of the next step |
+| Gate (issue #16) | State on 2026-10-21 | Next step |
 | --- | --- | --- |
 | #14 and #15 completed or explicitly deferred | **Done.** The owner kept the convention merged in #30 for drawdown exposure and `RENEG` transfers; every item in both issue bodies was ticked with linked evidence, and both issues were closed as completed on 2026-10-21 | — |
 | Final NMD gap comparison with a disposition per gap | **Done.** Recorded [below](#comparison-with-k-irrbb-nmds); the owner accepted every disposition on 2026-10-21 | — |
@@ -62,14 +62,14 @@ Reference: K-IRRBB-NMDs at `f703c7ab6bff207b5ce5917af8368cb24ea23f13`, inspected
 | --- | --- | --- | --- |
 | `docs/WORKBOOK_CONTRACT.md` | Absent | Deferred to the workbook milestone; no workbook exists | #38 |
 | `docs/PUBLIC_API.txt` | Absent | Deferred; introduced with the first facade, as [repository structure](REPOSITORY_STRUCTURE.md) requires | #39 |
-| Milestone guides v0.2.0–v1.0.0 and an approved roadmap | Only v0.1.0 | Successor milestone v0.2.0 - Prototype setup created by the owner on 2026-10-21; its guide is deferred | #40 |
+| Milestone guides v0.2.0–v1.0.0 and an approved roadmap | Only v0.1.0 | Successor milestone v0.2.0 - Prototype setup created on 2026-10-21; its guide is deferred | #40 |
 | VBA source, harness and modules under `src/` and `tests/` | Guides only | Deferred; implementation needs its own milestones | #42 |
 | Built fixtures and expected files for the data contract | Cases registered only | Deferred; listed as future scope in the [validation plan](methodology/VALIDATION_PLAN.md#future-scope) | #41 |
 | Workbook builder, export/compare and development tooling under `tools/` | Static checks only | Deferred; same future-scope list | #43 |
 | Example module under `examples/` | Guide only | Deferred until a public facade exists | #44 |
 | Sources verified against official texts (`REG-1`, `REG-3` for NMD provisions) | No source verified for prepayments | Deferred; any regulatory overlay waits for verification ([source register](methodology/SOURCES.md)) | #45 |
 
-No gap is resolved by copying NMD content. Every deferred item has an issue in milestone v0.2.0 - Prototype setup, created on 2026-10-21 with owner `danielep71` and one priority. The owner accepted these dispositions on 2026-10-21.
+No gap is resolved by copying NMD content. Every deferred item has an issue in milestone v0.2.0 - Prototype setup, created on 2026-10-21, assigned to `danielep71` and carrying one priority. The owner accepted these dispositions on 2026-10-21.
 
 ## Closeout steps
 

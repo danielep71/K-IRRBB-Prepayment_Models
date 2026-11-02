@@ -4,7 +4,7 @@
 
 ### Transparent loan-prepayment assumptions in Excel/VBA
 
-[![Status](https://img.shields.io/badge/Status-Specifications_only-6e7781?style=for-the-badge)](docs/Milestones/README.md)
+[![Status](https://img.shields.io/badge/Status-Prototype_development-6e7781?style=for-the-badge)](docs/Milestones/README.md)
 [![Target](https://img.shields.io/badge/Target-Excel_Windows_64--bit-217346?style=for-the-badge)](INSTALLATION.md)
 [![License](https://img.shields.io/badge/License-MPL--2.0-2ea44f?style=for-the-badge)](LICENSE)
 
@@ -18,7 +18,7 @@
 
 This project is intended to provide transparent tools for developing and independently challenging loan-prepayment assumptions used in IRRBB and ALM. The intended Excel/VBA workflow covers input checks, behavioural assumptions, calibration, scenarios, backtesting and controlled export of parameters or behavioural cash flows.
 
-**Current status: specifications only.** Repository setup (v0.1.0) closed on 2026-10-21 with accepted data, model and validation contracts; prototype setup (v0.2.0) is the open milestone. No prepayment model, VBA engine, workbook, calibration routine or validated numerical output is delivered. These are development objectives, not implemented features.
+**Current status: prototype development.** Repository setup (v0.1.0) closed on 2026-10-21; prototype setup (v0.2.0) is open. Committed source includes workbook build/export tooling, SMM/CPR conversions, a VBA importer with its facade and workbook adapter, and a 16-case VBA harness. All twelve DATA cases have independent Python references that run offline. No Windows Excel build, compilation or execution is established; calibration, projections, EVE and gap calculations remain unimplemented. No workbook or validated model output has been released. The branding graphic above retains the earlier specifications-only label.
 
 ## Scope and boundaries
 
@@ -30,7 +30,7 @@ This project is intended to provide transparent tools for developing and indepen
 | EVE and repricing gap | Loan book's contribution to EVE per supervisory scenario, ΔEVE / Tier 1 indicator and repricing gap; specified in [#72](https://github.com/danielep71/K-IRRBB-Prepayment_Models/issues/72), accepted 2026-10-21, not implemented |
 | Downstream use | Controlled ALM export; model acceptance remains outside the toolkit |
 
-Apart from the SMM and CPR conversions (#42), not yet run in Excel, this repository calculates nothing yet. Even with the accepted EVE extension (#72) it will not calculate NII, the bank-level supervisory outlier test, option values or market prices. It does not approve models or establish regulatory compliance. Deposit stability, decay and rate pass-through belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). Both sit within [K-Risk-Engines](https://github.com/danielep71/K-Risk-Engines).
+The implemented scope is rate conversion and data import, validation and reconciliation (#41, #42); its VBA has not run in Excel. Even with the accepted EVE extension (#72) it will not calculate NII, the bank-level supervisory outlier test, option values or market prices. It does not approve models or establish regulatory compliance. Deposit stability, decay and rate pass-through belong to [K-IRRBB-NMDs](https://github.com/danielep71/K-IRRBB-NMDs). Both sit within [K-Risk-Engines](https://github.com/danielep71/K-Risk-Engines).
 
 ## Navigation
 
@@ -39,14 +39,14 @@ Apart from the SMM and CPR conversions (#42), not yet run in Excel, this reposit
 | [Installation](INSTALLATION.md) | Current prerequisites and checks |
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
-| [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Accepted sheet, name and output layout (#38); no workbook exists |
-| [Methodology contracts](docs/methodology/README.md) | Accepted data and model contracts; sources unverified, nothing implemented |
+| [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Accepted sheet, name and output layout (#38); template tooling exists, Excel build unverified (#43) |
+| [Methodology contracts](docs/methodology/README.md) | Accepted contracts; data references and initial VBA delivered, regulatory sources unverified |
 | [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and deferred gaps |
 | [Milestones](docs/Milestones/README.md) | Closed setup milestone and the open successor |
 | [Governance](docs/GOVERNANCE.md) | Metadata, review and closure rules |
 | [Contributing](CONTRIBUTING.md) | How to propose and verify changes |
 | [Labels](docs/LABELS.md) | Priorities and catalogue automation |
-| [VBA style](docs/VBA_HOUSE_STYLE.md) | Future implementation conventions |
+| [VBA style](docs/VBA_HOUSE_STYLE.md) | VBA implementation conventions |
 | [Traffic analytics](docs/TRAFFIC.md) | Aggregate traffic history and badge definitions |
 | [Tooling](tools/README.md) | Static checks and their limits |
 | [Security](SECURITY.md) | Private reporting and data handling |

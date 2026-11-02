@@ -1,6 +1,6 @@
 # Repository structure
 
-The project uses the **application** profile, consistent with K-IRRBB-NMDs. The intended deliverable is an analysis workbook assembled from exported VBA source. The setup milestone (v0.1.0) established the architecture; no workbook or VBA component exists yet.
+The project uses the **application** profile, consistent with K-IRRBB-NMDs. The intended deliverable is an analysis workbook assembled from exported VBA source. The setup milestone (v0.1.0) established the architecture. Template tooling exists (#43); #91 delivered the first rate core/facade and harness, and #111–#114 added the import core/facade and `WB_Import` adapter (#42). The other W6 operations and Windows Excel evidence remain outstanding.
 
 | Location | Responsibility |
 | --- | --- |
@@ -13,7 +13,7 @@ The project uses the **application** profile, consistent with K-IRRBB-NMDs. The 
 
 Create each subdirectory with its first real file; current directories have guides.
 
-## Planned boundaries
+## Architecture boundaries
 
 The dependency direction is **Excel adapter → public facade → calculation core**.
 
@@ -28,12 +28,12 @@ These are design/review rules, not claims of an implemented VBA boundary checker
 
 ## Units and provenance
 
-Rates and probabilities use decimals; rates identify annualisation. Monetary amounts carry an ISO currency. Dates, observation frequency, endpoints, CPR/SMM denominators and loan-event definitions are specified in the [data contract](methodology/DATA_CONTRACT.md) and [model contracts](methodology/MODEL_CONTRACTS.md) accepted by the owner on 2026-10-21 in issue #14. Acceptance does not imply implementation or validation. No implicit FX conversion or annual/monthly probability substitution is allowed.
+Rates and probabilities use decimals; rates identify annualisation. Monetary amounts carry an ISO currency. Dates, observation frequency, endpoints, CPR/SMM denominators and loan-event definitions are specified in the [data contract](methodology/DATA_CONTRACT.md) and [model contracts](methodology/MODEL_CONTRACTS.md) accepted on 2026-10-21 in issue #14. Acceptance does not imply implementation or validation. No implicit FX conversion or annual/monthly probability substitution is allowed.
 
 Freeze each future parameter set with an ID, model/version, segment/currency, data window and fingerprint, calibration settings, values/units, diagnostics, timestamp and exact code SHA. Changes create new sets. Scenarios, backtests and exports identify the set used; exporting must not silently recalibrate.
 
 ## Artifacts and runtime
 
-Exported VBA will be authoritative. Built workbooks, local evidence and parameter exports are ignored. No workbook exception is approved. The owner decided on 2026-10-21 (#43) that the macro-free template is generated at build time by a committed builder script and never committed; the layout it must produce is set by the [workbook contract](WORKBOOK_CONTRACT.md), accepted on 2026-10-26 (#38).
+Exported VBA source is authoritative. Built workbooks, local evidence and parameter exports are ignored. No workbook exception is approved. The decision recorded on 2026-10-21 (#43) is that the macro-free template is generated at build time by a committed builder script and never committed; the layout it must produce is set by the [workbook contract](WORKBOOK_CONTRACT.md), accepted on 2026-10-26 (#38).
 
 The intended runtime is Windows Excel 64-bit without Python, R or external services. Independent benchmark tooling can use other languages. Full IRRBB aggregation, pricing, automatic ALM uploads and model approval are outside the current scope.
