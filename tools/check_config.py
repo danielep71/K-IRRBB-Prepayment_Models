@@ -1,6 +1,7 @@
 """Validate YAML configuration and repository-specific issue defaults."""
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -103,7 +104,16 @@ def inspect_requirements(root: Path) -> list[str]:
     return errors
 
 
+def dependabot_targets(root: Path) -> list[str]:
+    """The distinct target-branch values of .github/dependabot.yml, parsed as YAML."""
+    data = yaml.load((root / '.github/dependabot.yml').read_text(encoding='utf-8'), Loader=UniqueLoader)
+    return sorted({str(update['target-branch']) for update in data['updates'] if 'target-branch' in update})
+
+
 if __name__ == '__main__':
+    if sys.argv[1:] == ['--dependabot-targets']:
+        print('\n'.join(dependabot_targets(Path(__file__).resolve().parents[1])))
+        raise SystemExit(0)
     problems = inspect_config(Path(__file__).resolve().parents[1])
     if problems:
         raise SystemExit('\n'.join(problems))
