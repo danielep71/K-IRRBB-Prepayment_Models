@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_config import inspect_config, logical_lines
+from check_config import dependabot_targets, inspect_config, logical_lines
 
 
 class ConfigTests(unittest.TestCase):
@@ -37,7 +37,7 @@ class ConfigTests(unittest.TestCase):
             self.assertTrue(any('unpinned action' in error for error in inspect_config(root)))
 
     def test_dependabot_must_target_release_branch(self):
-        for target in ('main', 'release/next', 'release/999.0.0', None):
+        for target in ('main', 'release/next', 'release/0.2', None):
             with self.subTest(target=target), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 (root / '.github').mkdir()
@@ -94,3 +94,25 @@ class ConfigTests(unittest.TestCase):
             update = {'package-ecosystem': 'github-actions', 'directory': '/', 'target-branch': 'release/0.2.0'}
             (root / '.github/dependabot.yml').write_text(json.dumps({'version': 2, 'updates': [update]}))
             self.assertTrue(any('pip requirements in /tools' in e for e in inspect_config(root)))
+
+    def test_dependabot_entries_share_one_release_branch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / '.github').mkdir()
+            (root / '.github/labels.json').write_text('{"core": []}')
+            updates = [{'package-ecosystem': 'github-actions', 'directory': '/', 'target-branch': 'release/0.2.0'},
+                       {'package-ecosystem': 'pip', 'directory': '/tools', 'target-branch': 'release/0.3.0'}]
+            (root / '.github/dependabot.yml').write_text(json.dumps({'version': 2, 'updates': updates}))
+            self.assertTrue(any('same active release branch' in e for e in inspect_config(root)))
+
+    def test_dependabot_targets_are_parsed_as_yaml(self):
+        # Quoting and trailing comments are YAML, not part of the branch name (review of #127).
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / '.github').mkdir()
+            (root / '.github/dependabot.yml').write_text(
+                "version: 2\nupdates:\n"
+                "  - package-ecosystem: pip\n    target-branch: 'release/0.2.0'\n"
+                "  - package-ecosystem: npm\n    target-branch: release/9.9.9 # next milestone\n"
+                "  - package-ecosystem: docker\n    target-branch: \"release/0.2.0\"\n")
+            self.assertEqual(dependabot_targets(root), ['release/0.2.0', 'release/9.9.9'])
