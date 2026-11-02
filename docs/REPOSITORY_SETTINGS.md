@@ -1,31 +1,45 @@
 # Repository settings baseline
 
-Issue #9 records the saved settings and the main ruleset verification; this file specifies the agreed baseline. The setup comparison with K-IRRBB-NMDs is kept in the [foundation closeout](FOUNDATION_CLOSEOUT.md).
+The baseline is data: [`repository-settings.json`](repository-settings.json) holds the general settings, the security features and the managed rulesets. [`tools/setup_repository.py`](../tools/setup_repository.py) compares it with the live repository through an authenticated GitHub CLI, so drift is detectable. This guide explains the rules; the JSON is authoritative for their values.
 
-| Setting | Baseline |
-| --- | --- |
-| Visibility | Public |
-| Default branch | main |
-| Issues / Wiki | Enabled; wiki edits limited to collaborators |
-| Projects / Discussions | Disabled |
-| Repository merge options | Merge, squash, rebase enabled |
-| Automatically delete merged head branches | Enabled |
-| Auto-merge | Disabled; integration stays an explicit decision |
-| About | Planned Excel/VBA prepayment benchmark; setup stage, no engine/workbook or validated outputs |
-| Topics | irrbb, interest-rate-risk, banking-book, prepayment-modeling, loan-prepayments, behavioural-models, alm, model-validation, backtesting, risk-management, excel, vba |
+## Checking and applying
 
-## Main protection
+```sh
+python tools/setup_repository.py --repo danielep71/K-IRRBB-Prepayment_Models            # preview, no changes
+python tools/setup_repository.py --repo danielep71/K-IRRBB-Prepayment_Models --check \
+    --report docs/reviews/YYYY-MM-DD-repository-settings.md                             # read-only; exit 1 on drift
+python tools/setup_repository.py --repo danielep71/K-IRRBB-Prepayment_Models --apply    # change, then read back
+```
 
-Target the default branch. Require PRs, resolved review threads, an up-to-date branch and the successful GitHub Actions check **integrity** (app 15368). Block branch deletion and force pushes. Use merge commits into main. No bypass actors are configured. Zero required approvals avoids blocking a sole maintainer who cannot approve their own PR; maintainer review is still policy.
+- The script needs my admin token (`gh auth login`); it never runs in CI and nothing else writes these settings.
+- `--check` is read-only; with `--report` it writes a dated Markdown evidence record of every managed setting as GitHub reports it, which I commit under `docs/reviews/`.
+- `--apply` creates missing rulesets and changes settings, then reads everything back and fails if anything still differs. It refuses to run unless `integrity` has passed on the current `main`. A ruleset that exists under the same name but differs is replaced only with `--update-existing`, after I have read the preview.
+- Rulesets outside the baseline are reported as unmanaged and never changed or deleted; I delete one by hand when a managed ruleset replaces it.
+- `tools/test_setup_repository.py` tests the script offline against a fake API.
 
-The workflow is named `Repository integrity`; the required check is its job, `integrity`. Event-specific metadata or label reconciliation jobs are not required merge checks because they do not run on every PR. Every PR runs the static integrity workflow.
+## Rulesets
 
-## Branch decision and limits
+| Ruleset | Applies to | Rules |
+| --- | --- | --- |
+| Protect main | the default branch | PRs with resolved review threads, merge commits only, the `integrity` check on an up-to-date branch; no deletion or force push |
+| Protect release branches | `release/**` | PRs with resolved review threads, merge or squash, the `integrity` check on an up-to-date branch; no deletion or force push |
+| Protect release tags | `v*` tags | no deletion, update or force push |
+| Protect traffic history | `traffic-history` | no deletion or force push; the traffic workflow pushes to it |
 
-One release branch per milestone, named `release/<milestone version>`, is created from main when the milestone opens and retired after its final integration into main. `release/0.1.0` was created on 2026-10-21 from main at `3461d891a4e076932c4c21ef30f569d62eafab3e` for v0.1.0 - Repo setup and is retired; its history is in main. `release/0.2.0` was created on 2026-10-21 from main at `14a45c8616cf06b0d1dbbe754a94ab18d8c1efa5` for v0.2.0 - Prototype setup. It is the active release branch and the integration target for task PRs and Dependabot. Task PRs into it are squash-merged once `integrity` passes and review findings are resolved. The owner reviews and integrates the release branch into main with a merge commit, as above.
+No ruleset has bypass actors, and none requires an approving review: I cannot approve my own PRs, and my review remains required by policy. `release/**` covers every release branch, so a new milestone's branch is protected from its creation.
 
-After each integration into main, level the release branch with main: the owner fast-forwards it, or the main merge commit is merged into a release branch opened before the integration. Short-lived task branches support PR integration; automatically remove them after merging.
+The required check is the `integrity` job of the `Repository integrity` workflow (GitHub Actions, app 15368). Event-specific metadata, triage or label jobs are not required checks because they do not run on every PR. *CodeQL*, *Link check* and the *Minimum Python* job are not required checks either.
 
-On 2026-10-21 the owner saved and verified the release-branch ruleset that covers `release/0.2.0`: PRs required, the **integrity** check required, branch up to date, review conversations resolved, squash merges allowed, force pushes and deletion blocked, and no bypass actors. A new milestone's release branch needs the same ruleset before it receives task PRs. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).
+## Security features
 
-Configure tag protections before introducing tags in an explicitly approved release scope. These settings do not publish a release, grant access, create credentials or change repository visibility. Issue #4 records the ownership/distribution review and owner confirmation for the inspected snapshots; #11 records traffic setup and #12 branding.
+Private vulnerability reporting, Dependabot alerts, secret scanning and push protection are on. Dependabot security updates are off: GitHub opens those PRs against `main`, outside the release-branch flow, so I take a security update through a task PR into the active release branch instead.
+
+## Settings outside the baseline
+
+Visibility (public), the default branch (`main`), the About text and topics, and wiki edit permissions are not in the JSON. A change to them needs an issue, and these settings never publish a release, grant access or create credentials.
+
+## Branches
+
+Each milestone has one release branch, named `release/<milestone version>`, which I create from main when the milestone opens and retire after its final integration into main. The active release branch, the one `target-branch` names in [`.github/dependabot.yml`](../.github/dependabot.yml), is the integration target for task PRs and Dependabot. Task PRs into it are squash-merged once `integrity` passes and review findings are resolved. I review the release branch and integrate it into main with a merge commit.
+
+After each integration into main, the release branch is levelled with main: I fast-forward it, or the main merge commit is merged into the release branch. Merged task branches are deleted automatically. A release branch name does not authorize a tag or GitHub Release; see [RELEASING.md](../RELEASING.md).

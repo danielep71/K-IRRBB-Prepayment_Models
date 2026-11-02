@@ -20,6 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ('README.md', 'LICENSE', 'SECURITY.md', 'CONTRIBUTING.md',
             'docs/PROVENANCE.md', 'docs/provenance.json', 'docs/GOVERNANCE.md', 'INSTALLATION.md',
             'src/README.md', 'tests/README.md', 'examples/README.md', 'tools/README.md')
+# Operational guides state current rules in my own voice (see docs/GOVERNANCE.md).
+GUIDES = ('CONTRIBUTING.md', 'RELEASING.md', 'SECURITY.md', 'INSTALLATION.md', 'docs/GOVERNANCE.md',
+          'docs/REPOSITORY_SETTINGS.md', 'docs/TRAFFIC.md')
+THIRD_PERSON = re.compile(r'\bthe\s+(?:owner|maintainer)s?\b', re.I)
 
 
 def inspect(root: Path, names: list[str]) -> list[str]:
@@ -56,6 +60,11 @@ def inspect(root: Path, names: list[str]) -> list[str]:
                 json.loads(text)
             except ValueError as exc:
                 errors.append(f'{name}: {exc}')
+        if name in GUIDES:
+            for match in THIRD_PERSON.finditer(text):
+                number = text.count('\n', 0, match.start()) + 1
+                phrase = ' '.join(match.group().split())
+                errors.append(f'{name}:{number}: "{phrase}" in an operational guide; write "I" or "me"')
         if path.suffix == '.md':
             for target in re.findall(r'\]\(([^\s)]+)\)', text):
                 parsed = urlsplit(target)

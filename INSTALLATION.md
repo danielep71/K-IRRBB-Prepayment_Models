@@ -4,7 +4,7 @@ There is no workbook, add-in or prepayment engine to install yet.
 
 ## Current prerequisites
 
-Git, **Python 3.10+** and **Node.js 22+**. Baseline checks use standard libraries: no package installation, token or Excel instance is required.
+You need Git, **Python 3.10+** and **Node.js 22+**. The baseline checks use standard libraries only: they need no package installation, token or Excel instance. CI runs them on Python 3.13 and Node.js 24, and the non-required *Minimum Python (3.10)* job runs them on the 3.10 floor.
 
 ```sh
 git clone https://github.com/danielep71/K-IRRBB-Prepayment_Models.git
@@ -18,6 +18,6 @@ The command validates repository files/configuration, runs metadata regression t
 
 Future runtime development targets **Windows Excel 64-bit**, using default VBA, Excel, Office and OLE Automation references. No Excel certification exists yet. 32-bit is untested and uncertified; Mac and Excel web are not supported targets. Avoid runtime Python/R, external services and non-default COM references without a reviewed design.
 
-The workbook build and export tools are described in the [tooling guide](tools/README.md#workbook-build); they need Windows Excel and have not yet been run there. Harness instructions arrive with the harness (#42). Do not change macro security or trust settings for today's checks.
+The workbook build and export tools are described in the [tooling guide](tools/README.md#workbook-build); they need Windows Excel and have not yet been run there. Instructions for running the VBA test harness in Excel will be added once it has been run there. Do not change macro security or trust settings for the current checks.
 
 Follow [house style](docs/VBA_HOUSE_STYLE.md) and [architecture](docs/REPOSITORY_STRUCTURE.md). Git uses CRLF working-tree VBA/Windows scripts and LF cross-platform text. VBE encoding is not forced to UTF-8 without round-trip evidence. Keep generated output outside committed source.

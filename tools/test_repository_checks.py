@@ -39,6 +39,22 @@ class IntegrityTests(unittest.TestCase):
             self.assertTrue(any('Unreviewed image content' in e for e in errors))
             self.assertTrue(any('Non-UTF-8 source: unapproved.png' in e for e in errors))
 
+    def test_third_person_is_rejected_in_operational_guides_only(self):
+        from check import GUIDES
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            files = {GUIDES[0]: 'I integrate it.\nThe Owner integrates it.\n',
+                     GUIDES[1]: 'Ask the\nmaintainer, or the maintainers.\n',
+                     'docs/PROVENANCE.md': 'The owner confirmed it on 2026-10-20.\n'}
+            for name, content in files.items():
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding='utf-8')
+            errors = [e for e in inspect(root, list(files)) if 'operational guide' in e]
+            self.assertEqual([e.split(' in ')[0] for e in errors],
+                             [f'{GUIDES[0]}:2: "The Owner"', f'{GUIDES[1]}:1: "the maintainer"',
+                              f'{GUIDES[1]}:2: "the maintainers"'])
+
     def test_valid_baseline(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
