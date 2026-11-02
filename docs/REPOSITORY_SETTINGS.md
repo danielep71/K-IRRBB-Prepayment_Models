@@ -18,7 +18,7 @@ Issue #9 records the saved settings and the main ruleset verification; this file
 
 Target the default branch. Require PRs, resolved review threads, an up-to-date branch and the successful GitHub Actions check **integrity** (app 15368). Block branch deletion and force pushes. Use merge commits into main. No bypass actors are configured. Zero required approvals avoids blocking a sole maintainer who cannot approve their own PR; maintainer review is still policy.
 
-The workflow is named `Repository integrity`; the required check is its job, `integrity`. Event-specific metadata or label reconciliation jobs are not required merge checks because they do not run on every PR. Every PR runs the static integrity workflow.
+The workflow is named `Repository integrity`; the required check is its job, `integrity`. Event-specific metadata or label reconciliation jobs are not required merge checks because they do not run on every PR. Every PR runs the static integrity workflow. *CodeQL*, *Link check* and the *Minimum Python* job are not required checks either.
 
 ## Branch decision and limits
 

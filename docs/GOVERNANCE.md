@@ -2,7 +2,7 @@
 
 ## Issue metadata
 
-Every open and closed issue must include **danielep71**, a milestone, exactly one of **P1/P2/P3**, suitable type labels and verifiable acceptance criteria. Titles describe the change; versions belong in milestones. Close issues only with evidence, preserving the record when work is deferred.
+Milestones belong to issues only: the *Keep milestones issue-only* workflow removes any milestone set on a pull request. Every open and closed issue must include **danielep71**, a milestone, exactly one of **P1/P2/P3**, suitable type labels and verifiable acceptance criteria. Titles describe the change; versions belong in milestones. Close issues only with evidence, preserving the record when work is deferred.
 
 The trusted-default-branch metadata workflow handles events and a daily sweep, skips pull requests, and reads back saved metadata. It preserves existing milestones and other assignees/type labels. Missing priority becomes P3; conflicts retain highest severity. Missing milestones use `ISSUE_MILESTONE_NUMBER`, currently **2** (v0.2.0 - Prototype setup), with no fallback. Change the variable to an open successor before closing the configured milestone.
 

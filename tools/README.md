@@ -6,7 +6,7 @@ Run `python tools/check.py` from a fresh clone with Git, Python 3.10+ and Node.j
 
 The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; issue #4 records the separate owner confirmation for the inspected snapshots. New material still requires provenance and permission review.
 
-It runs metadata regression tests, negative integrity/source fixtures and both label-script self-tests. Markdown anchors, external link availability, VBA compilation and numerical correctness are outside this gate.
+It runs metadata regression tests, negative integrity/source fixtures and both label-script self-tests. `tools/check_links.py` checks every relative link and anchor in the tracked Markdown files, through `tools/test_check_links.py`. External link availability is checked weekly instead, by the *Link check* workflow (`python tools/check_links.py --external`), because external sites change without a commit. VBA compilation and numerical correctness are outside this gate.
 
 ## Full quality gate
 
