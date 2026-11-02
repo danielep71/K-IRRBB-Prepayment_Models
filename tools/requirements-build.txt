@@ -2,5 +2,6 @@
 # SHA-256 of every wheel PyPI publishes for this version. Install with:
 #   python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-build.txt
 # Dependabot proposes updates (.github/dependabot.yml).
-XlsxWriter==3.2.9 \
-    --hash=sha256:9a5db42bc5dff014806c58a20b9eae7322a134abb6fce3c92c181bfb275ec5b3
+XlsxWriter==3.3.1 \
+    --hash=sha256:0867761912cceac76f97ffa76eeda18c623ae9217f601be8512f55b1af4bdb6e \
+    --hash=sha256:8e2c89e59d733fe59e112317218c64fbbc276d90a8c144ebd6f7fa15e7ab184a
