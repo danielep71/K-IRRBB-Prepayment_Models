@@ -16,3 +16,21 @@ updates:
       - P3
     assignees:
       - danielep71
+  # The hash-locked Python tools: tools/requirements-quality-ci.txt and
+  # tools/requirements-build.txt. Updates keep the hashes.
+  - package-ecosystem: pip
+    directory: /tools
+    target-branch: release/0.2.0
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Rome
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps(python)
+    labels:
+      - ci
+      - P3
+    assignees:
+      - danielep71

@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_template  # noqa: E402
 import workbook_layout as layout  # noqa: E402
+from check_config import logical_lines  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = 'a' * 40
@@ -79,9 +80,10 @@ class Template(unittest.TestCase):
             build_template.main(['--build', 'test', '--commit', 'HEAD', '--output', '/tmp/x.xlsx'])
 
     def test_build_requirement_is_pinned_in_both_files(self) -> None:
-        build = (ROOT / 'tools/requirements-build.txt').read_text(encoding='utf-8').split()
-        quality = (ROOT / 'tools/requirements-quality-ci.txt').read_text(encoding='utf-8').split()
-        self.assertTrue(build and all('==' in line for line in build))
+        # Each requirement is one logical line: the exact pin and its hashes.
+        build = logical_lines((ROOT / 'tools/requirements-build.txt').read_text(encoding='utf-8'))
+        quality = logical_lines((ROOT / 'tools/requirements-quality-ci.txt').read_text(encoding='utf-8'))
+        self.assertTrue(build and all('==' in line and '--hash=sha256:' in line for line in build))
         self.assertTrue(set(build) <= set(quality))
 
 

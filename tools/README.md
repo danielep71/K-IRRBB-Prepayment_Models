@@ -4,18 +4,18 @@
 
 Run `python tools/check.py` from a fresh clone with Git, Python 3.10+ and Node.js 22+. No Python packages are required. Stage new files before checking: the gate inspects Git's tracked file list and current working contents.
 
-The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; issue #4 records the separate owner confirmation for the inspected snapshots. New material still requires provenance and permission review.
+The baseline enforces required layout guides and policies, UTF-8, final newlines, trailing whitespace, JSON parsing, Python syntax, tracked relative Markdown file targets, unapproved workbook/archive binaries (with one digest-pinned PNG exception documented in [assets](../docs/assets/README.md)) and full-SHA action pins. Filename checks reject spaces, case-insensitive collisions and Windows device names. The operational guides (`CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `INSTALLATION.md`, `docs/GOVERNANCE.md`, `docs/REPOSITORY_SETTINGS.md`, `docs/TRAFFIC.md`) must not say "the owner" or "the maintainer": they state my rules in the first person. The structured [provenance register](../docs/provenance.json) requires immutable reference revisions, treatment notes and tracked paths for imported setup materials. These checks establish traceability, not ownership or permission to distribute; my separate confirmation for the inspected snapshots is recorded in [provenance](../docs/PROVENANCE.md). New material still requires provenance and permission review.
 
-It runs metadata regressions, negative integrity/source fixtures, workbook-tooling tests, independent DATA reference cases and both label-script self-tests. Markdown anchors, external link availability, VBA compilation and numerical correctness are outside this gate.
+It runs metadata regressions, negative integrity/source fixtures, workbook-tooling tests, the independent DATA reference cases and both label-script self-tests. `tools/check_links.py` checks every relative link and anchor in the tracked Markdown files, through `tools/test_check_links.py`. External link availability is checked weekly instead, by the *Link check* workflow (`python tools/check_links.py --external`), because external sites change without a commit. VBA compilation and numerical correctness are outside this gate.
 
 ## Full quality gate
 
-Create a virtual environment and install the version-pinned dependencies:
+Create a virtual environment and install the hash-locked dependencies. Both requirement files list the SHA-256 of every wheel PyPI publishes for each pinned version, so the install verifies every download and never builds from source; the repository checks reject a requirement without a pin and hash, and a `pip install` without both flags. Dependabot proposes updates to them:
 
 ```sh
 python -m venv .venv-quality
 # Windows: use .venv-quality\Scripts\python.exe below.
-.venv-quality/bin/python -m pip install -r tools/requirements-quality-ci.txt
+.venv-quality/bin/python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-quality-ci.txt
 .venv-quality/bin/python tools/quality.py
 ```
 
@@ -25,11 +25,11 @@ The full gate includes the portable baseline, duplicate-key-safe YAML parsing, i
 
 `Repository integrity` runs on pushes to main and `release/**` branches, on all PRs and on manual dispatch. Its stable job ID is `integrity`. Logs include the exact source SHA, tool versions and check output and are retained for 14 days. Runner OS patch levels are managed by GitHub; action revisions, Python packages (including transitive dependencies) and the actionlint archive are pinned. Update pins deliberately and run the full gate. Passing checks is not Excel or model certification.
 
-Dependabot checks GitHub Actions weekly on Monday, targets the active release branch (`release/0.2.0`, enforced exactly by `ACTIVE_RELEASE_BRANCH` in `tools/check_config.py`; change both together), assigns danielep71 and applies ci/P3. GitHub reads the Dependabot configuration only from main, so a new target takes effect only after integration into main. At most five dependency PRs remain open; updates require review and passing checks, never automatic merge. Python/tool pins are maintained through reviewed changes to the requirements file and workflow.
+Dependabot checks GitHub Actions and the hash-locked Python requirements weekly on Monday, assigns danielep71 and applies ci/P3. Its `target-branch` is the one place that names the active release branch: every entry must name the same `release/X.Y.Z` (`tools/check_config.py`), and CI fails if that branch does not exist. GitHub reads the Dependabot configuration only from main, so a new target takes effect only after integration into main. At most five dependency PRs remain open; updates require review and passing checks, never automatic merge. Python/tool pins are maintained through reviewed changes to the requirements file and workflow.
 
 ## Workbook build
 
-The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK_CONTRACT.md), decision of #43). The tools are build tooling only; the workbook never depends on them.
+The workbook is generated, never committed ([workbook contract](../docs/WORKBOOK_CONTRACT.md)). The tools are build tooling only; the workbook never depends on them.
 
 | Tool | Runs on | Does |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ The **test build** adds `tests/modules/` (`TEST_`), the generated fixture module
 On Windows, from a clean checkout of the candidate commit:
 
 ```powershell
-python -m pip install -r tools/requirements-build.txt
+python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-build.txt
 powershell.exe -NoProfile -File .\tools\Build-Workbook.ps1 -Build Test -OutputPath C:\Work\prepay-test.xlsm
 powershell.exe -NoProfile -File .\tools\Export-Workbook.ps1 -WorkbookPath C:\Work\prepay-test.xlsm -OutputFolder C:\Work\export
 python tools/components.py stage --build test --commit HEAD --out C:\Work\stage
@@ -55,4 +55,4 @@ python tools/components.py compare --manifest C:\Work\stage\manifest.json --expo
 
 Importing and exporting need *Trust access to the VBA project object model*. The scripts never change it or any macro setting; when access is refused they stop. Record in the [Excel evidence](../docs/EXCEL_EVIDENCE.md) whether it had to be enabled and that it was turned off afterwards. Offline tests cover the layout, staging and comparison logic and the generated template's sheets, CodeNames and names; the PowerShell scripts have no automated test and run only on a real Excel host. A tool `PASS` is not compile, run or numerical evidence.
 
-Metadata tests mock GitHub; normal local checks do not write issues. The live metadata workflow uses GitHub's scoped token and the explicit `ISSUE_MILESTONE_NUMBER` repository variable. See [governance](../docs/GOVERNANCE.md).
+Metadata tests mock GitHub; normal local checks do not write issues. The live metadata workflow uses GitHub's scoped token and chooses the open milestone with the earliest due date after today. `tools/check_issues.py` is the read-only triage check (`--check-config` checks the issue forms and label catalogue offline; `--repository` audits the live issues), unit-tested by `tools/test_check_issues.py`. See [governance](../docs/GOVERNANCE.md).

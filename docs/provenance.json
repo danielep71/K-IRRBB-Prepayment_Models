@@ -65,6 +65,25 @@
         "tools/build_template.py",
         "tools/Build-Workbook.ps1"
       ]
+    },
+    {
+      "repository": "https://github.com/danielep71/MyTemplate",
+      "reference_revision": "3c2edac25c68730a625e25d7de3689c6e626c1c6",
+      "treatment": "Adapted from my own template's release/0.3.0: string quoting and file locations follow this repository; the settings baseline, rulesets, forms and release-branch rules are this repository's own.",
+      "files": [
+        "tools/check_links.py",
+        "tools/test_check_links.py",
+        "tools/check_changelog.py",
+        "tools/test_check_changelog.py",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/link-check.yml",
+        ".github/workflows/pr-milestones.yml",
+        "tools/setup_repository.py",
+        "tools/test_setup_repository.py",
+        "tools/check_issues.py",
+        "tools/test_check_issues.py",
+        ".github/workflows/issue-triage.yml"
+      ]
     }
   ]
 }
