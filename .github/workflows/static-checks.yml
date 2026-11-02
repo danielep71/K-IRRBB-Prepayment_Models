@@ -14,10 +14,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install pinned quality tools
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13.18"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.22.2"
+          package-manager-cache: false
+      - name: Install hash-locked quality tools
         run: |
-          python3 -m venv .venv-quality
-          .venv-quality/bin/python -m pip install --disable-pip-version-check -r tools/requirements-quality-ci.txt
+          python -m venv .venv-quality
+          .venv-quality/bin/python -m pip install --disable-pip-version-check \
+            --require-hashes --only-binary=:all: -r tools/requirements-quality-ci.txt
           curl --fail --location --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz -o "$RUNNER_TEMP/actionlint.tar.gz"
           echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
           mkdir -p "$RUNNER_TEMP/actionlint-bin"
@@ -29,7 +37,7 @@ jobs:
           set -o pipefail
           {
             printf 'Source commit: %s\n' "$GITHUB_SHA"
-            python3 --version
+            python --version
             node --version
             .venv-quality/bin/python -m pip freeze
             .venv-quality/bin/python tools/quality.py
@@ -40,3 +48,26 @@ jobs:
           name: repository-integrity
           path: test-results/
           retention-days: 14
+
+  minimum-python:
+    # Not a required check: it runs the offline checks on the minimum Python
+    # version that INSTALLATION.md documents, which needs no packages.
+    name: Minimum Python (3.10)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.10.22"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.22.2"
+          package-manager-cache: false
+      - name: Run the offline checks
+        run: |
+          python --version
+          node --version
+          python tools/check.py
