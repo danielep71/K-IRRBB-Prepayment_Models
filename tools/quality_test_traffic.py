@@ -1,71 +1,53 @@
-"""Exercise the actual embedded exporter offline with synthetic API responses."""
-import csv
-import json
-import os
-import tempfile
+"""Controls of the traffic workflow: credentials, job permissions and schedule."""
 import unittest
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from unittest.mock import patch
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class TrafficTests(unittest.TestCase):
-    def test_rerun_replaces_snapshot_and_preserves_history(self) -> None:
-        workflow = yaml.safe_load((ROOT / '.github/workflows/daily-traffic.yml').read_text())
-        job = workflow['jobs']['traffic']
-        step = next(s for s in job['steps'] if s['name'] == 'Build CSV history')
-        code = step['run'].split("python3 << 'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
-        today = datetime.now(timezone.utc).date().isoformat()
-        older = (datetime.now(timezone.utc).date() - timedelta(days=30)).isoformat()
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            for name, data in {
-                'views': {'count': 20, 'uniques': 3, 'views': [
-                    {'timestamp': today + 'T00:00:00Z', 'count': 20, 'uniques': 3}]},
-                'clones': {'count': 5, 'uniques': 2, 'clones': [
-                    {'timestamp': today + 'T00:00:00Z', 'count': 5, 'uniques': 2}]},
-                'referrers': [{'referrer': 'example.test', 'count': 6, 'uniques': 2}],
-                'paths': [{'path': '/example', 'title': 'Synthetic', 'count': 9, 'uniques': 2}],
-                'repo': {'stargazers_count': 0, 'open_issues_count': 6},
-            }.items():
-                (root / (name + '.json')).write_text(json.dumps(data))
-                code = code.replace('/tmp/' + name + '.json', str(root / (name + '.json')))
-            (root / 'data').mkdir()
-            (root / 'data/traffic_daily.csv').write_text(
-                'date,views,unique_views,clones,unique_clones\n' + older + ',10,2,7,3\n')
-            previous = Path.cwd()
-            try:
-                os.chdir(root)
-                exec(compile(code, 'traffic-export', 'exec'), {})
-                (root / 'referrers.json').write_text('[]')
-                (root / 'paths.json').write_text('[]')
-                exec(compile(code, 'traffic-export', 'exec'), {})
-                def rows(name: str) -> list[dict[str, str]]:
-                    with (root / ('data/' + name + '.csv')).open(newline='') as stream:
-                        return list(csv.DictReader(stream))
-                self.assertEqual(len(rows('traffic')), 1)
-                self.assertEqual(len(rows('traffic_daily')), 2)
-                self.assertEqual(rows('referrers'), [])
-                self.assertEqual(rows('popular_paths'), [])
-                for name, expected in [('clones', '12'), ('visits', '5'), ('visitors', '3')]:
-                    self.assertEqual(json.loads((root / f'data/badges/{name}.json').read_text())['message'], expected)
-            finally:
-                os.chdir(previous)
+def workflow() -> dict:
+    text = (ROOT / '.github/workflows/daily-traffic.yml').read_text(encoding='utf-8')
+    document = yaml.safe_load(text)
+    document['text'] = text
+    return document
 
-    def test_milestone_checked_before_first_snapshot_exit(self) -> None:
-        workflow = yaml.safe_load((ROOT / '.github/workflows/daily-traffic.yml').read_text())
-        step = next(s for s in workflow['jobs']['traffic']['steps'] if s['name'].startswith('Create alert'))
-        code = step['run'].split("python3 << 'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
-        with patch.dict(os.environ, {'ISSUE_MILESTONE_NUMBER': '1', 'GITHUB_REPOSITORY': 'synthetic/test'}):
-            with patch('subprocess.run') as run:
-                run.return_value.stdout = '{"state":"closed","title":"Closed milestone"}'
-                with self.assertRaisesRegex(RuntimeError, 'must be open'):
-                    exec(compile(code, 'traffic-alert', 'exec'), {})
-                self.assertEqual(run.call_count, 1)
+
+class TrafficWorkflowTests(unittest.TestCase):
+    def test_collection_and_alerting_are_separate_jobs(self) -> None:
+        jobs = workflow()['jobs']
+        self.assertEqual(jobs['collect']['permissions'], {'contents': 'write'})
+        self.assertEqual(jobs['collect']['environment']['name'], 'analytics')
+        self.assertEqual(jobs['alert']['permissions'], {'contents': 'read', 'issues': 'write'})
+        self.assertNotIn('environment', jobs['alert'])
+        self.assertEqual(jobs['alert']['needs'], 'collect')
+        self.assertNotIn('secrets.', yaml.safe_dump(jobs['alert']))
+
+    def test_the_token_comes_from_the_traffic_app(self) -> None:
+        document = workflow()
+        self.assertNotIn('TRAFFIC_TOKEN', document['text'])
+        steps = document['jobs']['collect']['steps']
+        token = next(step for step in steps if step.get('id') == 'app-token')
+        self.assertTrue(token['uses'].startswith('actions/create-github-app-token@'))
+        self.assertEqual(token['with']['permission-administration'], 'read')
+        # Only the token step reads the key, and only the fetch step the token.
+        self.assertEqual([step.get('name') for step in steps if 'TRAFFIC_APP_PRIVATE_KEY' in yaml.safe_dump(step)],
+                         ['Check the traffic App configuration', 'Create the traffic App token'])
+        self.assertEqual([step.get('name') for step in steps if 'steps.app-token' in yaml.safe_dump(step)],
+                         ['Fetch GitHub traffic API data'])
+
+    def test_schedule_is_off_the_hour(self) -> None:
+        document = workflow()
+        # PyYAML reads the key `on` as True.
+        triggers = document['on'] if 'on' in document else document[True]
+        for entry in triggers['schedule']:
+            self.assertNotEqual(entry['cron'].split()[0], '0', entry['cron'])
+
+    def test_the_python_lives_in_the_tested_module(self) -> None:
+        self.assertNotIn("<< 'PY'", workflow()['text'])
+        self.assertIn('tools/traffic_history.py merge', workflow()['text'])
+        self.assertIn('tools/traffic_history.py alert', workflow()['text'])
 
 
 if __name__ == '__main__':
