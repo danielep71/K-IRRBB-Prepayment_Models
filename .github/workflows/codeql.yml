@@ -1,0 +1,151 @@
+name: CodeQL
+
+# Code scanning with CodeQL's advanced setup and the security-extended query
+# suite: the Python tooling, the label scripts (JavaScript) and the workflows
+# themselves (Actions). It runs on pushes to main and release branches, on pull
+# requests into them, and weekly, because new queries can find issues in
+# unchanged code. Results appear under Security -> Code scanning.
+#
+# Pull requests are analysed by a separate job with no write permission: it
+# uploads nothing to code scanning and keeps the SARIF as a 30-day artifact.
+# Pushes, the weekly run and manual runs upload with security-events: write.
+# The check is not required by the rulesets, so it never blocks a merge.
+#
+# Code scanning is free on public repositories. If this repository becomes
+# private without GitHub Code Security, the analysis is skipped instead of
+# failing, unless the repository variable CODE_SCANNING is "enabled".
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+  schedule:
+    # Weekly, off the hour; GitHub may start scheduled runs late.
+    - cron: "29 4 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  availability:
+    name: Code scanning availability
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Check visibility and opt-in
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE_SCANNING: ${{ vars.CODE_SCANNING }}
+        run: |
+          # The visibility is read from the API because scheduled events do
+          # not carry the repository in their payload.
+          visibility="$(gh api "repos/${GITHUB_REPOSITORY}" --jq .visibility)"
+          if [[ "$visibility" == "public" || "$CODE_SCANNING" == "enabled" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Code scanning skipped: the repository is ${visibility} and CODE_SCANNING is not \"enabled\"."
+          fi
+
+  analyze:
+    # Pushes, the weekly schedule and manual runs: upload to code scanning.
+    name: Analyze (${{ matrix.language }})
+    needs: availability
+    if: needs.availability.outputs.enabled == 'true' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      # Read the workflow run on a private repository and upload the results.
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - actions
+          - javascript-typescript
+          - python
+    steps:
+      - name: Check out the revision under analysis
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: ${{ matrix.language }}
+          # None of the three languages needs a build.
+          build-mode: none
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: /language:${{ matrix.language }}
+
+  analyze-pr:
+    # Pull requests: analyze without any write permission, upload nothing to
+    # code scanning, and keep the SARIF as an artifact for review.
+    name: Analyze pull request (${{ matrix.language }})
+    needs: availability
+    if: needs.availability.outputs.enabled == 'true' && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - actions
+          - javascript-typescript
+          - python
+    steps:
+      - name: Check out the pull request merge commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-extended
+
+      - name: Analyze without uploading
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: /language:${{ matrix.language }}
+          upload: never
+          upload-database: false
+          output: codeql-results
+
+      - name: Keep the SARIF results
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: codeql-pr-${{ matrix.language }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: codeql-results
+          if-no-files-found: error
+          retention-days: 30
