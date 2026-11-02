@@ -44,3 +44,19 @@ body:
       label: "Observed result and impact"
     validations:
       required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "Issues or pull requests this needs first (#N), an external condition, or None. Label the issue blocked while a named prerequisite is open; triage reports a mismatch."
+      value: "None."
+    validations:
+      required: true
+  - type: input
+    id: target_end_date
+    attributes:
+      label: "Target end date"
+      description: "YYYY-MM-DD, before the milestone's due date."
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true

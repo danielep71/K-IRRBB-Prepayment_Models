@@ -70,11 +70,10 @@ Traffic does not require GitHub Pages.
 After at least two snapshots, a views spike (the 14-day count at least doubles
 and grows by 100), more stars or forks, or a new referrer with at least five
 views create a `repository` / `P3` issue assigned to `danielep71` in the
-milestone selected by repository variable `ISSUE_MILESTONE_NUMBER`, which
-names the active milestone. There is no fallback: if the variable is unset,
-the run fails with a message naming it. The selected milestone must exist and be open;
-other open milestones do not affect selection. Update this variable before retiring that
-milestone. The issue-metadata workflow uses the same selection.
+open milestone with the earliest due date after today (UTC), as the
+issue-metadata workflow chooses it. There is no fallback: if no open milestone
+is due after today, the run fails with a message saying so; give the active
+milestone a due date.
 The workflow prevents duplicate alerts for the same day. Clones are never an
 alert reason, because every workflow checkout of this repository counts as a
 clone; they are still recorded in the CSV files, shown in the alert and counted
@@ -111,7 +110,6 @@ Snapshots cannot recover gaps longer than GitHub's retention window.
 
 The App, its variable and its secret must be configured before the first successful run.
 Until then, badges may show unavailable data; they must not be read as zero.
-The active alert milestone is currently **2** (`v0.2.0 - Prototype setup`).
 
 GitHub documents the no-deployment setting in
 [Deploying to a specific environment](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/deploy-to-environment).
