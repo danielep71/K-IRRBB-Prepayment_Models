@@ -41,6 +41,7 @@ module = [
     "test_traffic_history",
     "test_workbook_tools",
     "quality_test_config",
+    "quality_test_integrity",
     "quality_test_labels",
     "quality_test_pr_milestones",
     "quality_test_template",
