@@ -60,12 +60,15 @@ jobs:
             fi
           done < "$RUNNER_TEMP/dependabot-targets"
           exit "$failed"
+      # One report per run and attempt, kept 30 days; uploaded even when a step
+      # fails, and the upload fails if the report was never written.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: repository-integrity
-          path: test-results/
-          retention-days: 14
+          name: integrity-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/integrity.txt
+          if-no-files-found: error
+          retention-days: 30
 
   minimum-python:
     # Not a required check: it runs the offline checks on the minimum Python
