@@ -29,6 +29,7 @@ class FakeAPI:
         self.reporting = False
         self.alerts = False
         self.fixes = False
+        self.paused = False
 
     def not_found(self, endpoint):
         raise setup.SetupError(f'GET {endpoint} failed (HTTP 404). Check gh authentication.')
@@ -43,7 +44,7 @@ class FakeAPI:
                         return {'enabled': self.reporting}
                     if attribute == 'alerts':
                         return None if self.alerts else self.not_found(endpoint)
-                    return {'enabled': self.fixes, 'paused': False} if self.alerts else self.not_found(endpoint)
+                    return {'enabled': self.fixes, 'paused': self.paused} if self.alerts else self.not_found(endpoint)
                 self.writes.append((method, endpoint, payload))
                 setattr(self, attribute, method == 'PUT')
                 return None
@@ -195,6 +196,42 @@ class SetupTests(unittest.TestCase):
         general = setup.load_config(setup.CONFIG)['repository']
         self.assertEqual(self.api.writes[-1][2],
                          {key: value for key, value in general.items() if FakeAPI().repo.get(key) != value})
+
+    def wanting_security_updates(self) -> Any:
+        config = setup.load_config(setup.CONFIG)
+        config['security']['automated_security_fixes'] = True
+        return patch.object(setup, 'load_config', return_value=config)
+
+    def test_paused_security_updates_are_drift_and_reported(self):
+        self.api.repo['visibility'] = 'public'
+        self.api.alerts = self.api.fixes = self.api.paused = True
+        with self.wanting_security_updates(), tempfile.TemporaryDirectory() as tmp:
+            self.args.check = True
+            self.args.report = Path(tmp) / 'evidence.md'
+            self.assertEqual(self.run_setup(), 1)
+            record = self.args.report.read_text(encoding='utf-8')
+            self.assertIn('| `automated_security_fixes` | on | on (paused) |', record)
+            plan = setup.inspect(self.api, 'example/project', setup.load_config(setup.CONFIG), report=False)[1]
+            self.assertIn(('PUT', 'repos/example/project/automated-security-fixes', None), plan)
+            self.api.paused = False
+            plan = setup.inspect(self.api, 'example/project', setup.load_config(setup.CONFIG), report=False)[1]
+            self.assertNotIn(('PUT', 'repos/example/project/automated-security-fixes', None), plan)
+
+    def test_apply_fails_while_security_updates_stay_paused(self):
+        self.api.repo['visibility'] = 'public'
+        self.api.alerts = self.api.fixes = self.api.paused = True
+        self.args.apply = True
+        with self.wanting_security_updates():
+            with self.assertRaisesRegex(setup.SetupError, 'Read-back verification failed'):
+                self.run_setup()
+
+    def test_paused_security_updates_are_turned_off_when_unwanted(self):
+        self.api.alerts = self.api.fixes = self.api.paused = True
+        plan = setup.inspect(self.api, 'example/project', setup.load_config(setup.CONFIG), report=False)[1]
+        self.assertIn(('DELETE', 'repos/example/project/automated-security-fixes', None), plan)
+        self.api.fixes = False
+        plan = setup.inspect(self.api, 'example/project', setup.load_config(setup.CONFIG), report=False)[1]
+        self.assertNotIn(('DELETE', 'repos/example/project/automated-security-fixes', None), plan)
 
     def test_dependent_security_features_are_rejected(self):
         config = setup.load_config(setup.CONFIG)
