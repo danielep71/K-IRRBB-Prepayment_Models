@@ -12,6 +12,15 @@ RELEASE_BRANCH = re.compile(r'release/\d+\.\d+\.\d+')
 # Every pip install of the hash-locked tools must verify hashes and refuse source builds.
 PIP_FLAGS = ('--require-hashes', '--only-binary=:all:')
 REQUIREMENT = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]*==[^\s;]+(?:\s+--hash=sha256:[0-9a-f]{64})+')
+# Fields each issue form must require, so triage starts from verifiable reports.
+REQUIRED_FORM_FIELDS = {
+    'bug.yml': ('commit', 'model', 'reproduce', 'expected', 'observed', 'environment', 'acceptance',
+                'validation', 'dependencies', 'target_end_date'),
+    'documentation.yml': ('location', 'problem', 'correction', 'source', 'acceptance', 'validation',
+                          'dependencies', 'target_end_date'),
+    'feature.yml': ('area', 'problem', 'contract', 'acceptance', 'boundary', 'dependencies',
+                    'target_end_date'),
+}
 
 
 class UniqueLoader(yaml.SafeLoader):
@@ -29,6 +38,12 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode) -> dict[Any, An
 
 
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+
+
+def unrequired_fields(form: str, body: list[dict[str, Any]]) -> list[str]:
+    """The fields REQUIRED_FORM_FIELDS names for a form that it lacks or leaves optional."""
+    required = {field.get('id') for field in body if (field.get('validations') or {}).get('required') is True}
+    return [name for name in REQUIRED_FORM_FIELDS.get(form, ()) if name not in required]
 
 
 def inspect_config(root: Path) -> list[str]:
@@ -64,6 +79,9 @@ def inspect_config(root: Path) -> list[str]:
                 ids = [field['id'] for field in data['body'] if field['type'] != 'markdown']
                 if len(ids) != len(set(ids)):
                     raise ValueError('duplicate issue form field ID')
+                missing = unrequired_fields(path.name, data['body'])
+                if missing:
+                    raise ValueError(f'issue form must require: {", ".join(missing)}')
             if path.name == 'dependabot.yml':
                 if data.get('version') != 2:
                     raise ValueError('Dependabot version 2 required')
