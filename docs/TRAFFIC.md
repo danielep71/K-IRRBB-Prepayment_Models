@@ -55,6 +55,10 @@ maintain `data/traffic.csv`, `data/traffic_daily.csv`,
 Repeated runs on the same day replace that day's snapshot rather than duplicate
 it. A failed remote lookup or fetch stops the workflow instead of replacing
 existing history.
+If the push is rejected because another writer moved `traffic-history`, the
+collect job fetches the new tip, merges the same API responses into it again
+and retries, up to three attempts; it never force-pushes, and fails clearly
+after the third rejection.
 
 GitHub's traffic API returns a rolling 14-day window; retained snapshots keep
 a longer record. Unique visitors over several days cannot be obtained by adding

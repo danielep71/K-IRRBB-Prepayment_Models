@@ -12,6 +12,15 @@ RELEASE_BRANCH = re.compile(r'release/\d+\.\d+\.\d+')
 # Every pip install of the hash-locked tools must verify hashes and refuse source builds.
 PIP_FLAGS = ('--require-hashes', '--only-binary=:all:')
 REQUIREMENT = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]*==[^\s;]+(?:\s+--hash=sha256:[0-9a-f]{64})+')
+# Fields each issue form must require, so triage starts from verifiable reports.
+REQUIRED_FORM_FIELDS = {
+    'bug.yml': ('commit', 'model', 'reproduce', 'expected', 'observed', 'environment', 'acceptance',
+                'validation', 'dependencies', 'target_end_date'),
+    'documentation.yml': ('location', 'problem', 'correction', 'source', 'acceptance', 'validation',
+                          'dependencies', 'target_end_date'),
+    'feature.yml': ('area', 'problem', 'contract', 'acceptance', 'boundary', 'dependencies',
+                    'target_end_date'),
+}
 
 
 class UniqueLoader(yaml.SafeLoader):
@@ -31,6 +40,12 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode) -> dict[Any, An
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
 
 
+def unrequired_fields(form: str, body: list[dict[str, Any]]) -> list[str]:
+    """The fields REQUIRED_FORM_FIELDS names for a form that it lacks or leaves optional."""
+    required = {field.get('id') for field in body if (field.get('validations') or {}).get('required') is True}
+    return [name for name in REQUIRED_FORM_FIELDS.get(form, ()) if name not in required]
+
+
 def inspect_config(root: Path) -> list[str]:
     errors: list[str] = []
     manifest = json.loads((root / '.github/labels.json').read_text(encoding='utf-8'))
@@ -41,46 +56,64 @@ def inspect_config(root: Path) -> list[str]:
             if not isinstance(data, dict):
                 raise ValueError('expected a YAML mapping')
             if path.parent.name == 'workflows':
-                for job in data.get('jobs', {}).values():
-                    for step in [job, *job.get('steps', [])]:
-                        action = step.get('uses', '')
-                        if action and not action.startswith('./'):
-                            if not re.fullmatch(r'[\w./-]+@[0-9a-f]{40}', action):
-                                raise ValueError(f'unpinned action: {action}')
-                        if action.startswith('actions/checkout@'):
-                            if step.get('with', {}).get('persist-credentials') is not False:
-                                raise ValueError('checkout must disable persisted credentials')
-                        for command in pip_installs(str(step.get('run', ''))):
-                            if not all(flag in command.split() for flag in PIP_FLAGS):
-                                raise ValueError(f'pip install without {" ".join(PIP_FLAGS)}: {command}')
+                check_workflow(data)
             if path.parent.name == 'ISSUE_TEMPLATE' and path.name != 'config.yml':
-                chosen = data.get('labels', [])
-                if not chosen or set(chosen) - labels:
-                    raise ValueError('unknown or missing issue labels')
-                if len(set(chosen) & {'P1', 'P2', 'P3'}) != 1:
-                    raise ValueError('one priority required')
-                if 'danielep71' not in data.get('assignees', []):
-                    raise ValueError('owner assignee required')
-                ids = [field['id'] for field in data['body'] if field['type'] != 'markdown']
-                if len(ids) != len(set(ids)):
-                    raise ValueError('duplicate issue form field ID')
+                check_issue_form(path.name, data, labels)
             if path.name == 'dependabot.yml':
-                if data.get('version') != 2:
-                    raise ValueError('Dependabot version 2 required')
-                for update in data['updates']:
-                    if set(update.get('labels', [])) - labels:
-                        raise ValueError('unknown Dependabot label')
-                    if not RELEASE_BRANCH.fullmatch(str(update.get('target-branch', ''))):
-                        raise ValueError('Dependabot must target the active release branch, release/X.Y.Z')
-                if len({update['target-branch'] for update in data['updates']}) != 1:
-                    raise ValueError('every Dependabot entry must target the same active release branch')
-                if not any(update.get('package-ecosystem') == 'pip' and update.get('directory') == '/tools'
-                           for update in data['updates']):
-                    raise ValueError('Dependabot must update the pip requirements in /tools')
+                check_dependabot(data, labels)
         except (yaml.YAMLError, ValueError, KeyError, TypeError) as exc:
             errors.append(f'{path.relative_to(root)}: {exc}')
     errors += inspect_requirements(root)
     return errors
+
+
+def check_workflow(data: dict[Any, Any]) -> None:
+    """Actions are SHA-pinned, checkouts persist no credentials and pip installs verify hashes."""
+    for job in data.get('jobs', {}).values():
+        for step in [job, *job.get('steps', [])]:
+            action = step.get('uses', '')
+            if action and not action.startswith('./'):
+                if not re.fullmatch(r'[\w./-]+@[0-9a-f]{40}', action):
+                    raise ValueError(f'unpinned action: {action}')
+            if action.startswith('actions/checkout@'):
+                if step.get('with', {}).get('persist-credentials') is not False:
+                    raise ValueError('checkout must disable persisted credentials')
+            for command in pip_installs(str(step.get('run', ''))):
+                if not all(flag in command.split() for flag in PIP_FLAGS):
+                    raise ValueError(f'pip install without {" ".join(PIP_FLAGS)}: {command}')
+
+
+def check_issue_form(name: str, data: dict[Any, Any], labels: set[str]) -> None:
+    """Catalogue labels with one priority, the owner as assignee, unique IDs and the required fields."""
+    chosen = data.get('labels', [])
+    if not chosen or set(chosen) - labels:
+        raise ValueError('unknown or missing issue labels')
+    if len(set(chosen) & {'P1', 'P2', 'P3'}) != 1:
+        raise ValueError('one priority required')
+    if 'danielep71' not in data.get('assignees', []):
+        raise ValueError('owner assignee required')
+    ids = [field['id'] for field in data['body'] if field['type'] != 'markdown']
+    if len(ids) != len(set(ids)):
+        raise ValueError('duplicate issue form field ID')
+    missing = unrequired_fields(name, data['body'])
+    if missing:
+        raise ValueError(f'issue form must require: {", ".join(missing)}')
+
+
+def check_dependabot(data: dict[Any, Any], labels: set[str]) -> None:
+    """Version 2, catalogue labels, one release/X.Y.Z target for every entry, and the pip entry."""
+    if data.get('version') != 2:
+        raise ValueError('Dependabot version 2 required')
+    for update in data['updates']:
+        if set(update.get('labels', [])) - labels:
+            raise ValueError('unknown Dependabot label')
+        if not RELEASE_BRANCH.fullmatch(str(update.get('target-branch', ''))):
+            raise ValueError('Dependabot must target the active release branch, release/X.Y.Z')
+    if len({update['target-branch'] for update in data['updates']}) != 1:
+        raise ValueError('every Dependabot entry must target the same active release branch')
+    if not any(update.get('package-ecosystem') == 'pip' and update.get('directory') == '/tools'
+               for update in data['updates']):
+        raise ValueError('Dependabot must update the pip requirements in /tools')
 
 
 def logical_lines(text: str) -> list[str]:

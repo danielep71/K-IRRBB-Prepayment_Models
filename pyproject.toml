@@ -4,15 +4,49 @@ line-length = 110
 include = ["tools/*.py", ".github/scripts/*.py", "tests/reference/*.py"]
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I"]
+select = ["E4", "E7", "E9", "F", "I", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.per-file-ignores]
+# The independent reference reader mirrors the data contract's rule order, one
+# branch per rule, and is checked by its reference cases rather than its shape.
+"tests/reference/*.py" = ["C901"]
 
 [tool.mypy]
 python_version = "3.10"
 files = ["tools", ".github/scripts/issue-metadata.py", "tests/reference"]
-check_untyped_defs = true
-warn_unused_ignores = true
-warn_redundant_casts = true
+strict = true
+warn_unused_configs = true
+# Not part of strict: report code that type narrowing proves can never run.
+warn_unreachable = true
 
 [[tool.mypy.overrides]]
 module = ["xlsxwriter", "xlsxwriter.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Test modules are type-checked, but need not annotate every test method and
+# fixture helper; tooling and the reference reader must be fully annotated.
+# mypy needs full module names: list each new test module here.
+module = [
+    "test_check_changelog",
+    "test_check_issues",
+    "test_check_links",
+    "test_issue_metadata",
+    "test_reference_cases",
+    "test_repository_checks",
+    "test_setup_repository",
+    "test_traffic_history",
+    "test_workbook_tools",
+    "quality_test_config",
+    "quality_test_integrity",
+    "quality_test_labels",
+    "quality_test_pr_milestones",
+    "quality_test_template",
+    "quality_test_traffic",
+]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false

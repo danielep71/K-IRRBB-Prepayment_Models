@@ -13,19 +13,22 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
+from typing import Any
 
 OWNER = "danielep71"
 SECRET = re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})")
 DETAIL_LIMIT = 500
 
 
-def failure_detail(text):
+def failure_detail(text: str) -> str:
     """Return API error text safe for a public log: token-like strings redacted, length capped."""
     detail = SECRET.sub("[REDACTED]", " ".join(text.split()))
     return detail if len(detail) <= DETAIL_LIMIT else detail[:DETAIL_LIMIT] + "..."
 
 
-def api(endpoint, method="GET", payload=None, paginate=False):
+def api(endpoint: str, method: str = "GET", payload: dict[str, Any] | None = None,
+        paginate: bool = False) -> Any:
     command = ["gh", "api", endpoint, "--method", method]
     if paginate:
         command += ["--paginate", "--slurp"]
@@ -41,7 +44,7 @@ def api(endpoint, method="GET", payload=None, paginate=False):
     return json.loads(completed.stdout) if completed.stdout.strip() else None
 
 
-def reconcile(repository, number, default_milestone):
+def reconcile(repository: str, number: int, default_milestone: Callable[[], int]) -> None:
     """default_milestone is called only when the issue has no milestone."""
     endpoint = f"repos/{repository}/issues/{number}"
     issue = api(endpoint)
@@ -57,7 +60,7 @@ def reconcile(repository, number, default_milestone):
     print(f"Issue #{number}: owner and milestone verified")
 
 
-def active_milestone(repository, today=None):
+def active_milestone(repository: str, today: datetime.date | None = None) -> int:
     """The open milestone with the earliest due date after today (UTC); no fallback."""
     today = today or datetime.datetime.now(datetime.timezone.utc).date()
     pages = api(f"repos/{repository}/milestones?state=open&per_page=100", paginate=True)
@@ -65,10 +68,11 @@ def active_milestone(repository, today=None):
                  if milestone.get("due_on") and milestone["due_on"][:10] > today.isoformat())
     if not due:
         raise RuntimeError("No open milestone is due after today; give the active milestone a due date")
-    return due[0][1]
+    number: int = due[0][1]
+    return number
 
 
-def main():
+def main() -> int:
     repository = os.environ["GITHUB_REPOSITORY"]
     number = os.environ.get("ISSUE_NUMBER", "")
     if number and os.environ.get("ISSUE_IS_PULL_REQUEST", "") == "true":

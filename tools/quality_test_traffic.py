@@ -1,15 +1,16 @@
 """Controls of the traffic workflow: credentials, job permissions and schedule."""
 import unittest
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def workflow() -> dict:
+def workflow() -> dict[Any, Any]:
     text = (ROOT / '.github/workflows/daily-traffic.yml').read_text(encoding='utf-8')
-    document = yaml.safe_load(text)
+    document: dict[Any, Any] = yaml.safe_load(text)
     document['text'] = text
     return document
 
@@ -43,6 +44,20 @@ class TrafficWorkflowTests(unittest.TestCase):
         triggers = document['on'] if 'on' in document else document[True]
         for entry in triggers['schedule']:
             self.assertNotEqual(entry['cron'].split()[0], '0', entry['cron'])
+
+    def test_a_rejected_push_is_retried_without_force(self) -> None:
+        steps = workflow()['jobs']['collect']['steps']
+        step = next(s for s in steps if s.get('name') == 'Commit traffic history')
+        script = step['run']
+        self.assertIn('for attempt in 1 2 3; do', script)
+        self.assertIn('git_auth push origin HEAD:traffic-history', script)
+        self.assertIn('git_auth fetch -q origin traffic-history', script)
+        self.assertIn('git reset -q --hard FETCH_HEAD', script)
+        self.assertIn('traffic_history.py merge --raw "$RAW" --data data --collected-at "$COLLECTED_AT"', script)
+        self.assertIn('Could not push the traffic history after 3 attempts', script)
+        self.assertEqual(step['env']['COLLECTED_AT'], '${{ steps.fetch.outputs.collected_at }}')
+        for forced in ('--force', ' -f ', '+HEAD'):
+            self.assertNotIn(forced, script)
 
     def test_the_python_lives_in_the_tested_module(self) -> None:
         self.assertNotIn("<< 'PY'", workflow()['text'])

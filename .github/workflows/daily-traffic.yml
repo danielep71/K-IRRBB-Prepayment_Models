@@ -153,18 +153,40 @@ jobs:
         working-directory: history
         env:
           GH_TOKEN: ${{ github.token }}
+          COLLECTED_AT: ${{ steps.fetch.outputs.collected_at }}
         run: |
           set -euo pipefail
-          git add data/
-          if git diff --cached --quiet; then
-            echo "No traffic changes to commit"
-          else
-            git commit -q -m "Update traffic history"
-          fi
           # Ephemeral helper: no credential is persisted in Git configuration.
-          git -c credential.helper= \
-            -c 'credential.helper=!f() { printf "username=x-access-token\npassword=%s\n" "$GH_TOKEN"; }; f' \
-            push origin HEAD:traffic-history
+          git_auth() {
+            git -c credential.helper= \
+              -c 'credential.helper=!f() { printf "username=x-access-token\npassword=%s\n" "$GH_TOKEN"; }; f' "$@"
+          }
+          commit() {
+            git add data/
+            if git diff --cached --quiet; then
+              echo "No traffic changes to commit"
+            else
+              git commit -q -m "Update traffic history"
+            fi
+          }
+          commit
+          # If another writer moved the branch, rebuild this snapshot on its new
+          # tip and push again; never force-push over it.
+          for attempt in 1 2 3; do
+            if git_auth push origin HEAD:traffic-history; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            sleep $((attempt * 10))
+            git_auth fetch -q origin traffic-history
+            git reset -q --hard FETCH_HEAD
+            python ../source/tools/traffic_history.py merge --raw "$RAW" --data data --collected-at "$COLLECTED_AT"
+            commit
+          done
+          echo "::error::Could not push the traffic history after 3 attempts"
+          exit 1
 
   alert:
     name: Traffic alert

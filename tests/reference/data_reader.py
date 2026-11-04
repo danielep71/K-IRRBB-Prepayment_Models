@@ -17,6 +17,7 @@ from __future__ import annotations
 import calendar
 import hashlib
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal, Inexact, localcontext
@@ -414,7 +415,8 @@ def check_rate(row: Row, allowlist: set[str]) -> str | None:
     return None
 
 
-def check_loan_history(loan: Row, rows: list[Row], fail, ok, result: Result, window_end: date) -> None:
+def check_loan_history(loan: Row, rows: list[Row], fail: Callable[[Row, str], None], ok: Callable[[Row], bool],
+                       result: Result, window_end: date) -> None:
     origination = loan.parsed['origination_date']
     maturity = loan.parsed['maturity_date']
     assert isinstance(origination, date) and isinstance(maturity, date)
@@ -506,7 +508,7 @@ def event_consistent(event: str, bal: Decimal, sched: Decimal, prepaid: Decimal,
 
 
 def check_successors(register: dict[str, Row], panel: list[Row], window_start: date, window_end: date,
-                     fail, ok, result: Result) -> None:
+                     fail: Callable[[Row, str], None], ok: Callable[[Row], bool], result: Result) -> None:
     successors: dict[str, list[Row]] = {}
     for loan in register.values():
         pred = loan.values['predecessor_id']
