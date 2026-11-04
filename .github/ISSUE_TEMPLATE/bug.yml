@@ -45,6 +45,27 @@ body:
     validations:
       required: true
   - type: textarea
+    id: environment
+    attributes:
+      label: "Host environment"
+      description: "Excel/Office build and update channel, 32- or 64-bit, and Windows version. For repository tooling, the Python or Node.js version, or Not host-specific."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance criteria"
+      description: "Verifiable conditions that show the defect is fixed."
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: "Validation"
+      description: "The checks that will prove the fix: for example python tools/check.py, a registered test case with its expected file, or an Excel run on the exact commit."
+    validations:
+      required: true
+  - type: textarea
     id: dependencies
     attributes:
       label: "Dependencies"

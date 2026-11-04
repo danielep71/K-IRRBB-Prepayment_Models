@@ -4,16 +4,45 @@ title: "[Docs]: "
 labels: ["documentation", "P3"]
 assignees: ["danielep71"]
 body:
-  - type: textarea
-    id: issue
+  - type: input
+    id: location
     attributes:
-      label: "Affected document and discrepancy"
+      label: "Location"
+      description: "File and section, for example docs/methodology/DATA_CONTRACT.md, section Errors."
     validations:
       required: true
   - type: textarea
-    id: result
+    id: problem
     attributes:
-      label: "Proposed improvement and acceptance criteria"
+      label: "Problem"
+      description: "What is wrong, missing, out of date or unclear."
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: "Proposed correction"
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: "Supporting source"
+      description: "The specification, decision, code or external source that supports the correction. Cite it; do not copy licensed text."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance criteria"
+      description: "Verifiable conditions that show the document is correct."
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: "Validation"
+      description: "How the correction will be checked: for example python tools/check.py, the link check, or a review against the cited source."
     validations:
       required: true
   - type: textarea

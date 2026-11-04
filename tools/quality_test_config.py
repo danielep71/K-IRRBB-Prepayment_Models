@@ -3,8 +3,16 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
-from check_config import dependabot_targets, inspect_config, logical_lines
+import yaml
+from check_config import (
+    REQUIRED_FORM_FIELDS,
+    dependabot_targets,
+    inspect_config,
+    logical_lines,
+    unrequired_fields,
+)
 
 
 class ConfigTests(unittest.TestCase):
@@ -15,6 +23,7 @@ class ConfigTests(unittest.TestCase):
             ('labels: [unknown]\n', 'unknown or missing issue labels'),
             ('labels: [P2, P3]\n', 'one priority required'),
             ('labels: [P2]\nassignees: []\n', 'owner assignee required'),
+            ('labels: [P2]\nassignees: [danielep71]\nbody: []\n', 'issue form must require: commit'),
         ]
         for content, expected in cases:
             with self.subTest(content=content), tempfile.TemporaryDirectory() as tmp:
@@ -26,6 +35,21 @@ class ConfigTests(unittest.TestCase):
                 errors = inspect_config(root)
                 self.assertTrue(errors)
                 self.assertIn(expected, errors[0])
+
+    def test_issue_forms_must_require_their_fields(self):
+        forms = Path(__file__).resolve().parents[1] / '.github/ISSUE_TEMPLATE'
+        body: list[dict[str, Any]] = [{'type': 'input', 'id': 'commit', 'validations': {'required': True}},
+                {'type': 'textarea', 'id': 'environment', 'validations': {'required': False}},
+                {'type': 'textarea', 'id': 'acceptance'}]
+        missing = unrequired_fields('bug.yml', body)
+        self.assertIn('environment', missing)
+        self.assertIn('acceptance', missing)
+        self.assertNotIn('commit', missing)
+        self.assertEqual(unrequired_fields('config.yml', body), [])
+        for form in REQUIRED_FORM_FIELDS:
+            with self.subTest(form=form):
+                data = yaml.safe_load((forms / form).read_text(encoding='utf-8'))
+                self.assertEqual(unrequired_fields(form, data['body']), [])
 
     def test_quoted_action_tag_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
