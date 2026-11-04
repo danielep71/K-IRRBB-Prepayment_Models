@@ -3,6 +3,7 @@ import argparse
 import copy
 import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -275,7 +276,7 @@ class SetupTests(unittest.TestCase):
 
     def test_cli_uses_explicit_method_host_and_stdin(self):
         result = argparse.Namespace(returncode=0, stdout='{}', stderr='')
-        with patch.object(setup.subprocess, 'run', return_value=result) as run:
+        with patch.object(subprocess, 'run', return_value=result) as run:
             setup.api('PATCH', 'repos/a/b', {'has_projects': False})
             cmd = run.call_args.args[0]
             self.assertIn('github.com', cmd)
@@ -287,7 +288,7 @@ class SetupTests(unittest.TestCase):
 
     def test_api_error_does_not_print_server_detail(self):
         result = argparse.Namespace(returncode=1, stdout='', stderr='secret token HTTP 403')
-        with patch.object(setup.subprocess, 'run', return_value=result):
+        with patch.object(subprocess, 'run', return_value=result):
             with self.assertRaises(setup.SetupError) as caught:
                 setup.api('GET', 'repos/a/b')
         self.assertIn('HTTP 403', str(caught.exception))

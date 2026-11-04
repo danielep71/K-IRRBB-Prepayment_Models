@@ -37,7 +37,8 @@ def rows(data: Path, name: str) -> list[dict[str, str]]:
 
 
 def badge(data: Path, name: str) -> str:
-    return json.loads((data / f'badges/{name}.json').read_text())['message']
+    message: str = json.loads((data / f'badges/{name}.json').read_text())['message']
+    return message
 
 
 class MergeTests(unittest.TestCase):
@@ -122,7 +123,7 @@ class MergeTests(unittest.TestCase):
 
 
 class AlertTests(unittest.TestCase):
-    def history(self, root: Path, previous: dict, current: dict, referrers=()) -> Path:
+    def history(self, root: Path, previous: dict[str, str], current: dict[str, str], referrers=()) -> Path:
         data = root / 'data'
         data.mkdir()
         base = {'views_14d': '10', 'unique_views_14d': '2', 'clones_14d': '10', 'unique_clones_14d': '2',
