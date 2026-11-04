@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 import { promisify } from "node:util";
+import { inlineCode, markdownEscape } from "./markdown.mjs";
 
 const execFileAsync = promisify(execFile);
 const TOOL_NAME = "Repository label drift";
@@ -316,13 +317,10 @@ function buildReport({ repository, manifestPath, policyPath, manifest, selection
   };
 }
 
-function markdownEscape(value) {
-  return String(value).replaceAll("|", "\\|").replaceAll("\n", " ");
-}
-
 function compactLabel(label) {
   if (label === null) return "—";
-  return `\`${markdownEscape(label.name)}\` / \`${label.color}\` / ${markdownEscape(label.description)}`;
+  return `${inlineCode(label.name, { table: true })} / ${inlineCode(label.color, { table: true })} / `
+    + markdownEscape(label.description);
 }
 
 function markdownReport(report) {
@@ -330,9 +328,9 @@ function markdownReport(report) {
     "# Repository label drift",
     "",
     `- Status: **${String(report.status).toUpperCase()}**`,
-    `- Repository: \`${report.repository ?? "fixture"}\``,
-    `- Manifest: \`${report.manifest}\``,
-    `- Policy: \`${report.policy}\``,
+    `- Repository: ${inlineCode(report.repository ?? "fixture")}`,
+    `- Manifest: ${inlineCode(report.manifest)}`,
+    `- Policy: ${inlineCode(report.policy)}`,
     `- Profile overlay: **${report.selection.profile ?? "none"}**`,
     `- Domain overlays: **${report.selection.domains.length > 0 ? report.selection.domains.join(", ") : "none"}**`,
     `- Desired / observed: **${report.counts.desired} / ${report.counts.observed}**`,
@@ -350,7 +348,7 @@ function markdownReport(report) {
     );
     for (const difference of report.differences) {
       lines.push(
-        `| ${difference.action} | \`${markdownEscape(difference.name)}\` | `
+        `| ${difference.action} | ${inlineCode(difference.name, { table: true })} | `
         + `${difference.fields.length > 0 ? difference.fields.join(", ") : "—"} | `
         + `${compactLabel(difference.observed)} | ${compactLabel(difference.desired)} |`
       );
@@ -461,8 +459,22 @@ async function runSelfTest(manifestPath, policyPath) {
   assert.match(markdownReport(driftFirst), /simulated out-of-band change/);
   assert.match(markdownReport(driftFirst), new RegExp(missing.name));
 
+  // A backtick, pipe or line break in a live value cannot break the report table.
+  const hostile = structuredClone(driftFirst);
+  hostile.repository = "owner/re`po";
+  hostile.differences = [{
+    action: "update",
+    name: "tick`|label",
+    fields: ["description"],
+    observed: { name: "tick`|label", color: "FFFFFF", description: "pipe | and\r\nbreak" },
+    desired: null
+  }];
+  const hostileReport = markdownReport(hostile);
+  assert.match(hostileReport, /- Repository: ``owner\/re`po``/);
+  assert.match(hostileReport, /\| update \| ``tick`\\\|label`` \| description \| ``tick`\\\|label`` \/ `FFFFFF` \/ pipe \\\| and break \| — \|/);
+
   process.stdout.write(
-    "SELF-TEST PASS: retry delays and deterministic no-drift and create/update/delete drift fixtures are read-only and match the canonical reconciler.\n"
+    "SELF-TEST PASS: retry delays and deterministic no-drift and create/update/delete drift fixtures are read-only and match the canonical reconciler; report values are escaped.\n"
   );
 }
 

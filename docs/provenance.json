@@ -84,6 +84,14 @@
         "tools/test_check_issues.py",
         ".github/workflows/issue-triage.yml"
       ]
+    },
+    {
+      "repository": "https://github.com/danielep71/MyTemplate",
+      "reference_revision": "d9cf657d7e5e54548fc389a9acac16bd9433c313",
+      "treatment": "Adapted from my own template's release/0.3.0: the Markdown helpers are a module shared by this repository's label scripts; the in-use check before label pruning was ported into labels-sync.mjs, whose provenance stays with its original source.",
+      "files": [
+        ".github/scripts/markdown.mjs"
+      ]
     }
   ]
 }

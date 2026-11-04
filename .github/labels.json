@@ -55,12 +55,12 @@
     {
       "name": "P1",
       "color": "B60205",
-      "description": "Critical release blocker or serious correctness, data, or application-state risk"
+      "description": "Confirmed calculation bug: wrong results for valid inputs (reserved for this case)"
     },
     {
       "name": "P2",
       "color": "D93F0B",
-      "description": "Material correctness, robustness, or maintainability defect"
+      "description": "Release blocker or material correctness, data, robustness or maintainability defect"
     },
     {
       "name": "P3",
