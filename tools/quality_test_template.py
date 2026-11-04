@@ -64,7 +64,7 @@ class Template(unittest.TestCase):
             cell = f'{col}{int(row) + row_offset}'
             part = xml[f'xl/worksheets/sheet{tabs.index(sheet) + 1}.xml']
             style = re.search(rf'<c r="{cell}" s="(\d+)"', part).group(1)  # type: ignore[union-attr]
-            return formats[int(style)]
+            return str(formats[int(style)])
 
         self.assertEqual(number_format(cells['cfg_data_window_start']), '@')
         self.assertEqual(number_format(cells['cfg_currency_allowlist']), '@')
