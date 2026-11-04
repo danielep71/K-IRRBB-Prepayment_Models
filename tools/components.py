@@ -212,21 +212,31 @@ def compare(manifest: dict[str, Any], export: dict[str, str], references: list[s
         if code:
             errors.append(f'document module {name} contains code: {code[0]!r}')
     if types is not None:
-        for name in sorted(types.keys() ^ exported.keys()):
-            errors.append(f'component list and exported files differ: {name}')
-        wanted = {**{n: VBA_TYPES[c['kind']] for n, c in expected.items()},
-                  **{n: VBA_TYPES['document'] for n in documents}}
-        for name in sorted(wanted.keys() & types.keys()):
-            if types[name] != wanted[name]:
-                errors.append(f'wrong VBA type for {name}: {types[name]}, expected {wanted[name]}')
+        errors += type_errors(expected, documents, exported, types)
     if references is not None:
-        actual = set(references)
-        allowed = set(manifest['references'])
-        for ref in sorted(actual - allowed):
-            errors.append(f'non-default reference: {ref}')
-        for ref in sorted(allowed - actual):
-            errors.append(f'missing default reference: {ref}')
+        errors += reference_errors(manifest, references)
     return errors
+
+
+def type_errors(expected: dict[str, Any], documents: set[str], exported: dict[str, str],
+                types: dict[str, int]) -> list[str]:
+    """The VBA type of every exported component matches its kind in the manifest."""
+    errors = [f'component list and exported files differ: {name}'
+              for name in sorted(types.keys() ^ exported.keys())]
+    wanted = {**{n: VBA_TYPES[c['kind']] for n, c in expected.items()},
+              **{n: VBA_TYPES['document'] for n in documents}}
+    for name in sorted(wanted.keys() & types.keys()):
+        if types[name] != wanted[name]:
+            errors.append(f'wrong VBA type for {name}: {types[name]}, expected {wanted[name]}')
+    return errors
+
+
+def reference_errors(manifest: dict[str, Any], references: list[str]) -> list[str]:
+    """The VBA project references are exactly the manifest's default ones."""
+    actual = set(references)
+    allowed = set(manifest['references'])
+    return ([f'non-default reference: {ref}' for ref in sorted(actual - allowed)]
+            + [f'missing default reference: {ref}' for ref in sorted(allowed - actual)])
 
 
 def read_export(folder: Path) -> dict[str, str]:
