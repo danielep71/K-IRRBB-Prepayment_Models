@@ -1,15 +1,16 @@
 """Controls of the traffic workflow: credentials, job permissions and schedule."""
 import unittest
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def workflow() -> dict:
+def workflow() -> dict[Any, Any]:
     text = (ROOT / '.github/workflows/daily-traffic.yml').read_text(encoding='utf-8')
-    document = yaml.safe_load(text)
+    document: dict[Any, Any] = yaml.safe_load(text)
     document['text'] = text
     return document
 

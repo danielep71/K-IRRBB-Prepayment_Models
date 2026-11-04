@@ -30,52 +30,75 @@ def inspect(root: Path, names: list[str]) -> list[str]:
     """Return actionable errors for the tracked working-tree files."""
     errors = [f'Missing required file: {p}' for p in REQUIRED if p not in names]
     for name in names:
-        path = root / name
-        if not path.is_file():
-            errors.append(f'Missing tracked file: {name}')
-            continue
-        if name in APPROVED_IMAGES:
-            if hashlib.sha256(path.read_bytes()).hexdigest() != APPROVED_IMAGES[name]:
-                errors.append(f'Unreviewed image content: {name}')
-            continue
-        if path.suffix.lower() in {'.xlsx', '.xlsm', '.xlsb', '.xls', '.exe', '.zip'}:
-            errors.append(f'Unapproved binary: {name}')
-            continue
+        errors += inspect_file(root, name, names)
+    return errors
+
+
+def inspect_file(root: Path, name: str, names: list[str]) -> list[str]:
+    """Errors for one tracked file: its presence, binary status, encoding and text checks."""
+    path = root / name
+    if not path.is_file():
+        return [f'Missing tracked file: {name}']
+    if name in APPROVED_IMAGES:
+        if hashlib.sha256(path.read_bytes()).hexdigest() != APPROVED_IMAGES[name]:
+            return [f'Unreviewed image content: {name}']
+        return []
+    if path.suffix.lower() in {'.xlsx', '.xlsm', '.xlsb', '.xls', '.exe', '.zip'}:
+        return [f'Unapproved binary: {name}']
+    try:
+        text = path.read_text(encoding='utf-8')
+    except UnicodeDecodeError:
+        return [f'Non-UTF-8 source: {name}']
+    return inspect_text(root, name, text, names)
+
+
+def inspect_text(root: Path, name: str, text: str, names: list[str]) -> list[str]:
+    """Errors in the text of one tracked file."""
+    errors = []
+    path = root / name
+    if text and not text.endswith('\n'):
+        errors.append(f'Missing final newline: {name}')
+    if any(line.rstrip(' \t') != line for line in text.splitlines()):
+        errors.append(f'Trailing whitespace: {name}')
+    errors += syntax_errors(name, path.suffix, text)
+    if name in GUIDES:
+        for match in THIRD_PERSON.finditer(text):
+            number = text.count('\n', 0, match.start()) + 1
+            phrase = ' '.join(match.group().split())
+            errors.append(f'{name}:{number}: "{phrase}" in an operational guide; write "I" or "me"')
+    if path.suffix == '.md':
+        errors += link_errors(root, path, name, text, names)
+    if name.startswith('.github/workflows/'):
+        for action in re.findall(r'^\s*-?\s*uses:\s*([^\s#]+)', text, re.M):
+            if not action.startswith('./') and not re.fullmatch(r'[\w./-]+@[0-9a-f]{40}', action):
+                errors.append(f'{name}: unpinned action {action}')
+    return errors
+
+
+def syntax_errors(name: str, suffix: str, text: str) -> list[str]:
+    """Python must parse and JSON must load."""
+    if suffix == '.py':
         try:
-            text = path.read_text(encoding='utf-8')
-        except UnicodeDecodeError:
-            errors.append(f'Non-UTF-8 source: {name}')
-            continue
-        if text and not text.endswith('\n'):
-            errors.append(f'Missing final newline: {name}')
-        if any(line.rstrip(' \t') != line for line in text.splitlines()):
-            errors.append(f'Trailing whitespace: {name}')
-        if path.suffix == '.py':
-            try:
-                ast.parse(text, filename=name)
-            except SyntaxError as exc:
-                errors.append(str(exc))
-        if path.suffix == '.json':
-            try:
-                json.loads(text)
-            except ValueError as exc:
-                errors.append(f'{name}: {exc}')
-        if name in GUIDES:
-            for match in THIRD_PERSON.finditer(text):
-                number = text.count('\n', 0, match.start()) + 1
-                phrase = ' '.join(match.group().split())
-                errors.append(f'{name}:{number}: "{phrase}" in an operational guide; write "I" or "me"')
-        if path.suffix == '.md':
-            for target in re.findall(r'\]\(([^\s)]+)\)', text):
-                parsed = urlsplit(target)
-                if not parsed.scheme and parsed.path:
-                    dest = (path.parent / unquote(parsed.path)).resolve()
-                    if not dest.is_relative_to(root.resolve()) or dest.relative_to(root.resolve()).as_posix() not in names:
-                        errors.append(f'{name}: missing/unsafe link {target}')
-        if name.startswith('.github/workflows/'):
-            for action in re.findall(r'^\s*-?\s*uses:\s*([^\s#]+)', text, re.M):
-                if not action.startswith('./') and not re.fullmatch(r'[\w./-]+@[0-9a-f]{40}', action):
-                    errors.append(f'{name}: unpinned action {action}')
+            ast.parse(text, filename=name)
+        except SyntaxError as exc:
+            return [str(exc)]
+    if suffix == '.json':
+        try:
+            json.loads(text)
+        except ValueError as exc:
+            return [f'{name}: {exc}']
+    return []
+
+
+def link_errors(root: Path, path: Path, name: str, text: str, names: list[str]) -> list[str]:
+    """Relative Markdown links must reach a tracked file inside the repository."""
+    errors = []
+    for target in re.findall(r'\]\(([^\s)]+)\)', text):
+        parsed = urlsplit(target)
+        if not parsed.scheme and parsed.path:
+            dest = (path.parent / unquote(parsed.path)).resolve()
+            if not dest.is_relative_to(root.resolve()) or dest.relative_to(root.resolve()).as_posix() not in names:
+                errors.append(f'{name}: missing/unsafe link {target}')
     return errors
 
 

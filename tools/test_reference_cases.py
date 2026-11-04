@@ -9,6 +9,7 @@ from collections import Counter
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tests' / 'reference'))
@@ -19,8 +20,9 @@ CODE_SETS = {'rate_type': reader.RATE_TYPES, 'event': reader.EVENTS, 'payment_mo
              'segment': reader.SEGMENTS}
 
 
-def expected(case: str) -> dict:
-    return json.loads((ROOT / 'tests' / 'expected' / f'{case}.json').read_text(encoding='utf-8'))
+def expected(case: str) -> dict[str, Any]:
+    data: dict[str, Any] = json.loads((ROOT / 'tests' / 'expected' / f'{case}.json').read_text(encoding='utf-8'))
+    return data
 
 
 class ImportCases(unittest.TestCase):
@@ -36,48 +38,55 @@ class ImportCases(unittest.TestCase):
                 results[variant] = result
                 self.assertEqual(result.accepted, want['accepted'])
                 self.assertEqual([list(e) for e in result.errors], want['errors'])
-                if 'warnings' in want:
-                    self.assertEqual([list(w) for w in result.warnings], want['warnings'])
-                if 'warning_counts' in want:
-                    self.assertEqual(dict(Counter(w[2] for w in result.warnings)), want['warning_counts'])
-                if 'totals' in want:
-                    got_totals = {'|'.join(k): v for k, v in result.totals.items()}
-                    self.assertEqual(sorted(got_totals), sorted(want['totals']))
-                    for key, measures in want['totals'].items():
-                        full = {m: Decimal(measures.get(m, '0')) for m in reader.RECON_MEASURES}
-                        self.assertEqual(got_totals[key], full, key)
-                if 'gaps' in want:
-                    self.assertEqual([list(g) for g in result.gaps], want['gaps'])
-                if 'missing_extracts' in want:
-                    self.assertEqual(result.missing_extracts, want['missing_extracts'])
-                if 'control_differences' in want:
-                    self.assertEqual([list(d) for d in result.control_differences], want['control_differences'])
-                for key, month in want.get('loan_months', {}).items():
-                    available, prepaid = result.loan_months[tuple(key.split('|'))]
-                    self.assertEqual(available, Decimal(month['available']))
-                    self.assertEqual(prepaid, Decimal(month['prepaid']))
-                    if 'smm' in month:
-                        self.assertEqual(prepaid / available, Decimal(month['smm']))
-                if 'outcomes' in want:
-                    got = {f'{loan}|{start}': outcome for (loan, start), outcome in result.outcomes.items()}
-                    self.assertEqual(got, want['outcomes'])
-                if 'counts' in want:
-                    self.assertEqual(result.counts, want['counts'])
-                if 'fingerprints' in want:
-                    self.assertEqual(result.fingerprints, want['fingerprints'])
-                if 'sizes' in want:
-                    folder = FIXTURES / case / variant
-                    self.assertEqual({n: (folder / n).stat().st_size for n in want['sizes']}, want['sizes'])
-                if 'import_outcomes' in want:
-                    got_summary = {'|'.join(k): {'loan_months': n, 'balance': b}
-                                   for k, (n, b) in result.outcome_summary.items()}
-                    self.assertEqual(got_summary, {k: {'loan_months': v['loan_months'], 'balance': Decimal(v['balance'])}
-                                                   for k, v in want['import_outcomes'].items()})
-                if 'comparison_count' in want:
-                    self.assertEqual(len(result.comparisons), want['comparison_count'])
-                    self.assertEqual([[k, m, *(str(x) for x in values)] for k, m, *values in result.comparisons
-                                      if values[2] != 0], want['comparison_differences'])
+                self.assert_findings(result, want)
+                self.assert_measures(FIXTURES / case / variant, result, want)
         return results
+
+    def assert_findings(self, result: reader.Result, want: dict[str, Any]) -> None:
+        """Warnings, totals, gaps, missing extracts and control differences, where expected."""
+        if 'warnings' in want:
+            self.assertEqual([list(w) for w in result.warnings], want['warnings'])
+        if 'warning_counts' in want:
+            self.assertEqual(dict(Counter(w[2] for w in result.warnings)), want['warning_counts'])
+        if 'totals' in want:
+            got_totals = {'|'.join(k): v for k, v in result.totals.items()}
+            self.assertEqual(sorted(got_totals), sorted(want['totals']))
+            for key, measures in want['totals'].items():
+                full = {m: Decimal(measures.get(m, '0')) for m in reader.RECON_MEASURES}
+                self.assertEqual(got_totals[key], full, key)
+        if 'gaps' in want:
+            self.assertEqual([list(g) for g in result.gaps], want['gaps'])
+        if 'missing_extracts' in want:
+            self.assertEqual(result.missing_extracts, want['missing_extracts'])
+        if 'control_differences' in want:
+            self.assertEqual([list(d) for d in result.control_differences], want['control_differences'])
+
+    def assert_measures(self, folder: Path, result: reader.Result, want: dict[str, Any]) -> None:
+        """Loan months, outcomes, counts, fingerprints, sizes and the import summary, where expected."""
+        for key, month in want.get('loan_months', {}).items():
+            available, prepaid = result.loan_months[tuple(key.split('|'))]
+            self.assertEqual(available, Decimal(month['available']))
+            self.assertEqual(prepaid, Decimal(month['prepaid']))
+            if 'smm' in month:
+                self.assertEqual(prepaid / available, Decimal(month['smm']))
+        if 'outcomes' in want:
+            got = {f'{loan}|{start}': outcome for (loan, start), outcome in result.outcomes.items()}
+            self.assertEqual(got, want['outcomes'])
+        if 'counts' in want:
+            self.assertEqual(result.counts, want['counts'])
+        if 'fingerprints' in want:
+            self.assertEqual(result.fingerprints, want['fingerprints'])
+        if 'sizes' in want:
+            self.assertEqual({n: (folder / n).stat().st_size for n in want['sizes']}, want['sizes'])
+        if 'import_outcomes' in want:
+            got_summary = {'|'.join(k): {'loan_months': n, 'balance': b}
+                           for k, (n, b) in result.outcome_summary.items()}
+            self.assertEqual(got_summary, {k: {'loan_months': v['loan_months'], 'balance': Decimal(v['balance'])}
+                                           for k, v in want['import_outcomes'].items()})
+        if 'comparison_count' in want:
+            self.assertEqual(len(result.comparisons), want['comparison_count'])
+            self.assertEqual([[k, m, *(str(x) for x in values)] for k, m, *values in result.comparisons
+                              if values[2] != 0], want['comparison_differences'])
 
     def test_data_ident_01(self) -> None:
         self.run_case('DATA-IDENT-01')
