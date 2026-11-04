@@ -32,7 +32,7 @@ The required check is the `integrity` job of the `Repository integrity` workflow
 
 ## Security features
 
-Private vulnerability reporting, Dependabot alerts, secret scanning and push protection are on. Dependabot security updates are off: GitHub opens those PRs against `main`, outside the release-branch flow, so I take a security update through a task PR into the active release branch instead.
+Private vulnerability reporting, Dependabot alerts, secret scanning and push protection are on. Dependabot security updates are off: GitHub opens those PRs against `main`, outside the release-branch flow, so I take a security update through a task PR into the active release branch instead. The check counts security updates that GitHub reports as enabled but paused as not in effect, and records them as `on (paused)`.
 
 ## Settings outside the baseline
 
