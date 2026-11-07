@@ -2,6 +2,8 @@
 
 ![K-IRRBB Prepayment Models: specifications only; planned loan-prepayment modelling and independent challenge](docs/assets/prepayment-social-preview.png)
 
+The branding graphic retains an earlier specifications-only label; the current development status is stated below.
+
 ### Transparent loan-prepayment assumptions in Excel/VBA
 
 [![Status](https://img.shields.io/badge/Status-Prototype_development-6e7781?style=for-the-badge)](docs/Milestones/README.md)
@@ -18,7 +20,7 @@
 
 This project is intended to provide transparent tools for developing and independently challenging loan-prepayment assumptions used in IRRBB and ALM. The intended Excel/VBA workflow covers input checks, behavioural assumptions, calibration, scenarios, backtesting and controlled export of parameters or behavioural cash flows.
 
-**Current status: prototype development.** Repository setup (v0.1.0) closed on 2026-10-21; prototype setup (v0.2.0) is open. Committed source includes workbook build/export tooling, SMM/CPR conversions, a VBA importer with its facade and workbook adapter, and a 16-case VBA harness. All twelve DATA cases have independent Python references that run offline. No Windows Excel build, compilation or execution is established; calibration, projections, EVE and gap calculations remain unimplemented. No workbook or validated model output has been released. The branding graphic above retains the earlier specifications-only label.
+**Current status: prototype development.** Repository setup (v0.1.0) closed on 2026-10-21; prototype setup (v0.2.0) is open. Committed source includes workbook build/export tooling, SMM/CPR conversions, a VBA importer with its facade and workbook adapter, and a 16-case VBA harness. All twelve DATA cases have independent Python references that run offline. No Windows Excel build, compilation or execution is established; calibration, projections, EVE and gap calculations remain unimplemented. No workbook or validated model output has been released.
 
 ## Scope and boundaries
 
