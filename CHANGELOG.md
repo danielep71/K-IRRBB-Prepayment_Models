@@ -10,6 +10,8 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- Prototype-setup milestone guide (#40): maps the deferred deliverables and dependencies, separates specification, implementation, independent-reference and Windows Excel evidence, and records the unaccepted status of prototype #19 and the boundary for any later roadmap.
+
 - Traffic history push retry (#152): when `traffic-history` moved after it was fetched, the collect job fetches the new tip, merges the same API responses again and retries the push, up to three attempts, never force-pushing; it fails with a clear message after the third. `tools/quality_test_traffic.py` checks the loop.
 - Paused security updates read back faithfully (#151): `tools/setup_repository.py` distinguishes Dependabot security updates that are enabled, paused or disabled. Paused updates count as not in effect, are drift when the baseline wants them on, appear as `on (paused)` in the evidence record, and make `--apply` fail its read-back if they stay paused; offline tests cover each state.
 - Traceable integrity reports (#150): the *Repository integrity* job uploads `test-results/integrity.txt` as `integrity-<commit>-<run>-<attempt>`, keeps it 30 days, uploads it even when a step fails, and fails the upload if the report is missing. `tools/quality_test_integrity.py` checks these settings.
