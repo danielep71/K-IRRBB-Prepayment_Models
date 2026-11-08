@@ -66,6 +66,8 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Fixed
 
+- Keep the branding caveat beside the README image rather than inside the project-status paragraph, so the portfolio hub can quote the status without an absent-image reference (danielep71/K-Risk-Engines#198).
+
 - Delivery status in the specifications and reference docs (#92): the README, `REPOSITORY_STRUCTURE.md`, the workbook, data, model and test-case contracts, the validation plan, Excel evidence, `src/`, `tests/` and the tooling guides state what is built (template tooling, rate conversions, the VBA import with its facade and adapter, a 16-case harness; all twelve `DATA-*` cases in Python, eleven also in VBA) and that nothing has run in Windows Excel. Earlier changelog counts are qualified with the PR that reached them. The milestone index records the v0.2.0 due date. Dated decisions and provenance are unchanged.
 
 
