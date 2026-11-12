@@ -17,6 +17,10 @@ python tools/setup_repository.py --repo danielep71/K-IRRBB-Prepayment_Models --a
 - Rulesets outside the baseline are reported as unmanaged and never changed or deleted; I delete one by hand when a managed ruleset replaces it.
 - `tools/test_setup_repository.py` tests the script offline against a fake API.
 
+## Merge methods
+
+The repository allows merge commits and squash merges, and not rebase merges. The rulesets narrow them per branch: merge commits only into main, and merge or squash into a release branch. Task PRs are squash-merged; integration and sync PRs use merge commits.
+
 ## Rulesets
 
 | Ruleset | Applies to | Rules |
@@ -28,7 +32,7 @@ python tools/setup_repository.py --repo danielep71/K-IRRBB-Prepayment_Models --a
 
 No ruleset has bypass actors, and none requires an approving review: I cannot approve my own PRs, and my review remains required by policy. `release/**` covers every release branch, so a new milestone's branch is protected from its creation.
 
-The required check is the `integrity` job of the `Repository integrity` workflow (GitHub Actions, app 15368). Event-specific metadata, triage or label jobs are not required checks because they do not run on every PR. *CodeQL*, *Link check* and the *Minimum Python* job are not required checks either.
+The required check is the `integrity` job of the `Repository integrity` workflow (GitHub Actions, app 15368). Event-specific metadata, triage or label jobs are not required checks because they do not run on every PR. *CodeQL*, *Link check* and the *Minimum runtimes* job are not required checks either.
 
 ## Security features
 

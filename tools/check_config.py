@@ -11,6 +11,12 @@ import yaml
 RELEASE_BRANCH = re.compile(r'release/\d+\.\d+\.\d+')
 # Every pip install of the hash-locked tools must verify hashes and refuse source builds.
 PIP_FLAGS = ('--require-hashes', '--only-binary=:all:')
+# A run step that starts Python or Node.js needs the interpreter installed by an earlier
+# setup step of the same job, at an exact X.Y.Z version, not the runner image's copy.
+RUNTIMES = {'python': ('actions/setup-python@', 'python-version'),
+            'node': ('actions/setup-node@', 'node-version')}
+RUNTIME_COMMAND = re.compile(r'(?:^|[\s;&|(])(python3?|node)(?=\s|$)', re.M)
+EXACT_VERSION = re.compile(r'\d+\.\d+\.\d+')
 REQUIREMENT = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]*==[^\s;]+(?:\s+--hash=sha256:[0-9a-f]{64})+')
 # Fields each issue form must require, so triage starts from verifiable reports.
 REQUIRED_FORM_FIELDS = {
@@ -67,8 +73,28 @@ def inspect_config(root: Path) -> list[str]:
     return errors
 
 
+def runtime_errors(steps: list[dict[str, Any]]) -> list[str]:
+    """Runtimes that a run step starts before a setup step installed them at an exact version."""
+    installed: set[str] = set()
+    errors = []
+    for step in steps:
+        action = str(step.get('uses', ''))
+        for runtime, (prefix, key) in RUNTIMES.items():
+            if action.startswith(prefix):
+                version = str((step.get('with') or {}).get(key, ''))
+                if not EXACT_VERSION.fullmatch(version):
+                    errors.append(f'{prefix.rstrip("@")} needs an exact {key}, not {version!r}')
+                installed.add(runtime)
+        for command in RUNTIME_COMMAND.findall(str(step.get('run', ''))):
+            runtime = 'node' if command == 'node' else 'python'
+            if runtime not in installed:
+                errors.append(f'{command} runs before {RUNTIMES[runtime][0].rstrip("@")} installs it')
+    return errors
+
+
 def check_workflow(data: dict[Any, Any]) -> None:
-    """Actions are SHA-pinned, checkouts persist no credentials and pip installs verify hashes."""
+    """Actions are SHA-pinned, checkouts persist no credentials, pip installs verify hashes and
+    runtimes are installed at an exact version before use."""
     for job in data.get('jobs', {}).values():
         for step in [job, *job.get('steps', [])]:
             action = step.get('uses', '')
@@ -81,6 +107,9 @@ def check_workflow(data: dict[Any, Any]) -> None:
             for command in pip_installs(str(step.get('run', ''))):
                 if not all(flag in command.split() for flag in PIP_FLAGS):
                     raise ValueError(f'pip install without {" ".join(PIP_FLAGS)}: {command}')
+        problems = runtime_errors(job.get('steps', []))
+        if problems:
+            raise ValueError(problems[0])
 
 
 def check_issue_form(name: str, data: dict[Any, Any], labels: set[str]) -> None:

@@ -4,7 +4,7 @@ There is no workbook, add-in or prepayment engine to install yet.
 
 ## Current prerequisites
 
-You need Git, **Python 3.10+** and **Node.js 22+**. The baseline checks use standard libraries only: they need no package installation, token or Excel instance. CI runs them on Python 3.13 and Node.js 24, and the non-required *Minimum Python (3.10)* job runs them on the 3.10 floor.
+You need Git, **Python 3.10+** and **Node.js 22+**. The baseline checks use standard libraries only: they need no package installation, token or Excel instance. CI runs them on Python 3.13 and Node.js 24, and the non-required *Minimum runtimes (Python 3.10, Node.js 22)* job runs them on both floors.
 
 ```sh
 git clone https://github.com/danielep71/K-IRRBB-Prepayment_Models.git
