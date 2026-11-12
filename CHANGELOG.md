@@ -60,6 +60,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Changed
 
+- Repository settings tool (#189–#195): `tools/setup_repository.py` follows MyTemplate `887f4b7` with baseline schema 4. Preview and `--check` run without admin rights and report what they cannot read as unknown (drift), including a ruleset whose bypass list GitHub omits; the baseline states five GitHub Actions settings, read and compared but never written; preview prints a plan digest that `--apply` must approve with `--approve-plan`, and apply journals each write to a new `--journal` file; `--evidence` writes a JSON record with the baseline's SHA-256; a managed ruleset that other active rulesets already enforce at least as strictly is `covered`. Paused Dependabot security updates count as still enabled. The tests run against the template's baseline as a fixture and check this repository's baseline separately.
 - `RATE-CONV-01` (#42): at SMM 0.999999 the CPR rounds to 1 in double precision, so that grid point checks `CPR = 1` instead of a round trip.
 - Workbook contract layout (#43): the tables of a sheet sit side by side from column C, so a growing table cannot overwrite the one below it; found while generating the template.
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
