@@ -78,8 +78,6 @@
         ".github/workflows/codeql.yml",
         ".github/workflows/link-check.yml",
         ".github/workflows/pr-milestones.yml",
-        "tools/setup_repository.py",
-        "tools/test_setup_repository.py",
         "tools/check_issues.py",
         "tools/test_check_issues.py",
         ".github/workflows/issue-triage.yml"
@@ -91,6 +89,16 @@
       "treatment": "Adapted from my own template's release/0.3.0: the Markdown helpers are a module shared by this repository's label scripts; the in-use check before label pruning was ported into labels-sync.mjs, whose provenance stays with its original source.",
       "files": [
         ".github/scripts/markdown.mjs"
+      ]
+    },
+    {
+      "repository": "https://github.com/danielep71/MyTemplate",
+      "reference_revision": "887f4b7d7ae66b905e31ebac4b406226bae36931",
+      "treatment": "Adapted from my own template's main: the settings tool (schema 4: Actions settings, unknown values, plan digest, approved apply with a journal, JSON evidence, covered rulesets) with this repository's baseline path, guide and Python 3.10 floor; its tests run against the template's baseline, copied unchanged as the fixture, and separately check this repository's baseline.",
+      "files": [
+        "tools/setup_repository.py",
+        "tools/test_setup_repository.py",
+        "tools/setup_repository_fixture.json"
       ]
     }
   ]
