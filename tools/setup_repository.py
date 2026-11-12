@@ -540,21 +540,27 @@ def assess(config: dict[str, Json], state: dict[str, Json]) -> dict[str, Json]:
             'inherited_rulesets': sorted(state['inherited'])}
 
 
-def plan_digest(repo: str, config_sha256: str, report: dict[str, Json], steps: Plan) -> str:
+def plan_digest(repo: str, config_sha256: str, report: dict[str, Json], steps: Plan,
+                rulesets: list[Json] | None = None) -> str:
     """SHA-256 of the plan: repository, configuration, observed managed values and exact writes.
 
+    The observed definitions of the live rulesets that cover a managed one are
+    included, so an approval goes stale when the covering protection changes.
     Sources and timestamps are left out, so the same unchanged repository and
     configuration give the same digest, and any change to either changes it.
     """
     def stable(rows: list[Row]) -> list[Row]:
         return [{key: value for key, value in row.items() if key != 'source'} for row in rows]
+    covering = sorted({name for row in report['rulesets'] for name in row.get('covered_by') or []})
+    definitions = {name: [rule_spec(r) for r in rulesets or [] if r.get('name') == name] for name in covering}
     document = {
         'repository': repo, 'configuration_sha256': config_sha256,
         'observed': {'visibility': report['visibility'], 'settings': report['settings'],
                      'security': stable(report['security']), 'actions': stable(report['actions']),
                      'rulesets': report['rulesets'],
                      'unmanaged_rulesets': sorted(report['unmanaged_rulesets']),
-                     'inherited_rulesets': sorted(report['inherited_rulesets'])},
+                     'inherited_rulesets': sorted(report['inherited_rulesets']),
+                     'covering_rulesets': definitions},
         'writes': [{'method': method, 'endpoint': endpoint, 'payload': payload}
                    for method, endpoint, payload in steps],
     }
@@ -794,6 +800,10 @@ def check_prerequisites(state: dict[str, Json], report: dict[str, Json]) -> None
     unknown = [row['setting'] for row in report['settings'] if row['observed'] is None]
     unknown += [row['feature'] for row in report['security']
                 if row['matches'] is not None and row['observed'] is None]
+    # Actions settings are never written, but an unknown one would only fail the
+    # read-back after the other writes; refuse before any write instead.
+    unknown += [row['setting'] for row in report['actions']
+                if row['matches'] is not None and row['observed'] is None]
     unknown += [f'ruleset "{row["name"]}"' for row in report['rulesets'] if row['status'] == 'unknown']
     if unknown:
         raise SetupError('Cannot apply while these managed values are unknown: ' + ', '.join(unknown)
@@ -903,7 +913,8 @@ def run(args: argparse.Namespace, call: Call = api, now: datetime | None = None)
     state = observe(call, args.repo, config)
     report = assess(config, state)
     steps = plan(config, report, args.repo)
-    digest = plan_digest(state['metadata'].get('full_name', args.repo), config_sha256, report, steps)
+    digest = plan_digest(state['metadata'].get('full_name', args.repo), config_sha256, report, steps,
+                         state['rulesets'])
     print_notes(config, state, report)
     print_differences(report)
     print_plan(steps)
@@ -912,7 +923,8 @@ def run(args: argparse.Namespace, call: Call = api, now: datetime | None = None)
         check_approval(args, digest)
         check_prerequisites(state, report)
         state, report, steps = apply(call, args, config, state, report, steps, digest, config_sha256, started)
-        digest = plan_digest(state['metadata'].get('full_name', args.repo), config_sha256, report, steps)
+        digest = plan_digest(state['metadata'].get('full_name', args.repo), config_sha256, report, steps,
+                             state['rulesets'])
     stamp = now or datetime.now(timezone.utc)
     if getattr(args, 'report', None):
         write_text(args.report, markdown_record(state, report, digest, mode, stamp), 'Record')

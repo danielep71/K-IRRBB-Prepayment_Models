@@ -427,7 +427,7 @@ class SetupTests(unittest.TestCase):
         self.assertIn(f'DIFF ruleset "Protect main" ({main["id"]}) bypass_actors: observed', output)
 
     def test_apply_refuses_a_ruleset_it_cannot_verify(self) -> None:
-        report = {'visibility': {'matches': True}, 'settings': [], 'security': [],
+        report = {'visibility': {'matches': True}, 'settings': [], 'security': [], 'actions': [],
                   'rulesets': [{'name': 'Protect main', 'id': 1, 'status': 'unknown', 'differences': []}]}
         state = {'metadata': {'permissions': {'admin': True}}}
         with self.assertRaisesRegex(setup.SetupError, 'unknown: ruleset "Protect main"'):
@@ -702,6 +702,14 @@ class SetupTests(unittest.TestCase):
                       '[GET actions/permissions/workflow (HTTP 403: unreadable)]', output)
         # One read per endpoint, even for two settings.
         self.assertEqual(self.api.reads.count(REPO + '/actions/permissions/workflow'), 1)
+
+    def test_apply_refuses_an_unknown_actions_setting_before_any_write(self) -> None:
+        self.api.forbidden.add('actions/permissions/workflow')
+        self.approve()
+        with self.assertRaisesRegex(setup.SetupError, 'unknown: default_workflow_permissions, '
+                                                      'can_approve_pull_request_reviews'):
+            self.run_setup()
+        self.assertEqual(self.api.writes, [])
 
     def test_fork_approval_policy_applies_to_public_repositories_only(self) -> None:
         self.configure()
@@ -1026,6 +1034,20 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(self.run_setup(), 0)
         self.assertEqual(self.api.writes, [])
         self.assertEqual(history['name'], 'History')
+
+    def test_the_digest_binds_the_definition_of_a_covering_ruleset(self) -> None:
+        self.configure()
+        history = self.rename('Protect traffic history', 'History')
+        before = self.digest()
+        # Stricter still covers, so the plan stays empty, but the approval must go stale.
+        history['rules'].append({'type': 'update'})
+        self.assertEqual(self.ruleset_row('Protect traffic history')['status'], 'covered')
+        self.assertNotEqual(self.digest(), before)
+        self.args.approve_plan = before
+        self.args.journal = self.journals / 'stale.json'
+        self.args.apply = True
+        with self.assertRaisesRegex(setup.SetupError, 'plan differs from the approved one'):
+            self.run_setup()
 
     def test_coverage_follows_all_refs_and_the_default_branch(self) -> None:
         self.configure()
