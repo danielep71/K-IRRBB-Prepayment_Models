@@ -70,10 +70,10 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  minimum-python:
+  minimum-runtimes:
     # Not a required check: it runs the offline checks on the minimum Python
-    # version that INSTALLATION.md documents, which needs no packages.
-    name: Minimum Python (3.10)
+    # and Node.js versions that INSTALLATION.md documents; they need no packages.
+    name: Minimum runtimes (Python 3.10, Node.js 22)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -85,7 +85,7 @@ jobs:
           python-version: "3.10.22"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24.22.2"
+          node-version: "22.23.5"
           package-manager-cache: false
       - name: Run the offline checks
         run: |

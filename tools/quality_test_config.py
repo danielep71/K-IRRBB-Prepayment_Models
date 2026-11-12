@@ -11,8 +11,12 @@ from check_config import (
     dependabot_targets,
     inspect_config,
     logical_lines,
+    runtime_errors,
     unrequired_fields,
 )
+
+SETUP_PYTHON: dict[str, Any] = {'uses': 'actions/setup-python@' + '0' * 40, 'with': {'python-version': '3.13.18'}}
+SETUP_NODE: dict[str, Any] = {'uses': 'actions/setup-node@' + '0' * 40, 'with': {'node-version': '22.23.5'}}
 
 
 class ConfigTests(unittest.TestCase):
@@ -50,6 +54,23 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(form=form):
                 data = yaml.safe_load((forms / form).read_text(encoding='utf-8'))
                 self.assertEqual(unrequired_fields(form, data['body']), [])
+
+    def test_runtimes_must_be_installed_at_an_exact_version_first(self) -> None:
+        self.assertEqual(runtime_errors([SETUP_PYTHON, SETUP_NODE,
+                                         {'run': 'python tools/check.py && node x.mjs'}]), [])
+        self.assertEqual(runtime_errors([{'run': 'echo "python 3"'}]), [])
+        cases: list[tuple[list[dict[str, Any]], str]] = [
+            ([{'run': 'python3 script.py'}], 'python3 runs before actions/setup-python'),
+            ([{'run': "python - <<'PY'\nPY"}], 'python runs before actions/setup-python'),
+            ([{'run': 'set -e\nnode a.mjs'}, SETUP_NODE], 'node runs before actions/setup-node'),
+            ([SETUP_PYTHON, {'run': 'cd x && node a.mjs'}], 'node runs before actions/setup-node'),
+            ([{'uses': SETUP_NODE['uses'], 'with': {'node-version': '22.x'}}],
+             "needs an exact node-version, not '22.x'"),
+            ([{'uses': SETUP_PYTHON['uses']}], "needs an exact python-version, not ''")]
+        for steps, expected in cases:
+            with self.subTest(steps=steps):
+                errors = runtime_errors(steps)
+                self.assertTrue(any(expected in error for error in errors), errors)
 
     def test_quoted_action_tag_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

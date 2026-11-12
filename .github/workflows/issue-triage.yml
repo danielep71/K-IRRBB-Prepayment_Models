@@ -4,9 +4,10 @@ name: Issue triage
 # workflow cannot decide: exactly one priority, P1 only on bugs, an open
 # milestone, a target end date before that milestone's due date, a dependency
 # section, catalogue labels, and `blocked` exactly while a named prerequisite
-# is open. Read-only: it never changes an issue. A failed run is the triage
-# signal; I resolve each finding by hand (docs/GOVERNANCE.md). Issue and
-# milestone events run the workflow from the default branch only.
+# is open or an external condition holds. Read-only: it never changes an
+# issue. A failed run is the triage signal; I resolve each finding by hand
+# (docs/GOVERNANCE.md). Issue and milestone events run the workflow from the
+# default branch only.
 
 on:
   issues:

@@ -1,8 +1,6 @@
 # K-IRRBB Prepayment Models
 
-![K-IRRBB Prepayment Models: specifications only; planned loan-prepayment modelling and independent challenge](docs/assets/prepayment-social-preview.png)
-
-The branding graphic retains an earlier specifications-only label; the current development status is stated below.
+![K-IRRBB Prepayment Models: prototype development; planned loan-prepayment modelling and independent challenge, no validated outputs](docs/assets/prepayment-social-preview.png)
 
 ### Transparent loan-prepayment assumptions in Excel/VBA
 
@@ -42,7 +40,7 @@ The implemented scope is rate conversion and data import, validation and reconci
 | [Structure](docs/REPOSITORY_STRUCTURE.md) | Core, facade and Excel boundaries |
 | [Excel evidence](docs/EXCEL_EVIDENCE.md) | What a real Excel run must record (none exists yet) |
 | [Workbook contract](docs/WORKBOOK_CONTRACT.md) | Accepted sheet, name and output layout (#38); template tooling exists, Excel build unverified (#43) |
-| [Methodology contracts](docs/methodology/README.md) | Accepted contracts; data references and initial VBA delivered, regulatory sources unverified |
+| [Methodology contracts](docs/methodology/README.md) | Accepted contracts; data references and initial VBA delivered, regulatory sources verified (#45) |
 | [Foundation closeout](docs/FOUNDATION_CLOSEOUT.md) | Setup gates, NMD comparison and deferred gaps |
 | [Milestones](docs/Milestones/README.md) | Closed setup milestone and the open successor |
 | [Governance](docs/GOVERNANCE.md) | Metadata, review and closure rules |

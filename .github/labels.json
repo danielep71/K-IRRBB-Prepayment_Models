@@ -10,12 +10,12 @@
     {
       "name": "blocked",
       "color": "B60205",
-      "description": "Cannot proceed until a named dependency is complete"
+      "description": "Cannot proceed while a named prerequisite is open or an external condition holds"
     },
     {
       "name": "bug",
       "color": "D73A4A",
-      "description": "Confirmed defect in behavior, correctness, error handling, or a documented contract"
+      "description": "Reported or confirmed defect in behavior, correctness, error handling, or a documented contract"
     },
     {
       "name": "ci",
