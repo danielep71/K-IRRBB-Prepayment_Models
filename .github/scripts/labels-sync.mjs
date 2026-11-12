@@ -364,33 +364,45 @@ async function labelInUse(repository, token, name) {
   return batch.length > 0;
 }
 
-// Deleting a label removes it from every issue and pull request, closed ones
-// included, and cannot be undone, so refuse before any change is applied.
-export async function assertSafeDeletions(changes, isInUse) {
-  const ambiguous = [];
+// The planned deletions that an issue or pull request still carries, read
+// without any change: a dry run previews them, a real run refuses on them.
+// The labels filter is a comma-separated list, so a name with a comma cannot be
+// queried and counts as unverifiable.
+export async function deletionsInUse(changes, isInUse) {
   const inUse = [];
+  const ambiguous = [];
   for (const change of changes) {
     if (change.action !== "delete") continue;
-    // The labels filter is a comma-separated list, so such a name cannot be queried.
     if (change.currentName.includes(",")) {
       ambiguous.push(change.currentName);
     } else if (await isInUse(change.currentName)) {
       inUse.push(change.currentName);
     }
   }
+  return { inUse, ambiguous };
+}
+
+export function blockedDeletions(usage) {
+  return [...usage.inUse, ...usage.ambiguous];
+}
+
+export function deletionRefusal(usage) {
   const problems = [];
-  if (inUse.length > 0) {
-    problems.push(`still used by an issue or pull request: ${inUse.map(name => JSON.stringify(name)).join(", ")}`);
+  if (usage.inUse.length > 0) {
+    problems.push(`still used by an issue or pull request: ${usage.inUse.map(name => JSON.stringify(name)).join(", ")}`);
   }
-  if (ambiguous.length > 0) {
-    problems.push(`named with a comma, so their use cannot be checked: ${ambiguous.map(name => JSON.stringify(name)).join(", ")}`);
+  if (usage.ambiguous.length > 0) {
+    problems.push(`named with a comma, so their use cannot be checked: ${usage.ambiguous.map(name => JSON.stringify(name)).join(", ")}`);
   }
-  if (problems.length > 0) {
-    throw new Error(
-      `Refusing to prune labels ${problems.join("; ")}. No change was applied. `
-      + "Remove each label from its issues and pull requests, or add it to the manifest."
-    );
-  }
+  return `Refusing to prune labels ${problems.join("; ")}. No change was applied. `
+    + "Remove each label from its issues and pull requests, or add it to the manifest.";
+}
+
+// Deleting a label removes it from every issue and pull request, closed ones
+// included, and cannot be undone, so refuse before any change is applied.
+export async function assertSafeDeletions(changes, isInUse) {
+  const usage = await deletionsInUse(changes, isInUse);
+  if (blockedDeletions(usage).length > 0) throw new Error(deletionRefusal(usage));
 }
 
 async function applyChanges(repository, token, changes) {
@@ -425,6 +437,7 @@ function renderSummary({
   changes = [],
   verified = null,
   dryRun = false,
+  usage = null,
   error = null
 }) {
   const coreLabels = manifest?.core ?? [];
@@ -447,7 +460,8 @@ function renderSummary({
     `- Domain overlays: **${domains.length > 0 ? domains.join(", ") : "none"}**`,
     `- Prune: **${manifest?.prune ? "enabled" : "disabled"}**`,
     `- Planned changes: **${changes.length}**`,
-    `- Create / update / delete: **${counts.create} / ${counts.update} / ${counts.delete}**`
+    `- Create / update / delete: **${counts.create} / ${counts.update} / ${counts.delete}**`,
+    `- Deletions blocked (in use or unverifiable): **${usage === null ? "not checked (no repository read)" : blockedDeletions(usage).length}**`
   ];
   if (verified !== null) lines.push(`- Post-run exact match: **${verified ? "yes" : "no"}**`);
   lines.push(
@@ -465,9 +479,16 @@ function renderSummary({
     lines.push("", "No label changes are required.");
   } else {
     lines.push("", "| Action | Label | Detail |", "|---|---|---|");
+    const blocked = new Set(usage === null ? [] : blockedDeletions(usage));
     for (const change of changes) {
-      const detail = change.action === "update" ? change.fields.join(", ") : change.action === "delete" ? "outside selected manifest" : "missing live label";
+      const detail = change.action === "update" ? change.fields.join(", ")
+        : change.action === "delete" ? (blocked.has(change.currentName)
+          ? "outside selected manifest; blocked, a real run would refuse it" : "outside selected manifest")
+          : "missing live label";
       lines.push(`| ${change.action} | ${inlineCode(change.name, { table: true })} | ${markdownEscape(detail)} |`);
+    }
+    if (dryRun && usage !== null && blockedDeletions(usage).length > 0) {
+      lines.push("", `A real run would refuse every change. ${markdownEscape(deletionRefusal(usage))}`);
     }
   }
   return `${lines.join("\n")}\n`;
@@ -643,6 +664,42 @@ async function runSelfTest(manifestPath, policyPath) {
     /named with a comma/);
   await assertSafeDeletions(planChanges(desired, structuredClone(desired)), usage(["anything"]));
 
+  // A dry run reads label use, lists every change, marks the blocked deletion
+  // and says a real run would refuse; it does not throw.
+  const blockedUsage = await deletionsInUse(pruned, usage(["in-use"]));
+  assert.deepEqual(blockedUsage, { inUse: ["in-use"], ambiguous: [] });
+  const dryRunSummary = renderSummary({
+    mode: "reconcile",
+    manifest: selectedOverlay,
+    manifestPath: "fixture-labels.json",
+    policyPath: "fixture-policy.json",
+    desiredLabels: desired,
+    profile: null,
+    domains: [],
+    changes: pruned,
+    usage: blockedUsage,
+    dryRun: true
+  });
+  assert.match(dryRunSummary, /Deletions blocked \(in use or unverifiable\): \*\*1\*\*/);
+  assert.match(dryRunSummary, /\| delete \| `in-use` \| outside selected manifest; blocked, a real run would refuse it \|/);
+  assert.match(dryRunSummary, /\| delete \| `unused` \| outside selected manifest \|/);
+  assert.match(dryRunSummary, /A real run would refuse every change\. Refusing to prune labels still used/);
+  const cleanSummary = renderSummary({
+    mode: "reconcile",
+    manifest: selectedOverlay,
+    manifestPath: "fixture-labels.json",
+    policyPath: "fixture-policy.json",
+    desiredLabels: desired,
+    profile: null,
+    domains: [],
+    changes: pruned,
+    usage: await deletionsInUse(pruned, usage([])),
+    dryRun: true
+  });
+  assert.match(cleanSummary, /Deletions blocked \(in use or unverifiable\): \*\*0\*\*/);
+  assert.doesNotMatch(cleanSummary, /A real run would refuse/);
+  assert.match(summary, /Deletions blocked \(in use or unverifiable\): \*\*not checked/);
+
   // Values from the manifest or the API cannot break out of a code span or a table cell.
   for (const [value, expected] of [
     ["plain", "`plain`"],
@@ -667,7 +724,7 @@ async function runSelfTest(manifestPath, policyPath) {
   assert.match(hostile, /\| create \| ``tick`\\\|label`` \| missing live label \|/);
   assert.match(renderSummary({ ...summaryFixture, error: "bad `value`\nhere" }), /``bad `value` here``/);
 
-  process.stdout.write("SELF-TEST PASS: retry delays, validation, policy, overlay, reconciliation, safe pruning and summary escaping fixtures\n");
+  process.stdout.write("SELF-TEST PASS: retry delays, validation, policy, overlay, reconciliation, safe pruning, dry-run preview and summary escaping fixtures\n");
 }
 
 async function main() {
@@ -709,19 +766,22 @@ async function main() {
   }
 
   const changes = planChanges(desired, live, { prune: manifest.prune });
-  if (options.mode === "reconcile") {
-    await assertSafeDeletions(changes, name => labelInUse(options.repository, process.env.GITHUB_TOKEN, name));
-  }
+  // Label use is read without any change; a dry run reports blocked deletions
+  // and succeeds, a real run refuses before the first change.
+  const usage = options.mode === "reconcile"
+    ? await deletionsInUse(changes, name => labelInUse(options.repository, process.env.GITHUB_TOKEN, name))
+    : null;
   if (options.mode === "plan" || options.dryRun) {
-    await publishSummary(renderSummary({ mode: options.mode, ...summaryBase, changes, dryRun: options.dryRun }));
+    await publishSummary(renderSummary({ mode: options.mode, ...summaryBase, changes, usage, dryRun: options.dryRun }));
     return;
   }
+  if (blockedDeletions(usage).length > 0) throw new Error(deletionRefusal(usage));
 
   await applyChanges(options.repository, process.env.GITHUB_TOKEN, changes);
   const after = await listLiveLabels(options.repository, process.env.GITHUB_TOKEN);
   const remaining = planChanges(desired, after, { prune: manifest.prune });
   const verified = remaining.length === 0;
-  await publishSummary(renderSummary({ mode: "reconcile", ...summaryBase, changes, verified }));
+  await publishSummary(renderSummary({ mode: "reconcile", ...summaryBase, changes, verified, usage }));
   if (!verified) throw new Error(`Post-run verification found ${remaining.length} remaining difference(s)`);
 }
 
