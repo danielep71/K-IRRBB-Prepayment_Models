@@ -1,0 +1,26 @@
+{
+  "record": "repository-settings-journal",
+  "tool": "tools/setup_repository.py",
+  "plan_sha256": "24aeb0bb5db4c20810279ed51c15c26d10f4b459fc9688a7743ee8ea4004b801",
+  "repository": "danielep71/K-IRRBB-Prepayment_Models",
+  "configuration_sha256": "1ff7bfd9a60b40a28cc4c3cc61c6441c6b0f93022b67dbfb07b04ac030c2b44a",
+  "started_at": "2026-11-12T19:58:40Z",
+  "writes": [
+    {
+      "method": "PATCH",
+      "endpoint": "repos/danielep71/K-IRRBB-Prepayment_Models",
+      "status": "done"
+    },
+    {
+      "method": "PUT",
+      "endpoint": "repos/danielep71/K-IRRBB-Prepayment_Models/private-vulnerability-reporting",
+      "status": "done"
+    },
+    {
+      "method": "PUT",
+      "endpoint": "repos/danielep71/K-IRRBB-Prepayment_Models/vulnerability-alerts",
+      "status": "done"
+    }
+  ],
+  "readback": "DRIFT"
+}
