@@ -1,6 +1,6 @@
 # Prepayment methodology contracts
 
-Status: **accepted on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify the implementation contract. Independent DATA references, rate-conversion VBA and the VBA importer with its workbook adapter exist (#41, #42). Calibration and projection models remain unimplemented. No Windows Excel execution or model validation is established. The EVE sensitivity and repricing-gap extension was accepted on 2026-10-21 (issue #72). Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md).
+Status: **accepted on 2026-10-21 (issue #14)**, with every decision as proposed. These documents specify the implementation contract. Independent DATA references, rate-conversion VBA and the VBA importer with its workbook adapter exist (#41, #42). Calibration and projection models remain unimplemented. No Windows Excel execution or model validation is established. The EVE sensitivity and repricing-gap extension was accepted on 2026-10-21 (issue #72). Figures attributed to a source are provisional until that source is verified in the [source register](SOURCES.md); the regulatory sources were verified on 2026-11-12 (#45).
 
 | Document | Authoritative for |
 | --- | --- |

@@ -86,7 +86,7 @@ Each needs at least one case with a hand-derived or independently computed resul
 - A zero shock reproduces `BASE` exactly.
 - For `PM1` loans, a parallel up shock gives a CPR path no higher than `BASE` at every month, and a parallel down shock no lower. Steepener, flattener and short-rate shocks follow the sign of the change in the refinancing rate at each loan's remaining term.
 - The post-shock floor is applied before the incentive is computed.
-- The standardised multiplier overlay gives `min(1, gamma x CPR_BASE)` and changes no fitted parameter. It stays provisional until `REG-1` is verified.
+- The standardised multiplier overlay gives `min(1, gamma x CPR_BASE)` (`REG-1` SRP31.119, `REG-4` Article 9(3)) and changes no fitted parameter.
 - Projected cash flows conserve balance in every scenario.
 - Each scenario discounts with its own shocked and floored curve, and `CONTRACT` never enters the worst ΔEVE (#72).
 

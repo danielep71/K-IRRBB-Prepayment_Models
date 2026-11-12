@@ -1,6 +1,6 @@
 # Model contracts
 
-Status: **accepted on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 were **accepted on 2026-10-21 (issue #72)**.
+Status: **accepted on 2026-10-21 (issue #14)**, with every [decision](#decisions) as proposed. Regulatory figures name their source in the [source register](SOURCES.md); every figure resting on an unverified source is provisional and may not be implemented as a rule until the source is verified. The regulatory sources were verified on 2026-11-12 (#45). The [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap) section and decisions M12–M18 were **accepted on 2026-10-21 (issue #72)**.
 
 This document is authoritative for the prepayment-rate conventions, the candidate models, the rate incentive, estimation and failure handling, projected behavioural cash flows, EVE sensitivity and the repricing gap, scenario and parameter outputs, and the separation of statistical estimates, behavioural assumptions and regulatory overlays. Inputs come from the [data contract](DATA_CONTRACT.md). Validation thresholds and evidence are in the [validation plan](VALIDATION_PLAN.md).
 
@@ -149,18 +149,18 @@ Overlays are applied after the fit, change no fitted parameter and are labelled 
 
 | Overlay | Rule | Source | Status |
 | --- | --- | --- | --- |
-| Supervisory scenarios | The six EVE scenarios and two NII scenarios named in `REG-3` Article 1 | `REG-3` | Scenario list verified in the NMD register; shock sizes per currency **not verified** |
-| Post-shock floor | A lower bound on the shocked rate: `floored = max(shocked rate, floor(m))` with `floor(m) = min(observed rate, min(0, -150bp + 3bp x m))` at maturity `m` years. The floor never replaces a shocked rate above it | `REG-3` Art. 3(7) | Verified in the NMD register |
-| Standardised prepayment multipliers | `CPR_s = min(1, gamma_s x CPR_BASE)` with `gamma_s = 0.8` for up, steepener and short-up and `1.2` for down, flattener and short-down, as reported by the prototype | `REG-1` | **Not verified**; provisional |
-| Supervisory expectations on behavioural assumptions | Governance of prepayment assumptions | `REG-2` | **Not verified** |
-| Loan-book ΔEVE indicator | Raised when `-worst dEVE / Tier1 > 0.15` | `REG-1`, `REG-5` | **Not verified**; provisional (M16, #72) |
-| Repricing-gap buckets | The 19 time buckets of `REG-1` Table 1 | `REG-1` | **Not verified**; provisional (M17, #72) |
+| Supervisory scenarios | The six EVE scenarios and two NII scenarios named in `REG-3` Article 1, with the shapes of Article 2 and the shock sizes per currency of the Annex, Part A | `REG-3` | Verified (#45) |
+| Post-shock floor | A lower bound on the shocked rate: `floored = max(shocked rate, floor(m))` with `floor(m) = min(observed rate, min(0, -150bp + 3bp x m))` at maturity `m` years. The floor never replaces a shocked rate above it | `REG-3` Art. 3(7), Art. 4(1) | Verified (#45) |
+| Standardised prepayment multipliers | `CPR_s = min(1, gamma_s x CPR_BASE)` with `gamma_s = 0.8` for parallel up, steepener and short up and `1.2` for parallel down, flattener and short down. The toolkit applies `CPR_s` in its own monthly projection; it does not allocate prepaid amounts to time buckets as `REG-1` SRP31.121 and `REG-4` Article 9(4)–(5) do, so this layer is not a standardised-approach figure | `REG-1` SRP31.119, Table 5; `REG-4` Art. 9(3) | Verified (#45); `REG-4` states no cap at 1 |
+| Supervisory expectations on behavioural assumptions | Governance of prepayment assumptions: scenario-dependent prepayment speeds, back-testing, documentation, sensitivity testing and independent validation | `REG-2` paras 66, 67, 71(c), 106–109 | Verified (#45) |
+| Loan-book ΔEVE indicator | Raised when `-worst dEVE / Tier1 > 0.15` | `REG-5`; `REG-1` SRP31.82 | Threshold verified (#45); the indicator is a loan-book proxy, not the supervisory outlier test (M16, #72) |
+| Repricing-gap buckets | The 19 time buckets of `REG-1` Table 3 (SRP31.96), also `REG-4` Annex, point 1 | `REG-1`, `REG-4` | Verified (#45); M17 (#72) |
 
 The toolkit can report the internal-model CPR path and the standardised-multiplier CPR path side by side. Which one a bank uses for a regulatory purpose is outside the toolkit, which neither establishes compliance nor approves a model.
 
 ## EVE sensitivity and repricing gap
 
-Status: **accepted on 2026-10-21 (issue #72)**, with decisions M12–M18 and data decision D10 as proposed. Nothing here is implemented or validated. Every regulatory figure below is provisional until its source is verified (#45).
+Status: **accepted on 2026-10-21 (issue #72)**, with decisions M12–M18 and data decision D10 as proposed. Nothing here is implemented or validated. Its regulatory figures were verified against their sources on 2026-11-12 (#45); verification does not make the loan-book indicator the supervisory outlier test.
 
 The toolkit measures the **loan book's contribution** to the economic value of equity: the present value of the projected cash flows of the loans in the run, per segment and currency and in total per currency. It is not the bank-level supervisory outlier test, which needs every banking-book position, and it does not measure NII (decision M12).
 
@@ -199,7 +199,7 @@ Tier 1 capital is a run setting ([data contract](DATA_CONTRACT.md#tier-1-capital
 
 ### Repricing gap
 
-Principal cash flows (scheduled, prepaid and repricing) are placed in the time buckets of `REG-1` Table 1 by their payment time `k/12` years; each bucket includes its upper bound (decision M17).
+Principal cash flows (scheduled, prepaid and repricing) are placed in the time buckets of `REG-1` Table 3 by their payment time `k/12` years; each bucket includes its upper bound (decision M17).
 
 | # | Bucket (`t` in years) | # | Bucket (`t` in years) |
 | ---: | --- | ---: | --- |
@@ -254,7 +254,7 @@ Each model needs independent expected values with stated tolerances, an out-of-t
 | M11 | Predicted bucket value in the `PM1` fit | Exposure-weighted mean of loan-level model SMM over the bucket's loan-months | Accepted 2026-10-21 after review of #34 |
 | M12 | EVE scope | Loan-book contribution per segment and currency, in total per currency; no NII; not the supervisory outlier test | Accepted 2026-10-21 (#72) |
 | M13 | Discount curve | Supplied continuously compounded zero rates on the `k/12` grid, linear interpolation, flat extrapolation, shocked and floored per scenario; no bootstrapping | Accepted 2026-10-21 (#72) |
-| M14 | Commercial margins | Included: interest projected at the client rate; an exclusion option waits for verification of `REG-3` (#45) | Accepted 2026-10-21 (#72) |
+| M14 | Commercial margins | Included: interest projected at the client rate. `REG-3` Article 3(5) leaves the EVE treatment of margins to the institution's internal approach; excluding them needs a risk-free rate identified at each instrument's inception, so no exclusion option is specified (#45) | Accepted 2026-10-21 (#72) |
 | M15 | ΔEVE and worst case | `PV_s - PV_BASE` per CPR layer (internal model; standardised multipliers when requested), never mixed; worst over the six supervisory scenarios; `CONTRACT` and user shocks excluded from the worst case | Accepted 2026-10-21 (#72) |
 | M16 | ΔEVE / Tier 1 and indicator | `-worst dEVE / Tier1` in the Tier 1 currency only; indicator above 0.15; overlay, provisional | Accepted 2026-10-21 (#72) |
 | M17 | Repricing gap | 19 `REG-1` buckets, upper bound inclusive; principal only; `CONTRACT`, `BASE` and each scenario; reset balances at the next reset | Accepted 2026-10-21 (#72) |

@@ -89,7 +89,7 @@ Table `Assumptions_Segments`, one row per segment in `segment_list`: `segment`, 
 
 ### Scenarios
 
-- Table `Scenarios_Shocks`, one row per currency in `currency_allowlist`: parallel, short and long shock sizes in decimals and a status note. Shock sizes per currency come from `REG-3`, which is **not verified** (#45), so they are user inputs labelled provisional; the supervisory shapes are code constants.
+- Table `Scenarios_Shocks`, one row per currency in `currency_allowlist`: parallel, short and long shock sizes in decimals and a status note. Shock sizes per currency come from the `REG-3` Annex, Part A, verified on 2026-11-12 (#45). They stay user inputs, because a currency outside Part A needs the Part B calibration, which the toolkit does not perform, and an amendment of `REG-3` must not need a code change; the status note names the source of each row. The supervisory shapes of `REG-3` Article 2 are code constants.
 - Table `Scenarios_User`, optional user-defined shocks: `scenario_id`, `currency`, type `PARALLEL` or `RAMP`, size in decimals and ramp months. They report their own ΔEVE and never enter the worst case (M15).
 
 ### Controls

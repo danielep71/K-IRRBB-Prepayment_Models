@@ -10,6 +10,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Added
 
+- Regulatory source verification (#45): `REG-1` (Basel Framework SRP31, version effective 1 January 2026), `REG-2` (EBA/GL/2022/14), `REG-3` (Delegated Regulation (EU) 2024/856), `REG-4`, identified as Delegated Regulation (EU) 2024/857, and `REG-5` (CRD Article 98(5) as replaced by Directive (EU) 2019/878) are verified against their official texts, recorded in `docs/reviews/2026-11-12-regulatory-sources.md`. Corrections: the repricing buckets are `REG-1` Table 3, not Table 1; the multipliers cite SRP31.119 and Article 9(3) of 2024/857 instead of the prototype; decision M14 records the margin-exclusion conditions of 2024/856 Article 3(5); the multiplier layer is recorded as applied to the toolkit's projection, not as a standardised-approach figure; shock sizes stay user inputs with their verified source. No code changed.
 - Prototype-setup milestone guide (#40): maps the deferred deliverables and dependencies, separates specification, implementation, independent-reference and Windows Excel evidence, and records the unaccepted status of prototype #19 and the boundary for any later roadmap.
 
 - Traffic history push retry (#152): when `traffic-history` moved after it was fetched, the collect job fetches the new tip, merges the same API responses again and retries the push, up to three attempts, never force-pushing; it fails with a clear message after the third. `tools/quality_test_traffic.py` checks the loop.
