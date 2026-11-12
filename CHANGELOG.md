@@ -75,6 +75,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Fixed
 
+- Settings tool review findings (review of #200, #193, #189): `--apply` also refuses before any write when an applicable Actions setting is unknown, instead of writing the rest and failing the read-back; the plan digest includes the observed definitions of the rulesets that cover a managed one, so an approval goes stale when that protection changes.
 - `docs/LABELS.md` gives the current P1/P2 meanings, the main-only label reconciliation and its refusal to delete a label in use, and the metadata workflow's scope, which excludes priorities; the `blocked` description covers external conditions and the `bug` description fits reports from the bug form; the triage workflow comment matches `tools/check_issues.py` (#174).
 - The branding SVG and PNG show **Prototype development** and say the prototype VBA has not run in Excel and no output is validated, replacing *Specifications only*; README alt text and the assets guide match, and the PNG digest is updated. `CONTRIBUTING.md` no longer calls existing calculations future work (#175).
 - Keep the branding caveat beside the README image rather than inside the project-status paragraph, so the portfolio hub can quote the status without an absent-image reference (danielep71/K-Risk-Engines#198).
