@@ -60,6 +60,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Changed
 
+- CI, links and forms (#186, #187, #188): `Repository integrity` cancels a pull request's superseded run while every push and manual run keeps its own group; `tools/check_links.py` rejects plain `http://` links and requests external links over HTTPS only, failing a redirect to another protocol; the bug form offers an optional evidence, workaround and recovery field and the feature form an optional alternatives field. Ported from MyTemplate `887f4b7`.
 - `RATE-CONV-01` (#42): at SMM 0.999999 the CPR rounds to 1 in double precision, so that grid point checks `CPR = 1` instead of a round trip.
 - Workbook contract layout (#43): the tables of a sheet sit side by side from column C, so a growing table cannot overwrite the one below it; found while generating the template.
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).

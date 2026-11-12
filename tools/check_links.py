@@ -3,8 +3,10 @@
 
 Offline, every relative link must name an existing directory or non-empty file
 inside the repository, and every fragment must name a heading or an explicit anchor of
-the Markdown file it points to. With --external, each http(s) link is also
-requested once, except absolute links into this repository itself: a private
+the Markdown file it points to. An external link must use HTTPS: a plain
+http:// link is an error. With --external, each https link is also requested
+once, over HTTPS only and without following a redirect to another protocol,
+except absolute links into this repository itself: a private
 repository answers 404 to anonymous requests, so they are not checked at all.
 Write links to this repository's files as relative links, which the offline
 check covers.
@@ -26,6 +28,8 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 FENCE = re.compile(r' {0,3}(`{3,}|~{3,})')
+# curl's exit status when a redirect leads to a protocol --proto-redir refuses.
+CURL_UNSUPPORTED_PROTOCOL = 1
 ATTRIBUTE = r"""\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))"""
 
 
@@ -169,7 +173,10 @@ def check(root: Path = ROOT) -> tuple[list[str], set[str], int]:
         for link in links:
             count += 1
             url = urlsplit(link)
-            if url.scheme in ('http', 'https') or (not url.scheme and url.netloc):
+            if url.scheme == 'http':
+                errors.append(f"{source.relative_to(root.resolve()).as_posix()}: plain HTTP link, use https: {link}")
+                continue
+            if url.scheme == 'https' or (not url.scheme and url.netloc):
                 external.add(('https:' + link if link.startswith('//') else link).split('#')[0])
                 continue
             if url.scheme in ('mailto', 'tel', 'data'):
@@ -196,10 +203,12 @@ def check_external(url: str) -> tuple[str, str]:
     result = subprocess.run([
         'curl', '--silent', '--show-error', '--location', '--output', os.devnull,
         '--write-out', '%{http_code}', '--connect-timeout', '10', '--max-time', '25',
-        '--retry', '2', '--retry-delay', '2', '--proto', '=https,http',
-        '--proto-redir', '=https,http', url,
+        '--retry', '2', '--retry-delay', '2', '--proto', '=https',
+        '--proto-redir', '=https', url,
     ], capture_output=True, text=True, timeout=95, check=False)
     code = result.stdout.strip()
+    if result.returncode == CURL_UNSUPPORTED_PROTOCOL:
+        return 'ERROR', f"{url}: redirects to a URL that is not HTTPS"
     if result.returncode or code in ('403', '429') or code.startswith('5'):
         return 'WARN', f"{url}: unavailable for verification (HTTP {code or 'unknown'})"
     if not code.startswith('2'):
@@ -222,7 +231,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--external', action='store_true',
-                        help='also request every external http(s) link')
+                        help='also request every external https link')
     parser.add_argument('--repository', default=os.environ.get('GITHUB_REPOSITORY', ''),
                         help='owner/name whose own URLs are skipped (default: GITHUB_REPOSITORY)')
     args = parser.parse_args(argv)
