@@ -130,6 +130,26 @@ class ExternalTests(unittest.TestCase):
                     subprocess, 'run', return_value=curl(code, returncode)):
                 self.assertEqual(check_links.check_external('https://x.example/')[0], status)
 
+    def test_plain_http_links_are_errors(self) -> None:
+        errors, external, _ = run_check({
+            'README.md': '[a](http://example.com/a) <http://example.org> '
+                         '<a href="http://example.net">b</a> [c](https://example.com/c)\n'
+                         '`http://code.example` is code, not a link.\n',
+        })
+        self.assertEqual(len(errors), 3, errors)
+        self.assertTrue(all('plain HTTP link, use https' in error for error in errors), errors)
+        self.assertEqual(external, {'https://example.com/c'})
+
+    def test_requests_use_https_only_and_a_downgrade_fails(self) -> None:
+        with unittest.mock.patch.object(subprocess, 'run',
+                                        return_value=unittest.mock.Mock(stdout='301', returncode=1)) as run:
+            status, message = check_links.check_external('https://x.example/')
+        self.assertEqual(status, 'ERROR')
+        self.assertIn('redirects to a URL that is not HTTPS', message)
+        command = run.call_args.args[0]
+        self.assertEqual(command[command.index('--proto') + 1], '=https')
+        self.assertEqual(command[command.index('--proto-redir') + 1], '=https')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,6 +6,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  # A new commit on a pull request cancels the run of the commit it replaces.
+  # Every other run has a group of its own, so a push is never cancelled, nor
+  # queued behind another run.
+  group: repository-integrity-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   integrity:
     runs-on: ubuntu-24.04
