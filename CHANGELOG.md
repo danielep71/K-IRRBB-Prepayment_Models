@@ -60,6 +60,7 @@ All work is unreleased. Closing the setup milestone (v0.1.0 - Repo setup) on 202
 
 ### Changed
 
+- PR milestone removal (#182, #183): `pr-milestones.yml` reads each pull request back after removing its milestone and fails if GitHub kept it, and the job summary lists the scope and each removal (pull request and milestone title, escaped as table data). A read-only token on a single pull-request event warns and leaves the removal to the daily scan; a scan still fails. Ported from MyTemplate `887f4b7`.
 - `RATE-CONV-01` (#42): at SMM 0.999999 the CPR rounds to 1 in double precision, so that grid point checks `CPR = 1` instead of a round trip.
 - Workbook contract layout (#43): the tables of a sheet sit side by side from column C, so a growing table cannot overwrite the one below it; found while generating the template.
 - About wording describes setup-stage capabilities, with prepayment topics; feature and merge settings aligned; main protection and the exact `integrity` check context documented (#9).
