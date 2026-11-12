@@ -1,8 +1,6 @@
 # K-IRRBB Prepayment Models
 
-![K-IRRBB Prepayment Models: specifications only; planned loan-prepayment modelling and independent challenge](docs/assets/prepayment-social-preview.png)
-
-The branding graphic retains an earlier specifications-only label; the current development status is stated below.
+![K-IRRBB Prepayment Models: prototype development; planned loan-prepayment modelling and independent challenge, no validated outputs](docs/assets/prepayment-social-preview.png)
 
 ### Transparent loan-prepayment assumptions in Excel/VBA
 

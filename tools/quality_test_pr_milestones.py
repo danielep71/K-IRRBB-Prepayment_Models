@@ -9,8 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def reconciler():
     workflow = yaml.safe_load((ROOT / '.github/workflows/pr-milestones.yml').read_text(encoding='utf-8'))
-    step = workflow['jobs']['reconcile']['steps'][0]
-    code = step['run'].split("python3 - <<'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
+    steps = workflow['jobs']['reconcile']['steps']
+    step = next(step for step in steps if step.get('name') == 'Reconcile PR metadata')
+    code = step['run'].split("python - <<'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
     namespace = {'__name__': 'pr_milestones'}
     exec(compile(code, 'pr-milestones.yml', 'exec'), namespace)
     return namespace['reconcile']
@@ -58,6 +59,11 @@ class PrMilestoneTests(unittest.TestCase):
         api = FakeApi([{'number': 5, 'pull_request': {}, 'milestone': {'number': 2}}], keep_milestone=[5])
         with self.assertRaises(ValueError):
             reconciler()(api, 'o/r', {'pull_request': {}, 'number': 5})
+
+    def test_the_job_installs_python_and_never_checks_out_code(self) -> None:
+        workflow = yaml.safe_load((ROOT / '.github/workflows/pr-milestones.yml').read_text(encoding='utf-8'))
+        actions = [str(step.get('uses', '')).split('@')[0] for step in workflow['jobs']['reconcile']['steps']]
+        self.assertEqual(actions, ['actions/setup-python', ''])
 
 
 if __name__ == '__main__':

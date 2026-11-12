@@ -32,9 +32,12 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13.18"
       - name: Reconcile and verify open and closed issues
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
           ISSUE_IS_PULL_REQUEST: ${{ github.event.issue.pull_request && 'true' || '' }}
-        run: python3 .github/scripts/issue-metadata.py
+        run: python .github/scripts/issue-metadata.py
