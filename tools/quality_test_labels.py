@@ -26,7 +26,9 @@ class LabelWorkflowTests(unittest.TestCase):
         self.assertIn("github.event_name != 'pull_request'", guard)
         self.assertIn(DEFAULT_BRANCH, guard)
         self.assertIn('workflow_dispatch', data[True])  # 'on' parses as True
-        self.assertEqual(data['jobs']['reconcile']['permissions'], {'contents': 'read', 'issues': 'write'})
+        # pull-requests: read lets the in-use check before pruning see labels on pull requests.
+        self.assertEqual(data['jobs']['reconcile']['permissions'],
+                         {'contents': 'read', 'issues': 'write', 'pull-requests': 'read'})
         self.assertEqual(data['jobs']['validate']['permissions'], {'contents': 'read'})
 
     def test_a_missing_guard_is_detected(self) -> None:
@@ -45,14 +47,16 @@ class LabelWorkflowTests(unittest.TestCase):
     def test_pruning_is_checked_before_any_change_is_applied(self) -> None:
         source = (ROOT / '.github/scripts/labels-sync.mjs').read_text(encoding='utf-8')
         main = source[source.index('async function main()'):]
-        guard = re.search(r'await assertSafeDeletions\(', main)
+        usage = re.search(r'await deletionsInUse\(', main)
+        refusal = re.search(r'throw new Error\(deletionRefusal\(usage\)\)', main)
         apply = re.search(r'await applyChanges\(', main)
-        self.assertIsNotNone(guard)
-        self.assertIsNotNone(apply)
-        assert guard is not None and apply is not None
-        self.assertLess(guard.start(), apply.start())
+        assert usage is not None and refusal is not None and apply is not None
         dry_run = main.index('options.dryRun')
-        self.assertLess(guard.start(), dry_run)
+        # Label use is read before the dry run returns, so its summary can report it;
+        # a real run refuses before the first change.
+        self.assertLess(usage.start(), dry_run)
+        self.assertLess(dry_run, refusal.start())
+        self.assertLess(refusal.start(), apply.start())
 
 
 if __name__ == '__main__':

@@ -70,6 +70,9 @@ jobs:
     permissions:
       contents: read
       issues: write
+      # The in-use check before pruning reads labels on pull requests too;
+      # declare that read rather than rely on the issues permission.
+      pull-requests: read
 
     steps:
       - name: Check out the exact SHA to apply
