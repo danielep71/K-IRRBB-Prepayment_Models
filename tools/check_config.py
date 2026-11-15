@@ -1,5 +1,6 @@
 """Validate YAML configuration and repository-specific issue defaults."""
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -52,7 +53,66 @@ def unrequired_fields(form: str, body: list[dict[str, Any]]) -> list[str]:
     return [name for name in REQUIRED_FORM_FIELDS.get(form, ()) if name not in required]
 
 
-def inspect_config(root: Path) -> list[str]:
+# The workflows name the default branch in their branch filters; CI passes the real one.
+DEFAULT_BRANCH = 'main'
+FILTERED_EVENTS = ('push', 'pull_request', 'pull_request_target')
+
+
+def branch_matches(pattern: str, branch: str) -> bool:
+    """GitHub's filter pattern: ** crosses '/' and **/ may match no directory; * does
+    not cross '/'; ? and + quantify the preceding character (zero or one, one or
+    more); [...] is a character class."""
+    regex = ''
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith('**/', i):
+            # A globstar segment can match zero directories: **/main selects main.
+            regex, i = regex + '(?:.*/)?', i + 3
+        elif pattern.startswith('**', i):
+            regex, i = regex + '.*', i + 2
+        elif pattern[i] == '*':
+            regex, i = regex + '[^/]*', i + 1
+        elif pattern[i] in '?+' and regex and not regex.endswith(('*', '?', '+')):
+            regex, i = regex + pattern[i], i + 1
+        elif pattern[i] == '[' and ']' in pattern[i + 1:]:
+            close = pattern.index(']', i + 1)
+            body = pattern[i + 1:close].replace('\\', '\\\\')
+            regex, i = regex + '[' + body + ']', close + 1
+        else:
+            regex, i = regex + re.escape(pattern[i]), i + 1
+    return re.fullmatch(regex, branch) is not None
+
+
+def filter_includes(patterns: list[str], branch: str) -> bool:
+    """Whether a branches list selects the branch; a later '!pattern' excludes it again."""
+    selected = False
+    for pattern in patterns:
+        if pattern.startswith('!'):
+            if branch_matches(pattern[1:], branch):
+                selected = False
+        elif branch_matches(pattern, branch):
+            selected = True
+    return selected
+
+
+def branch_filter_errors(data: dict[Any, Any], default_branch: str) -> list[str]:
+    """Branch filters that would leave the default branch out of a push or pull-request event."""
+    triggers = data.get('on', data.get(True)) or {}
+    errors = []
+    for event in FILTERED_EVENTS:
+        config = triggers.get(event) if isinstance(triggers, dict) else None
+        if not isinstance(config, dict):
+            continue
+        branches = config.get('branches')
+        if branches is not None and not filter_includes([str(b) for b in branches], default_branch):
+            errors.append(f'{event}.branches does not include the default branch {default_branch}')
+        ignored = config.get('branches-ignore')
+        if ignored is not None and filter_includes([str(b) for b in ignored], default_branch):
+            errors.append(f'{event}.branches-ignore excludes the default branch {default_branch}')
+    return errors
+
+
+def inspect_config(root: Path, default_branch: str = DEFAULT_BRANCH) -> list[str]:
     errors: list[str] = []
     manifest = json.loads((root / '.github/labels.json').read_text(encoding='utf-8'))
     labels = {label['name'] for label in manifest['core']}
@@ -63,6 +123,9 @@ def inspect_config(root: Path) -> list[str]:
                 raise ValueError('expected a YAML mapping')
             if path.parent.name == 'workflows':
                 check_workflow(data)
+                problems = branch_filter_errors(data, default_branch)
+                if problems:
+                    raise ValueError('; '.join(problems))
             if path.parent.name == 'ISSUE_TEMPLATE' and path.name != 'config.yml':
                 check_issue_form(path.name, data, labels)
             if path.name == 'dependabot.yml':
@@ -176,7 +239,8 @@ if __name__ == '__main__':
     if sys.argv[1:] == ['--dependabot-targets']:
         print('\n'.join(dependabot_targets(Path(__file__).resolve().parents[1])))
         raise SystemExit(0)
-    problems = inspect_config(Path(__file__).resolve().parents[1])
+    problems = inspect_config(Path(__file__).resolve().parents[1],
+                              os.environ.get('DEFAULT_BRANCH') or DEFAULT_BRANCH)
     if problems:
         raise SystemExit('\n'.join(problems))
     print('YAML and repository configuration checks passed.')
