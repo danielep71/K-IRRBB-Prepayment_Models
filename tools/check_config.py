@@ -59,7 +59,8 @@ FILTERED_EVENTS = ('push', 'pull_request', 'pull_request_target')
 
 
 def branch_matches(pattern: str, branch: str) -> bool:
-    """GitHub's branch filter glob: ** crosses '/', * and ? do not."""
+    """GitHub's filter pattern: ** crosses '/', * does not; ? and + quantify the
+    preceding character (zero or one, one or more); [...] is a character class."""
     regex = ''
     i = 0
     while i < len(pattern):
@@ -67,8 +68,12 @@ def branch_matches(pattern: str, branch: str) -> bool:
             regex, i = regex + '.*', i + 2
         elif pattern[i] == '*':
             regex, i = regex + '[^/]*', i + 1
-        elif pattern[i] == '?':
-            regex, i = regex + '[^/]', i + 1
+        elif pattern[i] in '?+' and regex and not regex.endswith(('*', '?', '+')):
+            regex, i = regex + pattern[i], i + 1
+        elif pattern[i] == '[' and ']' in pattern[i + 1:]:
+            close = pattern.index(']', i + 1)
+            body = pattern[i + 1:close].replace('\\', '\\\\')
+            regex, i = regex + '[' + body + ']', close + 1
         else:
             regex, i = regex + re.escape(pattern[i]), i + 1
     return re.fullmatch(regex, branch) is not None

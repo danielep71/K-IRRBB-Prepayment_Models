@@ -78,7 +78,14 @@ class ConfigTests(unittest.TestCase):
         self.assertTrue(filter_includes(['main', 'release/**'], 'main'))
         self.assertTrue(filter_includes(['release/**'], 'release/0.2.0'))
         self.assertFalse(filter_includes(['release/*'], 'release/a/b'))
-        self.assertFalse(filter_includes(['ma?'], 'main'))
+        # ? and + quantify the preceding character; [...] is a class (GitHub's cheat sheet).
+        for pattern, branch, expected in (
+                ('ma?n', 'main', False), ('ma?n', 'man', True), ('ma?n', 'mn', True),
+                ('main?', 'main', True), ('mai?n', 'main', True), ('ma+in', 'maaain', True),
+                ('ma+in', 'min', False), ('ma[ix]n', 'main', True), ('ma[xy]n', 'main', False),
+                ('ma?', 'main', False), ('*', 'main', True), ('*', 'release/0.2.0', False)):
+            with self.subTest(pattern=pattern, branch=branch):
+                self.assertIs(filter_includes([pattern], branch), expected)
         self.assertFalse(filter_includes(['**', '!main'], 'main'))
         cases: list[tuple[dict[Any, Any], list[str]]] = [
             ({True: {'push': {'branches': ['main', 'release/**']}, 'pull_request': None}}, []),
