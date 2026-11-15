@@ -17,6 +17,7 @@ from check_config import (
     unrequired_fields,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
 SETUP_PYTHON: dict[str, Any] = {'uses': 'actions/setup-python@' + '0' * 40, 'with': {'python-version': '3.13.18'}}
 SETUP_NODE: dict[str, Any] = {'uses': 'actions/setup-node@' + '0' * 40, 'with': {'node-version': '22.23.5'}}
 
@@ -73,6 +74,15 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(steps=steps):
                 errors = runtime_errors(steps)
                 self.assertTrue(any(expected in error for error in errors), errors)
+
+    def test_codeql_analyses_pull_requests_and_uploads_only_from_main(self) -> None:
+        workflow = yaml.safe_load((ROOT / '.github/workflows/codeql.yml').read_text(encoding='utf-8'))
+        triggers = workflow[True]  # 'on' parses as True
+        # A release-branch push repeats the analysis its up-to-date pull request already ran.
+        self.assertEqual(triggers['push'], {'branches': ['main']})
+        self.assertEqual(triggers['pull_request'], {'branches': ['main', 'release/**']})
+        self.assertIn('schedule', triggers)
+        self.assertIn('workflow_dispatch', triggers)
 
     def test_branch_filters_must_include_the_default_branch(self) -> None:
         self.assertTrue(filter_includes(['main', 'release/**'], 'main'))
