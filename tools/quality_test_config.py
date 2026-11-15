@@ -83,7 +83,9 @@ class ConfigTests(unittest.TestCase):
                 ('ma?n', 'main', False), ('ma?n', 'man', True), ('ma?n', 'mn', True),
                 ('main?', 'main', True), ('mai?n', 'main', True), ('ma+in', 'maaain', True),
                 ('ma+in', 'min', False), ('ma[ix]n', 'main', True), ('ma[xy]n', 'main', False),
-                ('ma?', 'main', False), ('*', 'main', True), ('*', 'release/0.2.0', False)):
+                ('ma?', 'main', False), ('*', 'main', True), ('*', 'release/0.2.0', False),
+                ('**/main', 'main', True), ('**/main', 'a/b/main', True), ('**/main', 'xmain', False),
+                ('release/**', 'release/0.2.0', True), ('release/**', 'main', False)):
             with self.subTest(pattern=pattern, branch=branch):
                 self.assertIs(filter_includes([pattern], branch), selected)
         self.assertFalse(filter_includes(['**', '!main'], 'main'))
@@ -99,6 +101,9 @@ class ConfigTests(unittest.TestCase):
         for data, expected in cases:
             with self.subTest(data=data):
                 self.assertEqual(branch_filter_errors(data, 'main'), expected)
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches-ignore': ['**/main']}}}, 'main'),
+                         ['push.branches-ignore excludes the default branch main'])
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches': ['**/main']}}}, 'main'), [])
         self.assertEqual(branch_filter_errors({True: {'push': {'branches': ['main']}}}, 'trunk'),
                          ['push.branches does not include the default branch trunk'])
 

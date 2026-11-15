@@ -59,12 +59,16 @@ FILTERED_EVENTS = ('push', 'pull_request', 'pull_request_target')
 
 
 def branch_matches(pattern: str, branch: str) -> bool:
-    """GitHub's filter pattern: ** crosses '/', * does not; ? and + quantify the
-    preceding character (zero or one, one or more); [...] is a character class."""
+    """GitHub's filter pattern: ** crosses '/' and **/ may match no directory; * does
+    not cross '/'; ? and + quantify the preceding character (zero or one, one or
+    more); [...] is a character class."""
     regex = ''
     i = 0
     while i < len(pattern):
-        if pattern.startswith('**', i):
+        if pattern.startswith('**/', i):
+            # A globstar segment can match zero directories: **/main selects main.
+            regex, i = regex + '(?:.*/)?', i + 3
+        elif pattern.startswith('**', i):
             regex, i = regex + '.*', i + 2
         elif pattern[i] == '*':
             regex, i = regex + '[^/]*', i + 1
