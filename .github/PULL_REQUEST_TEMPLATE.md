@@ -25,7 +25,9 @@ Exact SHA and evidence links:
 ## Final-head review
 
 <!-- Fill in after the last push, before merging. Any later push renews the
-review and CI run, and this section. -->
+review and CI run, and this section. A sync PR whose head is the integration
+merge commit, with no diff against the release branch, may cite the
+integration's final-head review of the same tree (docs/GOVERNANCE.md). -->
 
 - Final head SHA:
 - Reviewed SHA:

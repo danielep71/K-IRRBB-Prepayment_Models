@@ -8,7 +8,9 @@ from typing import Any
 import yaml
 from check_config import (
     REQUIRED_FORM_FIELDS,
+    branch_filter_errors,
     dependabot_targets,
+    filter_includes,
     inspect_config,
     logical_lines,
     runtime_errors,
@@ -71,6 +73,27 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(steps=steps):
                 errors = runtime_errors(steps)
                 self.assertTrue(any(expected in error for error in errors), errors)
+
+    def test_branch_filters_must_include_the_default_branch(self) -> None:
+        self.assertTrue(filter_includes(['main', 'release/**'], 'main'))
+        self.assertTrue(filter_includes(['release/**'], 'release/0.2.0'))
+        self.assertFalse(filter_includes(['release/*'], 'release/a/b'))
+        self.assertFalse(filter_includes(['ma?'], 'main'))
+        self.assertFalse(filter_includes(['**', '!main'], 'main'))
+        cases: list[tuple[dict[Any, Any], list[str]]] = [
+            ({True: {'push': {'branches': ['main', 'release/**']}, 'pull_request': None}}, []),
+            ({True: {'push': {'paths': ['x']}}}, []),
+            ({True: ['push', 'pull_request']}, []),
+            ({True: {'push': {'branches': ['release/**']}}},
+             ['push.branches does not include the default branch main']),
+            ({'on': {'pull_request': {'branches-ignore': ['main']}}},
+             ['pull_request.branches-ignore excludes the default branch main']),
+        ]
+        for data, expected in cases:
+            with self.subTest(data=data):
+                self.assertEqual(branch_filter_errors(data, 'main'), expected)
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches': ['main']}}}, 'trunk'),
+                         ['push.branches does not include the default branch trunk'])
 
     def test_quoted_action_tag_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
