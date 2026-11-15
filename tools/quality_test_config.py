@@ -8,13 +8,16 @@ from typing import Any
 import yaml
 from check_config import (
     REQUIRED_FORM_FIELDS,
+    branch_filter_errors,
     dependabot_targets,
+    filter_includes,
     inspect_config,
     logical_lines,
     runtime_errors,
     unrequired_fields,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
 SETUP_PYTHON: dict[str, Any] = {'uses': 'actions/setup-python@' + '0' * 40, 'with': {'python-version': '3.13.18'}}
 SETUP_NODE: dict[str, Any] = {'uses': 'actions/setup-node@' + '0' * 40, 'with': {'node-version': '22.23.5'}}
 
@@ -71,6 +74,48 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(steps=steps):
                 errors = runtime_errors(steps)
                 self.assertTrue(any(expected in error for error in errors), errors)
+
+    def test_codeql_analyses_pull_requests_and_uploads_only_from_main(self) -> None:
+        workflow = yaml.safe_load((ROOT / '.github/workflows/codeql.yml').read_text(encoding='utf-8'))
+        triggers = workflow[True]  # 'on' parses as True
+        # A release-branch push repeats the analysis its up-to-date pull request already ran.
+        self.assertEqual(triggers['push'], {'branches': ['main']})
+        self.assertEqual(triggers['pull_request'], {'branches': ['main', 'release/**']})
+        self.assertIn('schedule', triggers)
+        self.assertIn('workflow_dispatch', triggers)
+
+    def test_branch_filters_must_include_the_default_branch(self) -> None:
+        self.assertTrue(filter_includes(['main', 'release/**'], 'main'))
+        self.assertTrue(filter_includes(['release/**'], 'release/0.2.0'))
+        self.assertFalse(filter_includes(['release/*'], 'release/a/b'))
+        # ? and + quantify the preceding character; [...] is a class (GitHub's cheat sheet).
+        for pattern, branch, selected in (
+                ('ma?n', 'main', False), ('ma?n', 'man', True), ('ma?n', 'mn', True),
+                ('main?', 'main', True), ('mai?n', 'main', True), ('ma+in', 'maaain', True),
+                ('ma+in', 'min', False), ('ma[ix]n', 'main', True), ('ma[xy]n', 'main', False),
+                ('ma?', 'main', False), ('*', 'main', True), ('*', 'release/0.2.0', False),
+                ('**/main', 'main', True), ('**/main', 'a/b/main', True), ('**/main', 'xmain', False),
+                ('release/**', 'release/0.2.0', True), ('release/**', 'main', False)):
+            with self.subTest(pattern=pattern, branch=branch):
+                self.assertIs(filter_includes([pattern], branch), selected)
+        self.assertFalse(filter_includes(['**', '!main'], 'main'))
+        cases: list[tuple[dict[Any, Any], list[str]]] = [
+            ({True: {'push': {'branches': ['main', 'release/**']}, 'pull_request': None}}, []),
+            ({True: {'push': {'paths': ['x']}}}, []),
+            ({True: ['push', 'pull_request']}, []),
+            ({True: {'push': {'branches': ['release/**']}}},
+             ['push.branches does not include the default branch main']),
+            ({'on': {'pull_request': {'branches-ignore': ['main']}}},
+             ['pull_request.branches-ignore excludes the default branch main']),
+        ]
+        for data, expected in cases:
+            with self.subTest(data=data):
+                self.assertEqual(branch_filter_errors(data, 'main'), expected)
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches-ignore': ['**/main']}}}, 'main'),
+                         ['push.branches-ignore excludes the default branch main'])
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches': ['**/main']}}}, 'main'), [])
+        self.assertEqual(branch_filter_errors({True: {'push': {'branches': ['main']}}}, 'trunk'),
+                         ['push.branches does not include the default branch trunk'])
 
     def test_quoted_action_tag_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

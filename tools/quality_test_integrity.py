@@ -43,6 +43,18 @@ class IntegrityArtifactTests(unittest.TestCase):
         self.assertNotIn('github.ref', concurrency['group'])
         self.assertEqual(concurrency['cancel-in-progress'], "${{ github.event_name == 'pull_request' }}")
 
+    def test_the_required_check_runs_on_every_pull_request_and_on_landing_pushes(self) -> None:
+        workflow = yaml.safe_load((ROOT / '.github/workflows/static-checks.yml').read_text(encoding='utf-8'))
+        triggers = workflow[True]  # 'on' parses as True
+        # Task-branch pushes would only repeat the pull request run of the same head.
+        self.assertEqual(triggers['push'], {'branches': ['main', 'release/**']})
+        self.assertIsNone(triggers['pull_request'])
+        # A skipped run of the required check on a commit counts as passing.
+        self.assertNotIn('if', workflow['jobs']['integrity'])
+        step = next(s for s in workflow['jobs']['integrity']['steps']
+                    if s.get('name') == 'Check repository and automation regressions')
+        self.assertEqual(step['env'], {'DEFAULT_BRANCH': '${{ github.event.repository.default_branch }}'})
+
 
 if __name__ == '__main__':
     unittest.main()

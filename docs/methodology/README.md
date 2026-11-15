@@ -30,7 +30,7 @@ An overlay is applied after the fit and never changes fitted coefficients. A beh
 
 ## Relationship to the prototype
 
-The prototype in [danielep71/K-IRRBB-Prepayment_Models#19](https://github.com/danielep71/K-IRRBB-Prepayment_Models/pull/19) is a review draft, not an accepted design. Where it chose a convention, the [model contracts](MODEL_CONTRACTS.md) record that choice as a candidate or as a decision; nothing was adopted from the prototype by default.
+The prototype in [danielep71/K-IRRBB-Prepayment_Models#19](https://github.com/danielep71/K-IRRBB-Prepayment_Models/pull/19) is a review draft, not an accepted design; the PR was closed without merging on 2026-11-12, and its head `3084e88` stays readable as `refs/pull/19/head`. Where it chose a convention, the [model contracts](MODEL_CONTRACTS.md) record that choice as a candidate or as a decision; nothing was adopted from the prototype by default.
 
 ## Decisions
 

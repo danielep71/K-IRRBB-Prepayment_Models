@@ -2,9 +2,11 @@ name: CodeQL
 
 # Code scanning with CodeQL's advanced setup and the security-extended query
 # suite: the Python tooling, the label scripts (JavaScript) and the workflows
-# themselves (Actions). It runs on pushes to main and release branches, on pull
-# requests into them, and weekly, because new queries can find issues in
-# unchanged code. Results appear under Security -> Code scanning.
+# themselves (Actions). It runs on pushes to main, on pull requests into main and
+# release branches, and weekly, because new queries can find issues in
+# unchanged code. Results appear under Security -> Code scanning. A push to a
+# release branch is not analysed again: release branches must be up to date
+# before a merge, so the pull request run has analysed the same tree.
 #
 # Pull requests are analysed by a separate job with no write permission: it
 # uploads nothing to code scanning and keeps the SARIF as a 30-day artifact.
@@ -19,7 +21,6 @@ on:
   push:
     branches:
       - main
-      - "release/**"
   pull_request:
     branches:
       - main

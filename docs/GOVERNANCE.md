@@ -22,7 +22,7 @@ Pull requests link issues by kind:
 | Integration | main ← active release branch | `Refs #N` for the issues and PRs it carries |
 | Sync | active release branch ← main | `Refs #N` for the integration PR |
 
-GitHub closes an issue from a keyword only when the PR merges into main, so I close a task's issue by hand once its evidence is complete. An integration or sync PR never uses a closing keyword: it would close every named issue, including one still waiting for evidence. Before merging any PR, record its final-head review in the template: the final head SHA, the reviewed SHA, the review result and the CI run. Any push after that renews the review, the CI run and the record.
+GitHub closes an issue from a keyword only when the PR merges into main, so I close a task's issue by hand once its evidence is complete. An integration or sync PR never uses a closing keyword: it would close every named issue, including one still waiting for evidence. Before merging any PR, record its final-head review in the template: the final head SHA, the reviewed SHA, the review result and the CI run. Any push after that, a rebase or a merge of the base included, renews the review, the CI run and the record. One exception: a sync PR needs no new automated review when its head is the integration merge commit, its diff against the release branch is empty, and the integration's final-head review covered the same tree. Its record names that review and the shared tree instead, and `integrity` still runs. A sync that changes any file is reviewed as usual.
 
 See [repository settings](REPOSITORY_SETTINGS.md) for the settings baseline and the release-branch rules. A settings change is complete only when `tools/setup_repository.py --check` reads it back without drift.
 
