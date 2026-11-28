@@ -1,0 +1,40 @@
+{
+  "case": "PM1-FIT-01",
+  "provenance": {
+    "tool": "tests/reference/derive_models.py (Python 3.13 standard library: fractions, decimal, random)",
+    "steps": "Fixture: derive_models.fit_design with random.Random(4111): 6 month ends x 8 incentive buckets of 25 bp x 3 loan-months, incentives inside (25 j, 25 j + 12.5) bp so that buckets anchored at 0 or centred on 0 group them alike, ages around a_ramp = 12, pool factors 0.55 to 1, A varying tenfold between bucket-months. Observed bucket SMM = M11 prediction at the design parameters (c_min 0.015, c_max 0.32, k 300, x0 0.003; ramp, burnout and season fixed as in settings.json) plus residuals of up to 20 % projected onto the orthogonal complement, in the inner product weighted by sum A, of the derivatives of the predictions: the first-order conditions of the weighted least squares hold exactly at the design parameters, which are its optimum in closed form. Prepaid amounts are then rounded to 4 decimal places, the first loan of each bucket-month NONE and the others PARTIAL. Expected values: Newton's method in decimal at 50 digits (analytic gradient, Hessian by central differences of the gradient) on the rounded data from the design point, an optimiser independent of the Nelder-Mead under test; check records the shift from the design parameters, the gradient and the positive LDL pivots of the Hessian at the optimum. Objective = sum over bucket-months of sum A x (observed - predicted SMM)^2, unnormalised; total_weight = sum A converts it to the mean squared error if the toolkit reports that. Parameters and objective rounded to 20 significant digits; tolerances are decision V5.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": {
+    "parameters": "rel 1e-6",
+    "objective": "rel 1e-9"
+  },
+  "parameters": {
+    "c_min": "0.014999999986835344010",
+    "c_max": "0.32000000009170547546",
+    "k": "299.99999991646663012",
+    "x0": "0.0030000000023184967114"
+  },
+  "objective": "716.26955507245990557",
+  "total_weight": "470438940.0827",
+  "bucket_months": 48,
+  "check": {
+    "design_parameters": {
+      "c_min": "0.015",
+      "c_max": "0.32",
+      "k": "300",
+      "x0": "0.003"
+    },
+    "design_objective_before_rounding": "716.26955461330587077",
+    "max_relative_shift_from_design": "0.000000000278",
+    "newton_iterations": 3,
+    "max_abs_gradient": "0.000000000000000000000000000000000000000000600",
+    "hessian_ldl_pivots": [
+      "3088840",
+      "721689",
+      "0.0228344",
+      "46188900"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "data": "PM1-FIT-01/loan_months.csv",
+  "assumptions": "PM1-FIT-01/settings.json",
+  "variants": {
+    "control": {
+      "start": {"c_min": "0.05", "c_max": "0.5", "k": "100", "x0": "0"},
+      "steps": ["0.5", "0.5", "0.5", "0.0025"],
+      "ftol": "1e-9",
+      "xtol": "1e-10",
+      "max_iterations": 5000,
+      "restarts": 3
+    },
+    "iteration_limit": {
+      "start": {"c_min": "0.05", "c_max": "0.5", "k": "100", "x0": "0"},
+      "steps": ["0.5", "0.5", "0.5", "0.0025"],
+      "ftol": "1e-9",
+      "xtol": "1e-10",
+      "max_iterations": 1,
+      "restarts": 3
+    },
+    "non_finite_nan": {
+      "start": {"c_min": "0.05", "c_max": "0.5", "k": "100", "x0": "0"},
+      "steps": ["0.5", "0.5", "0.5", "0.0025"],
+      "ftol": "1e-9",
+      "xtol": "1e-10",
+      "max_iterations": 5000,
+      "restarts": 3,
+      "injected_objective": "nan"
+    },
+    "non_finite_inf": {
+      "start": {"c_min": "0.05", "c_max": "0.5", "k": "100", "x0": "0"},
+      "steps": ["0.5", "0.5", "0.5", "0.0025"],
+      "ftol": "1e-9",
+      "xtol": "1e-10",
+      "max_iterations": 5000,
+      "restarts": 3,
+      "injected_objective": "inf"
+    }
+  }
+}
