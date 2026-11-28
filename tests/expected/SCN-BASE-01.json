@@ -1,0 +1,44 @@
+{
+  "case": "SCN-BASE-01",
+  "provenance": {
+    "tool": "property test; tests/reference/derive_cashflows.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "Fixture: seven FIXED loans in EUR and USD with penalty NONE; market_rates.csv holds one refinancing series per currency at the as-of date 2024-01-31 (0.03 EUR, 0.04 USD) and at 2023-12-31, which must not be used; PM1 at fixed parameters c_min 0.02, c_max 0.30, k 100, x0 0.01, a_ramp 12 months, twelve seasonal factors with mean 1, b 0, margin 0.005 and lag 1 (M4). The curve is held from the as-of date, so with a one-month lag every projected month reads it. views: loan B1 (annuity, 10,000 at 4.5%, four months to 2024-05-31, originated 2023-06-15): I = 0.045 - (0.03 + 0.005) = 0.01 = x0, logistic = 1/2 and CPR = 0.16 x Ramp(age) x Season(month), age 7 to 10 months: 0.16 x 7/12 x 0.9 = 0.084, 0.16 x 8/12 x 1.0, 0.16 x 9/12 x 1.1 = 0.132, 0.16 x 10/12 x 1.2 = 0.16; SMM = 1 - (1 - CPR)^(1/12) and the cash flows computed in decimal at 60 digits. Loan B7 (annuity, 50,000 at 9%, six months to 2024-07-31, seasoned beyond a_ramp): I = 0.055, k (I - x0) = 4.5 and CPR = (0.02 + 0.28 logistic(4.5)) x Season(month); the May and June factors 1.2 and 1.1 lift it above c_max, so the clamp is at 1, not at c_max. Property: in each trial PM1 parameters inside the contract constraints, the margin and the observed rate of each currency are drawn from the seeded generator; a parallel shock of 0, and of -0, must give every projected month of every loan (CPR, SMM and the six amounts) identical to BASE. Negative control: the same comparison detects a 1bp shock in every trial. Kept out because the contract leaves them open: burnout (b = 0), several tenors per currency and penalties (both need the remaining term in years), and shocked rates below zero (the post-shock floor).",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "view_tolerance": {
+    "cpr": "rel 1e-12",
+    "smm": "rel 1e-12",
+    "amounts": "abs 1e-8"
+  },
+  "fixture": "SCN-BASE-01",
+  "seed": 20261128,
+  "trials": 100,
+  "zero_shocks": ["0", "-0"],
+  "control_shock": "0.0001",
+  "views": {
+    "B1": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31"],
+      "cpr": ["0.084", "0.106666666666666666666666666667", "0.132", "0.16"],
+      "smm": ["0.00728491164532501757905251814576", "0.00935558613105637465819093801103", "0.0117276523395303129353749410814", "0.0144244058404187070525521877592"],
+      "opening": ["10000", "7459.27967518139655647883746809", "4935.54297938927998761102505656", "2443.3945725001964368879863155"],
+      "interest": ["37.5", "27.9722987819302370867956405053", "18.5082861727097999535413439621", "9.16272964687573663832994868314"],
+      "scheduled": ["2485.98136294634203396819977408", "2477.12572539672334248462724052", "2463.15307767400124147774176247", "2443.3945725001964368879863155"],
+      "prepaid": ["54.7389618722614095529627578374", "46.6109703953932263831851710112", "28.9953292150823092452969785792", "0"],
+      "repricing": ["0", "0", "0", "0"],
+      "closing": ["7459.27967518139655647883746809", "4935.54297938927998761102505656", "2443.3945725001964368879863155", "0"]
+    },
+    "B7": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31", "2024-06-30", "2024-07-31"],
+      "cpr": ["0.267231290457090518630263884619", "0.296923656063433909589182094021", "0.326616021669777300548100303423", "0.356308387276120691507018512825", "0.326616021669777300548100303423", "0.296923656063433909589182094021"],
+      "smm": ["0.0255776358078772121244696808788", "0.0289307383193280426513596282584", "0.0324162524622176919790043334794", "0.0360456055474962400527441167534", "0.0324162524622176919790043334794", "0.0289307383193280426513596282584"],
+      "opening": ["50000", "40751.8581343395521270013842862", "31776.1330169674856612728735571", "23145.4872885122382535157612478", "14929.6295944247791689505102028", "7249.81791007070615946324653404"],
+      "interest": ["375", "305.638936007546640952510382147", "238.320997627256142459546551678", "173.591154663841786901368209359", "111.972221958185843767128826521", "54.3736343255302961959743490053"],
+      "scheduled": ["8178.4453724784600092848853667", "8029.02952583108667127594515735", "7855.21935196356730506780629795", "7657.58694764149989053661490926", "7436.92632349926733198032886815", "7249.81791007070615946324653404"],
+      "prepaid": ["1069.69649318198786371373034706", "946.695591540979794452565571777", "775.426376491680102689306011332", "558.270746445959194028636135755", "242.885360854805677506934800619", "0"],
+      "repricing": ["0", "0", "0", "0", "0", "0"],
+      "closing": ["40751.8581343395521270013842862", "31776.1330169674856612728735571", "23145.4872885122382535157612478", "14929.6295944247791689505102028", "7249.81791007070615946324653404", "0"]
+    }
+  }
+}

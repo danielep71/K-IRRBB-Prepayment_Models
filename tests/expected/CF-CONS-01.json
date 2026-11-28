@@ -1,0 +1,41 @@
+{
+  "case": "CF-CONS-01",
+  "provenance": {
+    "tool": "identity and hand sums",
+    "steps": "Identity, checked on every projected month. Fixture: eight loans in two currencies and five segments, at balances up to about 10^9 and terms up to 359 months: FIXED annuities (one at a zero rate), linear and bullet loans, two RESET loans in their fixed period (reset months 2024-09-30 and 2027-02-28) and a FLOAT loan resetting monthly (2024-02-29). In each trial every projected month gets a CPR from the seeded generator: 0 with probability zero_share, 1 with probability full_share, otherwise uniform on [0, max_cpr] rounded to 6 places; the reset month gets 0 (open question on the reset month). For every loan, every segment and currency total and every month: opening = scheduled + prepaid + repricing + closing, each month opens at the previous closing, and the lifetime principal (scheduled + prepaid + repricing) equals the as-of balance, within 0.005. Hand sums of the as-of balances per segment and currency: MTG_FIX EUR 987,654,321.12 + 123,456,789.01; MTG_RST EUR 456,789,012.34 + 77,777,777.77; one loan each otherwise; MTG_FIX appears in EUR and USD and is never added across currencies. Horizons are hand counts of month ends from 2024-01-31 to maturity or to the next reset. The identity is also checked on the CF-SCHED-01, CF-PREPAY-01 and CF-RESET-01 fixtures and on the SCN-BASE-01 book under shocks of 0 and +/-200bp.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 0.005",
+  "fixture": "CF-CONS-01",
+  "seed": 20261128,
+  "trials": 20,
+  "generator": {
+    "zero_share": 0.5,
+    "full_share": 0.005,
+    "max_cpr": 0.4
+  },
+  "horizons": {
+    "C1": 359,
+    "C2": 256,
+    "C3": 37,
+    "C4": 1,
+    "C5": 54,
+    "C6": 36,
+    "C7": 120,
+    "C8": 8
+  },
+  "repricing_months": {
+    "C3": "2027-02-28",
+    "C4": "2024-02-29",
+    "C8": "2024-09-30"
+  },
+  "opening_balances": {
+    "MTG_FIX|EUR": "1111111110.13",
+    "MTG_RST|EUR": "534566790.11",
+    "MTG_FLT|EUR": "222333444.55",
+    "CON_FIX|USD": "15000.5",
+    "SME_FIX|USD": "5000000",
+    "MTG_FIX|USD": "333333.33"
+  }
+}

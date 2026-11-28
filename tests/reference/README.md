@@ -67,3 +67,19 @@ Derives the expected values of `PM0-CALC-01`, `PM1-FORM-01` and `PM1-FIT-01` and
 ## `report_dgp.py`
 
 Fits `models.py` to the `PM1-DGP-01` sample (seed and generating parameters in `derive_models.py`) and reports the estimates, their differences from the generating values and approximate sandwich standard errors. The case is statistical and reported: the test checks that the sample and the report reproduce, not that recovery passes a tolerance.
+
+## `cashflows.py`
+
+Projects each loan monthly from the as-of date as the [behavioural cash-flow projection](../../docs/methodology/MODEL_CONTRACTS.md#behavioural-cash-flow-projection) states: interest at `client_rate / 12` on the opening balance; scheduled principal on payment months from the amortisation type and the balance after earlier prepayments (annuity: level instalment re-amortised over the remaining term, decision M6, with `expm1`/`log1p` so that a rate near zero keeps full precision; linear: balance over remaining payments; bullet: the balance at maturity); prepayment `SMM x (opening - scheduled)` with `SMM` from `rates.smm_from_cpr`; the final repayment in the month of `maturity_date`; for `RESET` and `FLOAT` loans the balance at the next reset (a `RESET` loan first at `fixed_until`, then every `reset_months`; a `FLOAT` loan every `reset_months` from origination) as repricing principal, with nothing projected after it. Amounts are binary floating point and never rounded; totals per segment, currency and month never add currencies. Its inputs are `loans.csv` (register header), `positions.csv` (`as_of_date,loan_id,balance,client_rate`) and an optional `cpr.csv` (`loan_id,as_of_date,cpr`; a projected month without a row has CPR 0).
+
+## `scenarios.py`
+
+Holds a shocked refinancing curve from the as-of date and reaches the model only through the [incentive](../../docs/methodology/MODEL_CONTRACTS.md#rate-incentive) `I = client_rate - (R + m)`, which drives `PM1` at fixed parameters (ramp by age from the origination month end to `t - 1`, seasonal factor of the month of `t`, clamp to [0, 1]); the CPR path then drives `cashflows.py`. `FIXED` loans only, lag 1 (M4).
+
+## `derive_cashflows.py`
+
+Derives the expected values of `CF-SCHED-01`, `CF-PREPAY-01` and `CF-RESET-01` in rationals, month by month, without `cashflows.py`: fixture CPRs are `1 - (1 - s)^12` for rational `s`, recovered by an exact integer twelfth root. The views of `SCN-BASE-01` and `SCN-MONO-01` use decimal arithmetic at 60 digits. Values are rounded to 30 significant digits; `tools/test_reference_cashflows.py` checks that the committed expected files equal this derivation. `CF-CONS-01` is an identity with hand sums; `SCN-BASE-01` and `SCN-MONO-01` are seeded property tests with negative controls, as `DATA-PIT-02`.
+
+### Inputs refused pending a decision
+
+The references raise `ContractQuestion` instead of choosing where the contract is silent: an annuity paid every 3, 6 or 12 months (periodic rate); a loan whose term is not a multiple of `payment_months` (payment months from origination or from maturity); a reset month that is an amortising payment month or has a positive SMM, or that is the maturity month; a curve with several tenors in a currency, or a penalty other than `NONE` (remaining term in years); burnout `b` other than 0 in a projected month; a shocked rate below zero (post-shock floor, `SCN-FLOOR-01`).
