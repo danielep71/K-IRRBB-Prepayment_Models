@@ -1,0 +1,145 @@
+{
+  "case": "PM1-MIN-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "monthly_counts.csv gives, per segment, currency and month end, the number of risk-set loan-months and how many of them are FULL; the test expands each row into that many loan-months (FULL: opening 1,000, scheduled 10, prepaid 990; NONE otherwise). Every pool has loan-months at every month end of each window and only NONE and FULL outcomes with A > 0, so the open readings of the minimum sample (consecutive month ends of the window or of the data; which risk-set loan-months count) all give the counts below. window_36, 2021-01-31 to 2023-12-31: MTG_FIX EUR 140 x 35 + 100 = 5,000 loan-months, 3 x 33 + 1 = 100 FULL, at the minimum; CON_FIX EUR 4,999 loan-months; SME_FIX EUR 99 FULL; MTG_RST EUR 50 + 150 x 35 = 5,300 loan-months, 5 + 3 x 35 = 110 FULL; MTG_FIX USD and GBP 70 x 35 + 50 = 2,500 loan-months and 2 x 14 + 22 = 50 FULL each, which would meet the minimum only if currencies were pooled. Rows of 2020-12-31 (MTG_FIX EUR) and 2024-01-31 (SME_FIX EUR, 5 FULL) are outside both windows. window_35, 2021-02-28 to 2023-12-31, drops the first month: MTG_RST EUR keeps 5,250 loan-months and 105 FULL and falls short on month ends only.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "minimum": {
+    "month_ends": 36,
+    "loan_months": 5000,
+    "full_events": 100
+  },
+  "variants": {
+    "window_36": {
+      "start": "2021-01-31",
+      "end": "2023-12-31",
+      "pools": {
+        "CON_FIX|EUR": {
+          "month_ends": 36,
+          "loan_months": 4999,
+          "full_events": 100,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "loan_months"
+          ]
+        },
+        "MTG_FIX|EUR": {
+          "month_ends": 36,
+          "loan_months": 5000,
+          "full_events": 100,
+          "meets_minimum_sample": true,
+          "shortfalls": []
+        },
+        "MTG_FIX|GBP": {
+          "month_ends": 36,
+          "loan_months": 2500,
+          "full_events": 50,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_FIX|USD": {
+          "month_ends": 36,
+          "loan_months": 2500,
+          "full_events": 50,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_RST|EUR": {
+          "month_ends": 36,
+          "loan_months": 5300,
+          "full_events": 110,
+          "meets_minimum_sample": true,
+          "shortfalls": []
+        },
+        "SME_FIX|EUR": {
+          "month_ends": 36,
+          "loan_months": 5000,
+          "full_events": 99,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "full_events"
+          ]
+        }
+      }
+    },
+    "window_35": {
+      "start": "2021-02-28",
+      "end": "2023-12-31",
+      "pools": {
+        "CON_FIX|EUR": {
+          "month_ends": 35,
+          "loan_months": 4859,
+          "full_events": 97,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends",
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_FIX|EUR": {
+          "month_ends": 35,
+          "loan_months": 4860,
+          "full_events": 97,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends",
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_FIX|GBP": {
+          "month_ends": 35,
+          "loan_months": 2430,
+          "full_events": 48,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends",
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_FIX|USD": {
+          "month_ends": 35,
+          "loan_months": 2430,
+          "full_events": 48,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends",
+            "loan_months",
+            "full_events"
+          ]
+        },
+        "MTG_RST|EUR": {
+          "month_ends": 35,
+          "loan_months": 5250,
+          "full_events": 105,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends"
+          ]
+        },
+        "SME_FIX|EUR": {
+          "month_ends": 35,
+          "loan_months": 4860,
+          "full_events": 96,
+          "meets_minimum_sample": false,
+          "shortfalls": [
+            "month_ends",
+            "loan_months",
+            "full_events"
+          ]
+        }
+      }
+    }
+  }
+}

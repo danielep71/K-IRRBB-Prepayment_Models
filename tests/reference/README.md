@@ -55,3 +55,15 @@ Applies the [EVE sensitivity and repricing gap](../../docs/methodology/MODEL_CON
 ## `derive_eve.py`
 
 Derives the expected values of `EVE-PV-01` and `MEAS-01` without `eve.py`: it reads the fixtures with the `csv` module, computes zero rates, repricing times, monthly SMMs and their products exactly in rationals, and `exp` and the non-integral powers `12/n` in decimal at 60 digits, each rounded to 40 significant digits. `tools/test_reference_eve.py` checks that the committed expected files still equal this derivation. `EVE-DELTA-01`, `EVE-RATIO-01`, `GAP-BUCKET-01`, `GAP-CONS-01` and the hand points of `MEAS-01` (`PV_BASE <= 0` not reported) are hand computations written into their expected files.
+
+## `models.py`
+
+Applies the [candidate models](../../docs/methodology/MODEL_CONTRACTS.md#candidate-models) in binary floating point: `PM0`, the realised CPR of the estimation window compounded from the pool SMM of each month end (`rates.py`), a loan-month belonging to the window when its month end `t` does; the `PM1` formula with ramp, burnout, seasonality (12 factors with mean 1, refused otherwise) and clamp, its CPR converted to SMM; the weighted least-squares objective on monthly bucket SMM with weights `sum A` and the predicted bucket value of decision M11, buckets of 25 bp (M8); Nelder–Mead in the constraint-enforcing parametrisation, with recorded start values, steps, tolerances, iteration limit and restarts; "not estimated" with no parameters on non-convergence or a non-finite objective; and the minimum sample of decision M9 per segment and currency. Drivers (incentive, age, pool factor) are inputs; ramp, seasonality and burnout are fixed assumptions in the fit (M7). Where the contract is silent it refuses rather than guesses: a pool with no loan-months in some month of the window has no `PM0`, and a "parameter at a numerical boundary" is not tested.
+
+## `derive_models.py`
+
+Derives the expected values of `PM0-CALC-01`, `PM1-FORM-01` and `PM1-FIT-01` and generates the fixtures of `PM1-FIT-01` and `PM1-DGP-01`, without `models.py` or `rates.py`: `PM0` exactly in rationals from hand-tabulated monthly sums; the `PM1` formula in decimal at 50 digits; for `PM1-FIT-01`, data whose optimum is known by construction (residuals orthogonal, in the `sum A`-weighted inner product, to the derivatives of the predictions at the design parameters), then the optimum of the rounded data by Newton's method in decimal, with its gradient and the positive pivots of its Hessian recorded. `tools/test_reference_models.py` checks that the committed fixtures and expected files still equal this derivation. The expected values of `PM1-MIN-01` and `PM1-FAIL-01` are hand constructions.
+
+## `report_dgp.py`
+
+Fits `models.py` to the `PM1-DGP-01` sample (seed and generating parameters in `derive_models.py`) and reports the estimates, their differences from the generating values and approximate sandwich standard errors. The case is statistical and reported: the test checks that the sample and the report reproduce, not that recovery passes a tolerance.
