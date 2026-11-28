@@ -1,6 +1,6 @@
 # Validation plan
 
-Status: **accepted on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. All twelve `DATA-*` cases are `Built (Python)` and run through `python tools/check.py` (#41); eleven also have VBA tests, including `DATA-REJECT-01` through the import adapter (#42). A VBA test harness (#42) and workbook build/export tooling (#43) exist, but no Windows Excel build, compile or run evidence exists. The remaining validation checks are planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
+Status: **accepted on 2026-10-21 (issue #15)**, with every [decision](#decisions) as proposed. All twelve `DATA-*` cases are `Built (Python)` and run through `python tools/check.py` (#41); eleven also have VBA tests, including `DATA-REJECT-01` through the import adapter (#42). The five `RATE-*` cases are `Built (Python)` (#41), the two rate conversions also in VBA. A VBA test harness (#42) and workbook build/export tooling (#43) exist, but no Windows Excel build, compile or run evidence exists. The remaining validation checks are planned. Rows marked "#72" cover the EVE and repricing-gap decisions accepted on 2026-10-21; rows marked "#49" cover RENEG successor reconciliation (D11), accepted on 2026-10-26.
 
 This document is authoritative for what independent validation a prepayment implementation must pass before its results can be relied on: the evidence layers, the validation matrix, out-of-time testing, leakage, segmentation, edge cases and scenario sensitivity. Numerical cases are registered in [TEST_CASES.md](TEST_CASES.md); real-host evidence is defined in [EXCEL_EVIDENCE.md](../EXCEL_EVIDENCE.md). The models and data being validated are specified in the [model contracts](MODEL_CONTRACTS.md) and the [data contract](DATA_CONTRACT.md).
 
@@ -106,13 +106,13 @@ Every case and check carries one status:
 | `Built (Python, VBA)` | Both of the above |
 | `Executed (Excel)` | Passed in an Excel evidence record for the candidate commit, linked |
 
-Today every `DATA-*` case is `Built (Python)`, all of which except `DATA-PIT-02` are `Built (Python, VBA)`, `RATE-CONV-01` and `RATE-CONV-02` are `Built (VBA)`, and every other case is `Registered`. A status is raised only in the change that delivers it.
+Today every `DATA-*` case is `Built (Python)`, all of which except `DATA-PIT-02` are `Built (Python, VBA)`, every `RATE-*` case is `Built (Python)`, `RATE-CONV-01` and `RATE-CONV-02` also in VBA, and every other case is `Registered`. A status is raised only in the change that delivers it.
 
 ## Future scope
 
 Delivery is tracked in the open prototype-setup milestone:
 
-1. #41 delivers independent fixtures, expected files and offline references. All DATA cases are built; the remaining register still needs independent references (decision V4).
+1. #41 delivers independent fixtures, expected files and offline references. All DATA and RATE cases are built; the remaining register still needs independent references (decision V4).
 2. #42 delivers VBA and the harness. The registry and failure-injection path exist; the remaining W6 operations, accepted-case alignment and real Excel execution are outstanding.
 3. #43 delivers the workbook builder and source round-trip tools. Offline checks pass; Windows Excel build/export/compare evidence is outstanding.
 4. The first complete Excel evidence record must identify one candidate commit and the required host; no release readiness follows from source delivery.

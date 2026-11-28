@@ -1,0 +1,46 @@
+{
+  "case": "RATE-POOL-02",
+  "provenance": {
+    "tool": "hand computation",
+    "steps": "Pool CON_FIX|EUR|2024-02-29. M1: A = 59,400, PARTIAL 1,200. M2: A = 39,600, NONE. M3 DEFAULT and M4 SALE are competing exits (D5), in neither sum. M5 RENEG: A = 30,000 - 300 = 29,700 and transferred principal -other_change = 29,700. M6 RENEG with zero residual (D15): A = 500 - 500 = 0, excluded even when RENEG is included. M7: A = 9,000 - 90 = 8,910, FULL 8,910. Default (RENEG excluded, D4): sum A = 107,910, sum P = 10,110 over 3 loan-months. RENEG included: sum A = 137,610, sum P = 39,810 = 1,200 PARTIAL + 8,910 FULL + 29,700 RENEG over 4 loan-months, SMM_reneg = 29,700 / 137,610.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "variants": {
+    "default": {
+      "include_reneg": false,
+      "pools": {
+        "CON_FIX|EUR|2024-02-29": {
+          "available": "107910",
+          "prepaid": "10110",
+          "partial": "1200",
+          "full": "8910",
+          "reneg": "0",
+          "loan_months": 3,
+          "smm": "10110/107910",
+          "smm_partial": "1200/107910",
+          "smm_full": "8910/107910",
+          "smm_reneg": "0"
+        }
+      }
+    },
+    "reneg-included": {
+      "include_reneg": true,
+      "pools": {
+        "CON_FIX|EUR|2024-02-29": {
+          "available": "137610",
+          "prepaid": "39810",
+          "partial": "1200",
+          "full": "8910",
+          "reneg": "29700",
+          "loan_months": 4,
+          "smm": "39810/137610",
+          "smm_partial": "1200/137610",
+          "smm_full": "8910/137610",
+          "smm_reneg": "29700/137610"
+        }
+      }
+    }
+  }
+}

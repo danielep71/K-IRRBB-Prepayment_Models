@@ -1,0 +1,28 @@
+{
+  "case": "RATE-CONV-02",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_rates.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "Worked check of the model contracts: balance(t-1) 100,000, scheduled principal 1,000 and prepaid principal 2,000 give A = 99,000 and SMM = 2,000 / 99,000 = 2/99 by hand. CPR = 1 - (97/99)^12 and CPR / 12 computed exactly in rationals and rounded to 40 significant digits. The values rounded to 8 places are those printed in MODEL_CONTRACTS.md.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "pools": {
+    "MTG_FIX|EUR|2024-02-29": {
+      "available": "99000",
+      "prepaid": "2000",
+      "partial": "2000",
+      "full": "0",
+      "reneg": "0",
+      "loan_months": 1,
+      "smm": "2/99"
+    }
+  },
+  "cpr": "0.2172222438182071263659199438829614917835",
+  "cpr_over_12": "0.01810185365151726053049332865691345764862",
+  "contract_rounded": {
+    "smm": "0.02020202",
+    "cpr": "0.21722224",
+    "cpr_over_12": "0.01810185"
+  }
+}

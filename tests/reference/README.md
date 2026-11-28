@@ -27,3 +27,11 @@ These points were reader choices where the contract was silent. The owner decide
 | 13 | Prepayment on a `MATURITY` row | Counted in neither `prepaid_partial` nor `prepaid_full`, since the contract splits prepaid principal into `PARTIAL` and `FULL` only |
 
 The point-in-time view filters register and panel rows, as the contract states. Market rates dated after an origin are a model-level concern, tested by `INC-LAG-01` and `OOS-LEAK-01`.
+
+## `rates.py`
+
+Applies the [CPR and SMM conventions](../../docs/methodology/MODEL_CONTRACTS.md#cpr-and-smm) of the model contracts: `SMM -> CPR` and `CPR -> SMM` in binary floating point through `log1p` and `expm1`, rates outside [0, 1] refused; the pool SMM of each segment, currency and month end as `sum P / sum A`, split into `PARTIAL`, `FULL` and, when the run setting includes it, `RENEG` (`P = -other_change`); `DEFAULT`, `SALE` and `MATURITY` in neither sum and `A <= 0` excluded (D4, D5); the realised CPR over `n` months, `1 - (prod (1 - SMM))^(12/n)`. Its input is a table of risk-set loan-months (`loan_months.csv`: opening balance, flows and event of each); the import rules that produce them are covered by `DATA-*` and `data_reader.py`.
+
+## `derive_rates.py`
+
+Derives the decimal expected values of `RATE-CONV-01`, `RATE-CONV-02` and `RATE-PERIOD-01` without `rates.py`: exactly in rationals, and the twelfth root in decimal at 60 digits, each rounded to 40 significant digits. `tools/test_reference_cases.py` checks that the committed expected files still equal this derivation. The amounts and SMM fractions of `RATE-POOL-01` and `RATE-POOL-02` are hand computations written into their expected files.
