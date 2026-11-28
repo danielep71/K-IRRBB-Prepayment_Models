@@ -1,0 +1,86 @@
+{
+  "case": "OOS-LEAK-01",
+  "provenance": {
+    "tool": "hand construction and property test (Python standard library)",
+    "steps": "Generated fixture: tests/reference/pipeline.py generate_book from OOS-FREEZE-01/book.json, a deterministic process with no random draw. Three groups (MTG_FIX EUR, MTG_FIX USD, CON_FIX EUR) of 140 active bullet loans of one balance each (1,000, 2,000 and 400); at each month end the oldest active loans prepay in full, 3, 4 and 5 per month up to 2022-12-31 and 6, 7 and 8 per month after it, and as many new loans originate in that month, so each month's pool SMM is exactly k / 140. Data window 2019-12-31 to 2024-12-31; estimation window 2019-12-31 to 2022-12-31, 36 month ends with loan-months, 140 x 36 = 5,040 loan-months and 108, 144 and 180 FULL events, above the minimum sample of M9; test window 2023-01-31 to 2023-12-31, 12 origins whose 12-month horizons end by 2024-12-31 (V1). The generated files are an accepted import (data_reader.read_import: no error, no warning). A forecast from origin t consists of the frozen parameters, the PM0 SMM path over horizons 1 to 12, the loans known at t, the latest known row of each loan outstanding in the extract at t and the curve series observed at t. Hand instance at 2023-06-30 (month 42): loans known 140 + 3 x 36 + 6 x 6 = 284 (MTG_FIX EUR), 140 + 4 x 36 + 7 x 6 = 326 (MTG_FIX USD), 140 + 5 x 36 + 8 x 6 = 368 (CON_FIX EUR); 140 outstanding loans each, balances 140,000, 280,000 and 56,000; curve 0.02 + 42 x 0.0001 = 0.0242 (EUR) and 0.0342 (USD). Property: for each origin, each trial applies one to three random valid changes dated after t (a partial or full prepayment, a censoring or a client-rate change of an outstanding loan in a later month, a loan originated after t added or deleted, a curve series re-marked or truncated from a later month or extended after the data window) and requires the forecast and the parameter estimates from t to be unchanged. Market rates at t are never altered: a guard checks that every changed row is dated after t, and the hand instance shows that a change to the rate at t does change the forecast. Negative control: the same changes with the point-in-time filter disabled change the forecast in every trial. The parameter-set ID records the input fingerprints, which any change alters, so the comparison is on the forecast without that lineage.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "fixture": "OOS-FREEZE-01/book.json",
+  "settings": {
+    "windows": {
+      "data_start": "2019-12-31",
+      "data_end": "2024-12-31",
+      "estimation_start": "2019-12-31",
+      "estimation_end": "2022-12-31",
+      "test_start": "2023-01-31",
+      "test_end": "2023-12-31"
+    },
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "timestamp": "2026-11-28T09:00:00",
+    "curve_series": [
+      "EUR_SWAP_60M",
+      "USD_SWAP_60M"
+    ]
+  },
+  "seed": 20261129,
+  "trials_per_origin": 2,
+  "origins": [
+    "2023-01-31",
+    "2023-06-30",
+    "2023-12-31"
+  ],
+  "instance": {
+    "origin": "2023-06-30",
+    "groups": {
+      "MTG_FIX|EUR": {
+        "known_loans": 284,
+        "cohort_loans": 140,
+        "cohort_balance": "140000",
+        "curve": [
+          [
+            "EUR_SWAP_60M",
+            "60",
+            "2023-06-30",
+            "0.02420000"
+          ]
+        ]
+      },
+      "MTG_FIX|USD": {
+        "known_loans": 326,
+        "cohort_loans": 140,
+        "cohort_balance": "280000",
+        "curve": [
+          [
+            "USD_SWAP_60M",
+            "60",
+            "2023-06-30",
+            "0.03420000"
+          ]
+        ]
+      },
+      "CON_FIX|EUR": {
+        "known_loans": 368,
+        "cohort_loans": 140,
+        "cohort_balance": "56000",
+        "curve": [
+          [
+            "EUR_SWAP_60M",
+            "60",
+            "2023-06-30",
+            "0.02420000"
+          ]
+        ]
+      }
+    },
+    "rate_at_origin": {
+      "rate_id": "EUR_SWAP_60M",
+      "rate": "0.05000000",
+      "changes": [
+        "CON_FIX|EUR",
+        "MTG_FIX|EUR"
+      ]
+    }
+  }
+}

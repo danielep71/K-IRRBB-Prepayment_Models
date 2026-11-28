@@ -1,0 +1,16 @@
+{
+  "data_window": ["2019-12-31", "2024-12-31"],
+  "split": "2022-12-31",
+  "initial_origination": "2019-06-15",
+  "maturity": "2045-06-15",
+  "client_rate": "0.03",
+  "groups": [
+    {"prefix": "MFE", "segment": "MTG_FIX", "currency": "EUR", "loans": 140, "balance": "1000", "full_per_month": [3, 6]},
+    {"prefix": "MFU", "segment": "MTG_FIX", "currency": "USD", "loans": 140, "balance": "2000", "full_per_month": [4, 7]},
+    {"prefix": "CFE", "segment": "CON_FIX", "currency": "EUR", "loans": 140, "balance": "400", "full_per_month": [5, 8]}
+  ],
+  "rates": [
+    {"rate_id": "EUR_SWAP_60M", "currency": "EUR", "tenor_months": 60, "first": "0.02", "step": "0.0001"},
+    {"rate_id": "USD_SWAP_60M", "currency": "USD", "tenor_months": 60, "first": "0.03", "step": "0.0001"}
+  ]
+}
