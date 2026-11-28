@@ -1,0 +1,64 @@
+{
+  "case": "SCN-LAYER-01",
+  "provenance": {
+    "tool": "hand computation and property test (Python standard library)",
+    "steps": "Generated fixture: tests/reference/pipeline.py generate_book from OOS-FREEZE-01/book.json, a deterministic process with no random draw. Three groups (MTG_FIX EUR, MTG_FIX USD, CON_FIX EUR) of 140 active bullet loans of one balance each (1,000, 2,000 and 400); at each month end the oldest active loans prepay in full, 3, 4 and 5 per month up to 2022-12-31 and 6, 7 and 8 per month after it, and as many new loans originate in that month, so each month's pool SMM is exactly k / 140. Data window 2019-12-31 to 2024-12-31; estimation window 2019-12-31 to 2022-12-31, 36 month ends with loan-months, 140 x 36 = 5,040 loan-months and 108, 144 and 180 FULL events, above the minimum sample of M9; test window 2023-01-31 to 2023-12-31, 12 origins whose 12-month horizons end by 2024-12-31 (V1). The generated files are an accepted import (data_reader.read_import: no error, no warning). Overlays are applied after the fit. PM0 has no rate incentive, so its internal-model CPR is CPR_BASE in every scenario; the standardised-multiplier layer gives min(1, gamma x CPR_BASE) with gamma 4/5 for PAR_UP, STEEPENER and SHORT_UP and 6/5 for PAR_DOWN, FLATTENER and SHORT_DOWN (REG-1 SRP31.119, Table 5), and CPR_BASE for BASE (M15); expected CPRs derived exactly from the PM0 rationals. Property: each trial requests a random subset of the six supervisory scenarios, with or without the standardised layer, and requires every parameter set and the parameter export to be unchanged, and every scenario and forecast row to carry a layer from 'layers' and the ID of its parameter set. Negative controls: an overlay that stores its CPR in the parameter set, and one that leaves a row unlabelled, are both detected. The layer labels are this reference's; the contract names the layers but not their spelling.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact; abs 1e-12 for a CPR against its rational value",
+  "fixture": "OOS-FREEZE-01/book.json",
+  "settings": {
+    "windows": {
+      "data_start": "2019-12-31",
+      "data_end": "2024-12-31",
+      "estimation_start": "2019-12-31",
+      "estimation_end": "2022-12-31",
+      "test_start": "2023-01-31",
+      "test_end": "2023-12-31"
+    },
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "timestamp": "2026-11-28T09:00:00",
+    "curve_series": [
+      "EUR_SWAP_60M",
+      "USD_SWAP_60M"
+    ]
+  },
+  "seed": 20261202,
+  "trials": 8,
+  "layers": [
+    "internal_model",
+    "standardised_multiplier"
+  ],
+  "gamma": {
+    "PAR_UP": "4/5",
+    "STEEPENER": "4/5",
+    "SHORT_UP": "4/5",
+    "PAR_DOWN": "6/5",
+    "FLATTENER": "6/5",
+    "SHORT_DOWN": "6/5"
+  },
+  "parameters": {
+    "MTG_FIX|EUR": {
+      "pool_smm": "3/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 108,
+      "pm0_cpr": "12977269296578696587129119/56693912375296000000000000"
+    },
+    "MTG_FIX|USD": {
+      "pool_smm": "4/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 144,
+      "pm0_cpr": "992799824363539569/3379220508056640625"
+    },
+    "CON_FIX|EUR": {
+      "pool_smm": "5/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 180,
+      "pm0_cpr": "82123629792213295/232218265089212416"
+    }
+  }
+}

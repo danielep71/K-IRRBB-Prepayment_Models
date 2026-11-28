@@ -1,0 +1,66 @@
+{
+  "case": "SEG-ISO-01",
+  "provenance": {
+    "tool": "hand computation and property test (Python standard library)",
+    "steps": "Generated fixture: tests/reference/pipeline.py generate_book from OOS-FREEZE-01/book.json, a deterministic process with no random draw. Three groups (MTG_FIX EUR, MTG_FIX USD, CON_FIX EUR) of 140 active bullet loans of one balance each (1,000, 2,000 and 400); at each month end the oldest active loans prepay in full, 3, 4 and 5 per month up to 2022-12-31 and 6, 7 and 8 per month after it, and as many new loans originate in that month, so each month's pool SMM is exactly k / 140. Data window 2019-12-31 to 2024-12-31; estimation window 2019-12-31 to 2022-12-31, 36 month ends with loan-months, 140 x 36 = 5,040 loan-months and 108, 144 and 180 FULL events, above the minimum sample of M9; test window 2023-01-31 to 2023-12-31, 12 origins whose 12-month horizons end by 2024-12-31 (V1). The generated files are an accepted import (data_reader.read_import: no error, no warning). Each segment and currency has its own PM0, 1 - (1 - k/140)^12. Pooling the two MTG_FIX currencies would give a monthly SMM of (3 x 1,000 + 4 x 2,000) / (140 x 1,000 + 140 x 2,000) = 11/420, and pooling the two EUR segments (3 x 1,000 + 5 x 400) / (140 x 1,000 + 140 x 400) = 5/196; both CPRs derived exactly. Property: each trial picks one segment and currency and applies one to three random valid changes to its loans dated up to the end of the test window (prepayments, censoring, a loan added or deleted; market rates are shared by currency and are not segment data), and requires every other segment and currency to keep its parameter estimates and its forecasts at the first and last origins, while the changed group's own outputs change. Negative control: the same changes under a pipeline that pools currencies (or segments) change another group's outputs.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact; abs 1e-12 for a CPR against its rational value",
+  "fixture": "OOS-FREEZE-01/book.json",
+  "settings": {
+    "windows": {
+      "data_start": "2019-12-31",
+      "data_end": "2024-12-31",
+      "estimation_start": "2019-12-31",
+      "estimation_end": "2022-12-31",
+      "test_start": "2023-01-31",
+      "test_end": "2023-12-31"
+    },
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "timestamp": "2026-11-28T09:00:00",
+    "curve_series": [
+      "EUR_SWAP_60M",
+      "USD_SWAP_60M"
+    ]
+  },
+  "seed": 20261130,
+  "trials": 6,
+  "parameters": {
+    "MTG_FIX|EUR": {
+      "pool_smm": "3/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 108,
+      "pm0_cpr": "12977269296578696587129119/56693912375296000000000000"
+    },
+    "MTG_FIX|USD": {
+      "pool_smm": "4/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 144,
+      "pm0_cpr": "992799824363539569/3379220508056640625"
+    },
+    "CON_FIX|EUR": {
+      "pool_smm": "5/140",
+      "month_ends": 36,
+      "loan_months": 5040,
+      "full_events": 180,
+      "pm0_cpr": "82123629792213295/232218265089212416"
+    }
+  },
+  "pooled": {
+    "currencies": {
+      "MTG_FIX": {
+        "pool_smm": "11/420",
+        "pm0_cpr": "8217586699498134744128089780319/30129469486639681536000000000000"
+      }
+    },
+    "segments": {
+      "EUR": {
+        "pool_smm": "5/196",
+        "pm0_cpr": "856978127840555246685972735/3214199700417740936751087616"
+      }
+    }
+  }
+}

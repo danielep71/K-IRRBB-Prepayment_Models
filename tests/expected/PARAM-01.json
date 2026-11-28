@@ -1,0 +1,52 @@
+{
+  "case": "PARAM-01",
+  "provenance": {
+    "tool": "hand construction and property test (Python standard library)",
+    "steps": "Generated fixture: tests/reference/pipeline.py generate_book from OOS-FREEZE-01/book.json, a deterministic process with no random draw. Three groups (MTG_FIX EUR, MTG_FIX USD, CON_FIX EUR) of 140 active bullet loans of one balance each (1,000, 2,000 and 400); at each month end the oldest active loans prepay in full, 3, 4 and 5 per month up to 2022-12-31 and 6, 7 and 8 per month after it, and as many new loans originate in that month, so each month's pool SMM is exactly k / 140. Data window 2019-12-31 to 2024-12-31; estimation window 2019-12-31 to 2022-12-31, 36 month ends with loan-months, 140 x 36 = 5,040 loan-months and 108, 144 and 180 FULL events, above the minimum sample of M9; test window 2023-01-31 to 2023-12-31, 12 origins whose 12-month horizons end by 2024-12-31 (V1). The generated files are an accepted import (data_reader.read_import: no error, no warning). A parameter set holds the items listed in MODEL_CONTRACTS.md, Parameter and scenario outputs, in 'fields'; PM0 has one value, the CPR, in decimal per annum, layer estimate. Immutability property: each trial tries random in-place changes (assign a field, assign, append or delete an item of a tuple field, assign a field of a value) and requires each to be refused and the set's content and export to be unchanged; negative control: the same changes to a mutable copy succeed and alter it. Export property: each trial alters the run's dataset inside the estimation window with one to three random valid changes and requires the parameter export to be unchanged and no estimation to run during export; negative control: an exporter that re-estimates from the dataset gives a different export.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "fixture": "OOS-FREEZE-01/book.json",
+  "settings": {
+    "windows": {
+      "data_start": "2019-12-31",
+      "data_end": "2024-12-31",
+      "estimation_start": "2019-12-31",
+      "estimation_end": "2022-12-31",
+      "test_start": "2023-01-31",
+      "test_end": "2023-12-31"
+    },
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "timestamp": "2026-11-28T09:00:00",
+    "curve_series": [
+      "EUR_SWAP_60M",
+      "USD_SWAP_60M"
+    ]
+  },
+  "seed": 20261201,
+  "trials": 4,
+  "fields": [
+    "id",
+    "model_id",
+    "model_version",
+    "segment",
+    "currency",
+    "data_window",
+    "fingerprints",
+    "estimation_window",
+    "test_window",
+    "settings",
+    "values",
+    "diagnostics",
+    "timestamp",
+    "commit"
+  ],
+  "values": [
+    {
+      "name": "cpr",
+      "unit": "decimal per annum",
+      "layer": "estimate"
+    }
+  ]
+}

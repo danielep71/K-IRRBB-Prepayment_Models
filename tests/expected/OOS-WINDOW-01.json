@@ -1,0 +1,40 @@
+{
+  "case": "OOS-WINDOW-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Rules of MODEL_CONTRACTS.md, Common rules: both windows inside the data window; the test window disjoint from and strictly after the estimation window (test_start > estimation_end), so an overlapping, equal or earlier test window is rejected before estimation or scoring. V1: at least 12 forecast origins (month ends of the test window) whose month end 12 months later lies inside the data window; later origins may follow. Origins and complete origins counted by hand from the month-end boundaries; month_end_arithmetic lists month ends k months apart, including 2023-02-28 + 12 = 2024-02-29. A run without a test window has no origins and is not subject to V1. 'breaches' names the rule each rejection rests on in this reference's words; the contract prescribes the rejection, not its wording, so only 'accepted' binds an implementation. Boundaries that are not month ends, or a window that ends before it starts, are preconditions of the declaration and are not registered here.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "month_end_arithmetic": [
+    ["2023-01-31", 1, "2023-02-28"],
+    ["2023-02-28", 12, "2024-02-29"],
+    ["2024-02-29", 12, "2025-02-28"],
+    ["2022-03-31", 11, "2023-02-28"],
+    ["2023-12-31", 1, "2024-01-31"],
+    ["2024-03-31", -1, "2024-02-29"]
+  ],
+  "variants": {
+    "adjacent-later": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2022-01-31", "2022-12-31"], "accepted": true, "origins": 12, "complete_origins": 12, "breaches": []},
+    "later-with-incomplete-tail": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2022-01-31", "2023-12-31"], "accepted": true, "origins": 24, "complete_origins": 12, "breaches": []},
+    "gap-later": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-06-30"], "test": ["2021-12-31", "2022-12-31"], "accepted": true, "origins": 13, "complete_origins": 13, "breaches": []},
+    "no-test-window": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": null, "accepted": true, "origins": 0, "complete_origins": 0, "breaches": []},
+    "overlap-one-month": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2021-12-31", "2022-12-31"], "accepted": false, "origins": 13, "complete_origins": 13, "breaches": ["test_not_after_estimation"]},
+    "overlap": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2021-07-31", "2022-12-31"], "accepted": false, "origins": 18, "complete_origins": 18, "breaches": ["test_not_after_estimation"]},
+    "equal": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2020-01-31", "2021-12-31"], "accepted": false, "origins": 24, "complete_origins": 24, "breaches": ["test_not_after_estimation"]},
+    "earlier": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2021-01-31", "2022-12-31"], "test": ["2020-01-31", "2020-12-31"], "accepted": false, "origins": 12, "complete_origins": 12, "breaches": ["test_not_after_estimation"]},
+    "too-few-origins": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2022-02-28", "2022-12-31"], "accepted": false, "origins": 11, "complete_origins": 11, "breaches": ["fewer_than_12_complete_origins"]},
+    "too-few-complete": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2022-01-31"], "test": ["2022-02-28", "2023-12-31"], "accepted": false, "origins": 23, "complete_origins": 11, "breaches": ["fewer_than_12_complete_origins"]},
+    "test-beyond-data": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2020-01-31", "2021-12-31"], "test": ["2022-01-31", "2024-01-31"], "accepted": false, "origins": 25, "complete_origins": 12, "breaches": ["test_outside_data_window"]},
+    "estimation-before-data": {"data": ["2020-01-31", "2023-12-31"], "estimation": ["2019-12-31", "2021-12-31"], "test": ["2022-01-31", "2022-12-31"], "accepted": false, "origins": 12, "complete_origins": 12, "breaches": ["estimation_outside_data_window"]},
+    "leap-complete": {"data": ["2020-01-31", "2024-02-29"], "estimation": ["2020-01-31", "2022-02-28"], "test": ["2022-03-31", "2023-02-28"], "accepted": true, "origins": 12, "complete_origins": 12, "breaches": []},
+    "leap-incomplete": {"data": ["2020-01-31", "2024-01-31"], "estimation": ["2020-01-31", "2022-02-28"], "test": ["2022-03-31", "2023-02-28"], "accepted": false, "origins": 12, "complete_origins": 11, "breaches": ["fewer_than_12_complete_origins"]}
+  },
+  "pipeline": {
+    "fixture": "OOS-FREEZE-01/book.json",
+    "estimation": ["2019-12-31", "2022-12-31"],
+    "rejected_tests": [["2022-12-31", "2023-11-30"], ["2019-12-31", "2022-12-31"], ["2021-01-31", "2021-12-31"]],
+    "breaches": ["test_not_after_estimation"]
+  }
+}

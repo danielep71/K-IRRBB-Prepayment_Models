@@ -1,0 +1,25 @@
+{
+  "case": "OOS-SCORE-01",
+  "provenance": {
+    "tool": "hand computation",
+    "steps": "Data window ends 2024-06-30; origins 2024-03-31, 2024-04-30 and 2024-05-31; horizons 1 to 12 (V2). A pair (origin, h) is INCOMPLETE when the month end h months after the origin lies after 2024-06-30, whatever values pairs.csv holds for it: (2024-04-30, 3) and (2024-05-31, 2) carry realised values from 2024-07-31, outside the window, and are never scored; every pair with h >= 4 is INCOMPLETE. Forecast SMM 0.01 in every pair (a PM0 forecast) on an exposure of 100,000 in every pair, so a balance-weighted mean over origins equals the plain mean whichever balance weights it. h = 1: errors F - R of -0.002, 0.002 and 0.01; MAE 0.014 / 3 = 7/1500; mean error 0.01 / 3 = 1/300. h = 2: errors 0.003 and -0.006; MAE 0.009 / 2 = 9/2000; mean error -0.0015, magnitude 3/2000. h = 3: one error -0.005; MAE and magnitude 1/200. Cumulative prepaid error as a share of the realised amount, |F - R| / R: 200/1200 = 1/6, 200/800 = 1/4, 100/1900 = 1/19, 400/2400 = 1/6, 400/3400 = 2/17. (2024-05-31, 1) has realised prepaid 0: ZERO_REALISED, absolute error |1000 - 0| = 1000 currency units, kept in the SMM scores (its SMM error 0.01 is in the h = 1 MAE). Counts: scored 3, 2, 1 at h = 1, 2, 3 and 0 from h = 4; INCOMPLETE 0, 1, 2, then 3 per horizon, 30 in all. Wrong treatments give other numbers: scoring the INCOMPLETE pairs gives an h = 2 MAE of 1/300 and an h = 3 MAE of 3/400; dropping the ZERO_REALISED pair from the SMM scores gives an h = 1 MAE of 1/500. The sign of the bias and of the cumulative error is not fixed by VALIDATION_PLAN.md, so this file states magnitudes only, and no pass/fail criterion (V3) is computed.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "fixture": "OOS-SCORE-01/pairs.csv",
+  "data_end": "2024-06-30",
+  "origins": ["2024-03-31", "2024-04-30", "2024-05-31"],
+  "horizons": 12,
+  "incomplete_total": 30,
+  "by_horizon": {
+    "1": {"scored": 3, "incomplete": 0, "zero_realised": 1, "mae": "7/1500", "abs_bias": "1/300",
+          "cumulative": {"2024-03-31": ["relative", "1/6"], "2024-04-30": ["relative", "1/4"], "2024-05-31": ["zero_realised", "1000"]}},
+    "2": {"scored": 2, "incomplete": 1, "zero_realised": 0, "mae": "9/2000", "abs_bias": "3/2000",
+          "cumulative": {"2024-03-31": ["relative", "1/19"], "2024-04-30": ["relative", "1/6"]}},
+    "3": {"scored": 1, "incomplete": 2, "zero_realised": 0, "mae": "1/200", "abs_bias": "1/200",
+          "cumulative": {"2024-03-31": ["relative", "2/17"]}},
+    "4": {"scored": 0, "incomplete": 3, "zero_realised": 0, "mae": null, "abs_bias": null, "cumulative": {}},
+    "12": {"scored": 0, "incomplete": 3, "zero_realised": 0, "mae": null, "abs_bias": null, "cumulative": {}}
+  }
+}

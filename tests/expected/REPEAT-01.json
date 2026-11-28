@@ -1,0 +1,36 @@
+{
+  "case": "REPEAT-01",
+  "provenance": {
+    "tool": "two runs compared (Python standard library, subprocess)",
+    "steps": "Generated fixture: tests/reference/pipeline.py generate_book from OOS-FREEZE-01/book.json, a deterministic process with no random draw. Three groups (MTG_FIX EUR, MTG_FIX USD, CON_FIX EUR) of 140 active bullet loans of one balance each (1,000, 2,000 and 400); at each month end the oldest active loans prepay in full, 3, 4 and 5 per month up to 2022-12-31 and 6, 7 and 8 per month after it, and as many new loans originate in that month, so each month's pool SMM is exactly k / 140. Data window 2019-12-31 to 2024-12-31; estimation window 2019-12-31 to 2022-12-31, 36 month ends with loan-months, 140 x 36 = 5,040 loan-months and 108, 144 and 180 FULL events, above the minimum sample of M9; test window 2023-01-31 to 2023-12-31, 12 origins whose 12-month horizons end by 2024-12-31 (V1). The generated files are an accepted import (data_reader.read_import: no error, no warning). Two complete runs of the reference pipeline (estimation, forecasts from all 12 origins, the overlay for BASE and the six supervisory scenarios, the three CSV exports) in two separate interpreter processes with different hash seeds, so that an order taken from a set of strings, a clock or a random draw would show; the SHA-256 of each input file and each export must agree. input_fingerprints pins the generated fixture itself, not a calculation. Negative control: a run with another commit SHA, and a run with one changed input byte, give other fingerprints.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "fixture": "OOS-FREEZE-01/book.json",
+  "settings": {
+    "windows": {
+      "data_start": "2019-12-31",
+      "data_end": "2024-12-31",
+      "estimation_start": "2019-12-31",
+      "estimation_end": "2022-12-31",
+      "test_start": "2023-01-31",
+      "test_end": "2023-12-31"
+    },
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "timestamp": "2026-11-28T09:00:00",
+    "curve_series": [
+      "EUR_SWAP_60M",
+      "USD_SWAP_60M"
+    ]
+  },
+  "hash_seeds": [
+    "1",
+    "2"
+  ],
+  "input_fingerprints": {
+    "loans.csv": "a0120e220ec7cc2ab3bea6314b5b61122381484500e956a35241b90a0d4310b7",
+    "loan_panel.csv": "5183918c8d7cfe371cadc7a37e33f4dfea4a56df9af7e687fb850a3432558422",
+    "market_rates.csv": "1b22cecf43d7ada3461a5a7abb9952080adda8dcfc48ba21a6a52cbc6fa49dcf"
+  }
+}

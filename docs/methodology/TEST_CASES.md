@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); every model case except `PM1-FAIL-01` is `Built (Python)` (#41); `CF-PREPAY-01`, `CF-CONS-01` and `SCN-BASE-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); every model case except `PM1-FAIL-01` is `Built (Python)` (#41); `CF-PREPAY-01`, `CF-CONS-01` and `SCN-BASE-01` are `Built (Python)` (#41); `OOS-WINDOW-01`, `OOS-FREEZE-01`, `OOS-LEAK-01`, `SEG-ISO-01`, `REPEAT-01` and `PARAM-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -86,7 +86,7 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | `SCN-MONO-01` | Parallel up gives CPR no higher than `BASE` at every month; parallel down no lower | Property test on a synthetic book; holds per loan and has a fixture; whether it is required per pool, where balances weight loans differently by scenario and a counterexample exists, awaits a decision | `exact` (sign) | Registered |
 | `SCN-FLOOR-01` | Post-shock floor as a lower bound, `max(shocked, min(observed, min(0, -150bp + 3bp x m)))`: binding and non-binding cases, a positive shocked rate left unchanged | Hand computation with synthetic shock sizes | `abs 1e-12` | Built (Python) |
 | `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)` (`REG-1` SRP31.119, Table 5) | Hand computation | `abs 1e-12` | Built (Python) |
-| `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |
+| `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test; unchanged parameters and labelled rows have a fixture; the label names and the layer of `CONTRACT` and user shocks await a decision | `exact` | Registered |
 
 ### EVE sensitivity and repricing gap (#72)
 
@@ -103,13 +103,13 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Registered |
-| `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Registered |
-| `OOS-LEAK-01` | A forecast from origin `t` is unchanged when rows or market rates dated after `t` are altered; rates at `t` are not altered; negative control | Property test | `exact` | Registered |
-| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation | `abs 1e-12` | Registered |
-| `SEG-ISO-01` | Altering one segment leaves other segments' parameters and forecasts unchanged; currencies never pooled | Property test | `exact` | Registered |
-| `REPEAT-01` | Same inputs, settings and commit give identical outputs and fingerprints | Two runs compared | `exact` | Registered |
-| `PARAM-01` | A parameter set is immutable; exporting never re-estimates | Property test | `exact` | Registered |
+| `OOS-WINDOW-01` | Reject test windows overlapping, equal to or earlier than estimation; accept a strictly later disjoint window subject to V1 and complete-horizon requirements | Hand-constructed month-end boundaries | `exact` | Built (Python) |
+| `OOS-FREEZE-01` | Parameters identical across all forecast origins in the test window | Property test | `exact` | Built (Python) |
+| `OOS-LEAK-01` | A forecast from origin `t` is unchanged when rows or market rates dated after `t` are altered; rates at `t` are not altered; negative control | Property test | `exact` | Built (Python) |
+| `OOS-SCORE-01` | Bias, MAE and cumulative prepaid error on a small hand case, including an `INCOMPLETE` pair at the end of the data window and a `ZERO_REALISED` pair | Hand computation; counts, MAE, error magnitudes and the INCOMPLETE and ZERO_REALISED classes have a fixture; the sign of bias and of the cumulative error awaits a decision | `abs 1e-12` | Registered |
+| `SEG-ISO-01` | Altering one segment leaves other segments' parameters and forecasts unchanged; currencies never pooled | Property test | `exact` | Built (Python) |
+| `REPEAT-01` | Same inputs, settings and commit give identical outputs and fingerprints | Two runs compared | `exact` | Built (Python) |
+| `PARAM-01` | A parameter set is immutable; exporting never re-estimates | Property test | `exact` | Built (Python) |
 
 ## Adding or building a case
 
