@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); `CF-PREPAY-01`, `CF-CONS-01` and `SCN-BASE-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); every model case except `PM1-FAIL-01` is `Built (Python)` (#41); `CF-PREPAY-01`, `CF-CONS-01` and `SCN-BASE-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -62,12 +62,12 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `PM0-CALC-01` | `PM0` equals the realised CPR of the estimation window | Hand computation | `abs 1e-12` | Registered |
-| `PM1-FORM-01` | S-curve, ramp, seasonality, burnout and clamp evaluated at fixed parameters | Independent script | `rel 1e-12` | Registered |
-| `PM1-FIT-01` | Weighted least-squares fit on synthetic bucket data, with predicted bucket values per decision M11: parameters and objective | Independent optimiser on the same objective, offline | Decision V5 | Registered |
-| `PM1-FAIL-01` | Non-convergence, a parameter at a numerical boundary or a non-finite objective gives "not estimated" and stores no parameters | Hand-constructed samples | `exact` | Registered |
-| `PM1-MIN-01` | A segment below the minimum sample is not estimated | Hand construction | `exact` | Registered |
-| `PM1-DGP-01` | Recovery of known generating parameters from a large synthetic sample; reported, not a tolerance test | Generated fixture with recorded seed | Statistical, reported | Registered |
+| `PM0-CALC-01` | `PM0` equals the realised CPR of the estimation window | Hand computation | `abs 1e-12` | Built (Python) |
+| `PM1-FORM-01` | S-curve, ramp, seasonality, burnout and clamp evaluated at fixed parameters | Independent script; the lower clamp is reachable only with a negative season factor, which the contract neither allows nor rules out, and is not yet pinned | `rel 1e-12` | Built (Python) |
+| `PM1-FIT-01` | Weighted least-squares fit on synthetic bucket data, with predicted bucket values per decision M11: parameters and objective | Independent optimiser on the same objective, offline | Decision V5 | Built (Python) |
+| `PM1-FAIL-01` | Non-convergence, a parameter at a numerical boundary or a non-finite objective gives "not estimated" and stores no parameters | Hand-constructed samples; non-convergence and a non-finite objective have fixtures, a parameter at a numerical boundary awaits a definition | `exact` | Registered |
+| `PM1-MIN-01` | A segment below the minimum sample is not estimated | Hand construction | `exact` | Built (Python) |
+| `PM1-DGP-01` | Recovery of known generating parameters from a large synthetic sample; reported, not a tolerance test | Generated fixture with recorded seed | Statistical, reported | Built (Python) |
 
 ### Cash-flow projection
 

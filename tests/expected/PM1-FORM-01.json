@@ -1,0 +1,92 @@
+{
+  "case": "PM1-FORM-01",
+  "provenance": {
+    "tool": "tests/reference/derive_models.py (Python 3.13 standard library: fractions, decimal, random)",
+    "steps": "For each point of points.csv at the parameter set of parameters.csv: raw = [c_min + (c_max - c_min) x exp(-b x (1 - pool factor)) x 1 / (1 + exp(-k x (I - x0)))] x min(1, age / a_ramp) (1 when a_ramp = 0) x Season(month of as_of_date); CPR = min(1, max(0, raw)); SMM = 1 - exp(ln(1 - CPR) / 12), 1 at CPR = 1. Decimal arithmetic at 50 significant digits in derive_models.Model, which shares no code with models.py; rounded to 20 significant digits. Set A exercises seasoning below, at and above a_ramp, age 0 and burnout; set B a_ramp = 0 and b = 0; set C the upper clamp (C1, C4) next to unclamped points; set D |k (I - x0)| = 1000, where a naive logistic overflows. Not covered: the lower clamp max(0, .), reachable only with a negative season factor, which the contract neither allows nor forbids.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "rel 1e-12",
+  "points": {
+    "A1": {
+      "raw": "0.25200",
+      "cpr": "0.25200",
+      "smm": "0.023905647974255788468"
+    },
+    "A2": {
+      "raw": "0.20912480886954767985",
+      "cpr": "0.20912480886954767985",
+      "smm": "0.019361372805876311322"
+    },
+    "A3": {
+      "raw": "0.0097007766048210880867",
+      "cpr": "0.0097007766048210880867",
+      "smm": "0.00081201477632572119756"
+    },
+    "A4": {
+      "raw": "0",
+      "cpr": "0",
+      "smm": "0"
+    },
+    "A5": {
+      "raw": "0.0053429385016093434849",
+      "cpr": "0.0053429385016093434849",
+      "smm": "0.00044633894810045943822"
+    },
+    "A6": {
+      "raw": "0.020111007333036351876",
+      "cpr": "0.020111007333036351876",
+      "smm": "0.0016915665626658621185"
+    },
+    "A7": {
+      "raw": "0.11986664237568907704",
+      "cpr": "0.11986664237568907704",
+      "smm": "0.010583747155472145707"
+    },
+    "B1": {
+      "raw": "0.130",
+      "cpr": "0.130",
+      "smm": "0.011538092009444326626"
+    },
+    "B2": {
+      "raw": "0.23003855284145863104",
+      "cpr": "0.23003855284145863104",
+      "smm": "0.021548999465063548775"
+    },
+    "C1": {
+      "raw": "1.4209552377014593997",
+      "cpr": "1",
+      "smm": "1"
+    },
+    "C2": {
+      "raw": "0.53898302119710528954",
+      "cpr": "0.53898302119710528954",
+      "smm": "0.062488918109331921974"
+    },
+    "C3": {
+      "raw": "0.49516967557999861242",
+      "cpr": "0.49516967557999861242",
+      "smm": "0.055369161389988773489"
+    },
+    "C4": {
+      "raw": "1.2820234189484971023",
+      "cpr": "1",
+      "smm": "1"
+    },
+    "D1": {
+      "raw": "0.030000000000000000000",
+      "cpr": "0.030000000000000000000",
+      "smm": "0.0025350486138367191464"
+    },
+    "D2": {
+      "raw": "0.30",
+      "cpr": "0.30",
+      "smm": "0.029285530376777664026"
+    },
+    "D3": {
+      "raw": "0.11173865759915815984",
+      "cpr": "0.11173865759915815984",
+      "smm": "0.0098255173006213031900"
+    }
+  }
+}

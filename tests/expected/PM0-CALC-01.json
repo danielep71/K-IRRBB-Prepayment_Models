@@ -1,0 +1,81 @@
+{
+  "case": "PM0-CALC-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_models.py (Python 3.13 standard library: fractions, decimal, random)",
+    "steps": "Window 2024-02-29 to 2024-07-31, six month ends; a loan-month belongs to the window when its month end t does. Monthly sums by hand from loan_months.csv: MTG_FIX EUR P / A = 3,000 / 150,000; 1,500 / 100,000; 4,400 / 110,000 (E3 FULL 2,000 included); 0 / 90,000 (E4 DEFAULT in neither sum); 2,500 / 125,000; 8,000 / 80,000 (E2 A = 25,000 - 250 + 5,250, the drawdown counted). MTG_FIX USD: 500 / 50,000; 1,000 / 50,000; 0 / 50,000; 2,000 / 40,000; 0 / 40,000; 400 / 40,000. The rows of 2024-01-31 and 2024-08-31 are outside the window. PM0 = 1 - (prod (1 - SMM(t)))^(12/6), computed exactly in rationals by derive_models.realised from these hand sums, without rates.py or models.py, and rounded to 40 significant digits. The same script gives three figures the case rules out: the average of the six monthly CPRs, the CPR of the window-pooled SMM (sum P / sum A over the window) and the CPR of the mean monthly SMM.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "window": {
+    "start": "2024-02-29",
+    "end": "2024-07-31"
+  },
+  "include_reneg": false,
+  "pools": {
+    "MTG_FIX|EUR": {
+      "months": {
+        "2024-02-29": {
+          "prepaid": "3000",
+          "available": "150000"
+        },
+        "2024-03-31": {
+          "prepaid": "1500",
+          "available": "100000"
+        },
+        "2024-04-30": {
+          "prepaid": "4400",
+          "available": "110000"
+        },
+        "2024-05-31": {
+          "prepaid": "0",
+          "available": "90000"
+        },
+        "2024-06-30": {
+          "prepaid": "2500",
+          "available": "125000"
+        },
+        "2024-07-31": {
+          "prepaid": "8000",
+          "available": "80000"
+        }
+      },
+      "pm0": "0.331957259859718144",
+      "average_of_monthly_cprs": "0.2835492150631259138631701737874348958333",
+      "cpr_of_window_pooled_smm": "0.3028743498608331470165206167090881608902",
+      "cpr_of_mean_monthly_smm": "0.3273150918470166959415507802438139915466"
+    },
+    "MTG_FIX|USD": {
+      "months": {
+        "2024-02-29": {
+          "prepaid": "500",
+          "available": "50000"
+        },
+        "2024-03-31": {
+          "prepaid": "1000",
+          "available": "50000"
+        },
+        "2024-04-30": {
+          "prepaid": "0",
+          "available": "50000"
+        },
+        "2024-05-31": {
+          "prepaid": "2000",
+          "available": "40000"
+        },
+        "2024-06-30": {
+          "prepaid": "0",
+          "available": "40000"
+        },
+        "2024-07-31": {
+          "prepaid": "400",
+          "available": "40000"
+        }
+      },
+      "pm0": "0.16739284177639",
+      "average_of_monthly_cprs": "0.1503589075283840737342128333333333333333",
+      "cpr_of_window_pooled_smm": "0.1602049224268587920046541209085812003847",
+      "cpr_of_mean_monthly_smm": "0.165868031659122913724429042724609375"
+    }
+  }
+}

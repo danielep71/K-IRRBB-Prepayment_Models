@@ -1,0 +1,97 @@
+{
+  "case": "PM1-DGP-01",
+  "provenance": {
+    "tool": "tests/reference/derive_models.py (sample) and tests/reference/report_dgp.py (report), Python 3.13 standard library",
+    "steps": "Sample: derive_models.dgp_sample with random.Random(20261128).random() as the only source of randomness. 24 month ends from 2023-01-31; in each, 24 cells, two incentives per 25 bp bucket from -150 to +150 bp (4 and 10 bp into the bucket), each with an age (4, 12, 30, 90) and pool factor (1, 0.85, 0.7, 0.55) in rotation, 10,000 to 30,000 loans of one balance; the FULL count of a cell is Binomial(loans, SMM) at the generating parameters, by inverse CDF from probability ratios. A cell stands for that many identical loan-months; the objective is unchanged by expanding it. Report: models.fit from the settings below, the four curve parameters estimated with ramp, burnout and season fixed at their generating values, with approximate sandwich standard errors (binomial cell variance at the estimates). Statistical and reported: no pass/fail tolerance on recovery. The test re-runs the generator (identical text) and the fit (estimates rel 1e-6, objectives rel 1e-9, a reproduction check, not a recovery check).",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "none: statistical, reported",
+  "generator": {
+    "seed": 20261128,
+    "generating_parameters": {
+      "c_min": "0.01",
+      "c_max": "0.30",
+      "k": "250",
+      "x0": "0.0025"
+    },
+    "assumptions": {
+      "a_ramp": "18",
+      "b": "0.9",
+      "season": [
+        "0.85",
+        "0.88",
+        "0.97",
+        "1.02",
+        "1.08",
+        "1.12",
+        "1.15",
+        "1.06",
+        "1.00",
+        "0.97",
+        "0.96",
+        "0.94"
+      ]
+    }
+  },
+  "sample": {
+    "cells": 576,
+    "loan_months": 11566785,
+    "full_events": 78318,
+    "sha256": "b60643f791071dabb619435d301021a25652b9d1b84037798ed58d53bea56af8"
+  },
+  "settings": {
+    "start": {
+      "c_min": "0.05",
+      "c_max": "0.5",
+      "k": "100",
+      "x0": "0"
+    },
+    "steps": [
+      "0.5",
+      "0.5",
+      "0.5",
+      "0.0025"
+    ],
+    "ftol": "1e-6",
+    "xtol": "1e-10",
+    "max_iterations": 5000,
+    "restarts": 3
+  },
+  "report": {
+    "estimated": true,
+    "iterations": 442,
+    "objective_at_estimate": "247063.722189507",
+    "objective_at_generating_parameters": "249369.176415422",
+    "parameters": {
+      "c_min": {
+        "generating": "0.01",
+        "estimate": "0.00980287324349776",
+        "difference": "-0.000197127",
+        "approx_standard_error": "0.000896635",
+        "difference_in_standard_errors": "-0.220"
+      },
+      "c_max": {
+        "generating": "0.30",
+        "estimate": "0.301751655531581",
+        "difference": "0.00175166",
+        "approx_standard_error": "0.00378255",
+        "difference_in_standard_errors": "0.463"
+      },
+      "k": {
+        "generating": "250",
+        "estimate": "248.712224106162",
+        "difference": "-1.28778",
+        "approx_standard_error": "6.82466",
+        "difference_in_standard_errors": "-0.189"
+      },
+      "x0": {
+        "generating": "0.0025",
+        "estimate": "0.00260719188033432",
+        "difference": "0.000107192",
+        "approx_standard_error": "0.000130275",
+        "difference_in_standard_errors": "0.823"
+      }
+    }
+  }
+}

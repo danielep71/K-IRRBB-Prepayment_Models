@@ -1,0 +1,30 @@
+{
+  "case": "PM1-FAIL-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "The PM1-FIT-01 data and assumptions with the optimiser settings of settings.json. control: the settings of PM1-FIT-01 converge, so the failures below are caused by their settings alone. iteration_limit: one iteration against a tolerance of 1e-9 from a start far from the optimum cannot converge, so the fit is non-convergence. non_finite_nan and non_finite_inf: the objective is replaced by one returning NaN or +inf at every point, a failure injection, because valid data give a finite objective at every finite parameter value. Each failure gives not estimated, the reason in the contract's words and no stored parameters. Not built: a parameter at a numerical boundary, which the contract does not define.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "variants": {
+    "control": {
+      "estimated": true
+    },
+    "iteration_limit": {
+      "estimated": false,
+      "reason": "non-convergence",
+      "parameters": null
+    },
+    "non_finite_nan": {
+      "estimated": false,
+      "reason": "non-finite objective",
+      "parameters": null
+    },
+    "non_finite_inf": {
+      "estimated": false,
+      "reason": "non-finite objective",
+      "parameters": null
+    }
+  }
+}
