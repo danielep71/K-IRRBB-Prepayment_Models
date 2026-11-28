@@ -1,0 +1,130 @@
+{
+  "case": "EVE-PV-01",
+  "provenance": {
+    "tool": "tests/reference/derive_eve.py (Python 3.13 standard library: csv, fractions, decimal)",
+    "steps": "Hand-built cash flows (cash_flows.csv) of BASE and SHORT_DOWN for two EUR segments, paid at k = 1, 3, 6, 12, 13, 24, 30, 36, 60, 61 and 120 months, with interest, scheduled, prepaid and repricing amounts, and of BASE for one USD segment at k = 2, 48 and 150; each scenario and currency discounts on its own two-tenor zero curve (curves.csv: EUR 12 and 60 months, listed out of order for BASE, SHORT_DOWN with a negative short rate; USD 24 and 120 months, inverted). z(k/12) is linear in rate between the two tenors and held flat outside the two tenors, computed exactly in rationals; DF(k) = exp(-z(k/12) x k/12) in decimal at 60 significant digits; PV = sum over k of (interest + scheduled + prepaid + repricing) x DF(k) per scenario, segment and currency, and in total per currency. Every value rounded to 40 significant digits.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "rel 1e-12",
+  "curves": {
+    "BASE|EUR": {
+      "1": {
+        "zero_rate": "0.02",
+        "discount_factor": "0.9983347214509386788706395376787282070049"
+      },
+      "3": {
+        "zero_rate": "0.02",
+        "discount_factor": "0.9950124791926823133525642462325041853859"
+      },
+      "6": {
+        "zero_rate": "0.02",
+        "discount_factor": "0.9900498337491680535739059771800365577721"
+      },
+      "12": {
+        "zero_rate": "0.02",
+        "discount_factor": "0.9801986733067553022208141042253088662997"
+      },
+      "13": {
+        "zero_rate": "0.0203125",
+        "discount_factor": "0.9782351400632540294683037161161280800039"
+      },
+      "24": {
+        "zero_rate": "0.02375",
+        "discount_factor": "0.9536104731326263178926311443786850312290"
+      },
+      "30": {
+        "zero_rate": "0.025625",
+        "discount_factor": "0.9379463760502616649694636351627873611304"
+      },
+      "36": {
+        "zero_rate": "0.0275",
+        "discount_factor": "0.9208114378568045500657007578420699392193"
+      },
+      "60": {
+        "zero_rate": "0.035",
+        "discount_factor": "0.8394570207692073584441170905606948383382"
+      },
+      "61": {
+        "zero_rate": "0.035",
+        "discount_factor": "0.8370121715968562769274433711816053123600"
+      },
+      "120": {
+        "zero_rate": "0.035",
+        "discount_factor": "0.7046880897187134343548206990308784681844"
+      }
+    },
+    "BASE|USD": {
+      "2": {
+        "zero_rate": "0.045",
+        "discount_factor": "0.9925280548191384305215319200772266866947"
+      },
+      "48": {
+        "zero_rate": "0.04375",
+        "discount_factor": "0.8394570207692073584441170905606948383382"
+      },
+      "150": {
+        "zero_rate": "0.04",
+        "discount_factor": "0.6065306597126334236037995349911804534419"
+      }
+    },
+    "SHORT_DOWN|EUR": {
+      "1": {
+        "zero_rate": "-0.004",
+        "discount_factor": "1.000333388895062242832649367565197820110"
+      },
+      "3": {
+        "zero_rate": "-0.004",
+        "discount_factor": "1.001000500166708341668055753993058311563"
+      },
+      "6": {
+        "zero_rate": "-0.004",
+        "discount_factor": "1.002002001334000266755580958731569947141"
+      },
+      "12": {
+        "zero_rate": "-0.004",
+        "discount_factor": "1.004008010677341872358807975325862256787"
+      },
+      "13": {
+        "zero_rate": "-0.003666666666666666666666666666666666666667",
+        "discount_factor": "1.003980121953279351431578258173695783468"
+      },
+      "24": {
+        "zero_rate": "0",
+        "discount_factor": "1"
+      },
+      "30": {
+        "zero_rate": "0.002",
+        "discount_factor": "0.9950124791926823133525642462325041853859"
+      },
+      "36": {
+        "zero_rate": "0.004",
+        "discount_factor": "0.9880717128619305401011643123584560990965"
+      },
+      "60": {
+        "zero_rate": "0.012",
+        "discount_factor": "0.9417645335842487095371527832711497060947"
+      },
+      "61": {
+        "zero_rate": "0.012",
+        "discount_factor": "0.9408232397760097296967649974308599356613"
+      },
+      "120": {
+        "zero_rate": "0.012",
+        "discount_factor": "0.8869204367171575155275652287698373522791"
+      }
+    }
+  },
+  "present_values": {
+    "BASE|MTG_FIX|EUR": "788.6044926974652888214869347974828274604",
+    "BASE|MTG_FIX|USD": "298.8184468001555310425327919462230235579",
+    "BASE|MTG_RST|EUR": "467.7126920143667053317779893242042471385",
+    "SHORT_DOWN|MTG_FIX|EUR": "942.6227591914524127183220425527982753024",
+    "SHORT_DOWN|MTG_RST|EUR": "498.8546871457956166370055658752022147450"
+  },
+  "currency_totals": {
+    "BASE|EUR": "1256.317184711831994153264924121687074599",
+    "BASE|USD": "298.8184468001555310425327919462230235579",
+    "SHORT_DOWN|EUR": "1441.477446337248029355327608428000490047"
+  }
+}

@@ -1,0 +1,7 @@
+scenario,currency,tenor_months,zero_rate
+BASE,EUR,12,-0.003
+BASE,EUR,60,0.02
+PAR_UP,EUR,12,0.017
+PAR_UP,EUR,60,0.04
+PAR_DOWN,EUR,12,-0.0147
+PAR_DOWN,EUR,60,0

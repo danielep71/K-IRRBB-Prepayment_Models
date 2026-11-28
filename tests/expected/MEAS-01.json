@@ -1,0 +1,136 @@
+{
+  "case": "MEAS-01",
+  "provenance": {
+    "tool": "tests/reference/derive_eve.py (Python 3.13 standard library: csv, fractions, decimal); hand computation",
+    "steps": "Hand-built monthly projections (cash_flows.csv, every month from 1 to the end). BASE, PAR_UP, PAR_DOWN and CONTRACT of MTG_FIX EUR run 15 months; month 15 is a final repayment with opening = scheduled, so it has no SMM and is left out of n (n = 14 over the projection, 12 over the first 12 months, which include a month with exposure and SMM 0). BASE CON_FIX EUR runs 12 months with the zero-exposure final month 12, so n = 11 in both windows. BASE MTG_RST EUR reprices 510 at its reset in month 6 and BASE MTG_FLT EUR 396 at its reset in month 3; their repricing principal enters the repricing time. BASE SME_FIX EUR has only a zero-exposure month: no projected CPR. Repricing time sum (k/12) x principal / sum principal, monthly SMM prepaid / (opening - scheduled) and their products exact in rationals; 1 - (prod (1 - SMM))^(12/n) exact for integral 12/n, otherwise in decimal at 60 significant digits. Effective duration of MTG_FIX EUR: PVs on the curves of curves.csv as in EVE-PV-01; PAR_UP and PAR_DOWN are BASE (-0.3% at 1 year, 2% at 5 years) shifted by 200 bp, the nominal EUR parallel shock of REG-3 Annex Part A, and floored (REG-3 Art. 3(7)): at 1 year the floor min(-0.3%, -1.5% + 0.03%) = -1.47% binds on PAR_DOWN (-2.3%), so dr stays the nominal 0.02; (PV_PAR_DOWN - PV_PAR_UP) / (2 x PV_BASE x 0.02). Rounded to 40 significant digits. The effective_duration_hand points are hand computations: (1,030 - 990) / (2 x 1,000 x 0.02) = 1, and no value when PV_BASE is 0 or negative.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "parallel_shock": {
+    "EUR": "0.02"
+  },
+  "repricing_time": {
+    "BASE|CON_FIX|EUR": "0.5493055555555555555555555555555555555556",
+    "BASE|MTG_FIX|EUR": "0.6741666666666666666666666666666666666667",
+    "BASE|MTG_FLT|EUR": "0.2483333333333333333333333333333333333333",
+    "BASE|MTG_RST|EUR": "0.4694444444444444444444444444444444444444",
+    "BASE|SME_FIX|EUR": "0.08333333333333333333333333333333333333333",
+    "CONTRACT|MTG_FIX|EUR": "0.6666666666666666666666666666666666666667",
+    "PAR_DOWN|MTG_FIX|EUR": "0.646875",
+    "PAR_UP|MTG_FIX|EUR": "0.72875"
+  },
+  "projected_cpr": {
+    "BASE|CON_FIX|EUR": {
+      "first_12_months": {
+        "months": 11,
+        "cpr": "0.2126192382271465527648030617585089784843"
+      },
+      "projection": {
+        "months": 11,
+        "cpr": "0.2126192382271465527648030617585089784843"
+      }
+    },
+    "BASE|MTG_FIX|EUR": {
+      "first_12_months": {
+        "months": 12,
+        "cpr": "0.2725315158430119378721999256647742490661"
+      },
+      "projection": {
+        "months": 14,
+        "cpr": "0.4406949812639431998339858614054962024468"
+      }
+    },
+    "BASE|MTG_FLT|EUR": {
+      "first_12_months": {
+        "months": 3,
+        "cpr": "0.03940399"
+      },
+      "projection": {
+        "months": 3,
+        "cpr": "0.03940399"
+      }
+    },
+    "BASE|MTG_RST|EUR": {
+      "first_12_months": {
+        "months": 6,
+        "cpr": "0.1038584104223845053909919158364463514159"
+      },
+      "projection": {
+        "months": 6,
+        "cpr": "0.1038584104223845053909919158364463514159"
+      }
+    },
+    "BASE|SME_FIX|EUR": {
+      "first_12_months": {
+        "months": 0,
+        "cpr": null
+      },
+      "projection": {
+        "months": 0,
+        "cpr": null
+      }
+    },
+    "CONTRACT|MTG_FIX|EUR": {
+      "first_12_months": {
+        "months": 12,
+        "cpr": "0"
+      },
+      "projection": {
+        "months": 14,
+        "cpr": "0"
+      }
+    },
+    "PAR_DOWN|MTG_FIX|EUR": {
+      "first_12_months": {
+        "months": 12,
+        "cpr": "0.3501928795323455665873580191348404305996"
+      },
+      "projection": {
+        "months": 14,
+        "cpr": "0.6936775083124921008128825633855433261893"
+      }
+    },
+    "PAR_UP|MTG_FIX|EUR": {
+      "first_12_months": {
+        "months": 12,
+        "cpr": "0.1305622563094389886822600984980341130497"
+      },
+      "projection": {
+        "months": 14,
+        "cpr": "0.1823018414883686049318949278514217944268"
+      }
+    }
+  },
+  "effective_duration": {
+    "MTG_FIX|EUR": {
+      "pv_base": "1533.061785396237600300239681217538179244",
+      "pv_par_down": "1543.500575538470845260603807396311950963",
+      "pv_par_up": "1513.501852226517786825501647670772994154",
+      "effective_duration": "0.4891962541516149729455632557791298265078"
+    }
+  },
+  "effective_duration_hand": [
+    {
+      "pv_base": "1000",
+      "pv_par_down": "1030",
+      "pv_par_up": "990",
+      "parallel_shock": "0.02",
+      "effective_duration": "1"
+    },
+    {
+      "pv_base": "0",
+      "pv_par_down": "10",
+      "pv_par_up": "-10",
+      "parallel_shock": "0.02",
+      "effective_duration": null
+    },
+    {
+      "pv_base": "-500",
+      "pv_par_down": "-480",
+      "pv_par_up": "-520",
+      "parallel_shock": "0.02",
+      "effective_duration": null
+    }
+  ]
+}

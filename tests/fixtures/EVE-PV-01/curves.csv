@@ -1,0 +1,7 @@
+scenario,currency,tenor_months,zero_rate
+BASE,EUR,60,0.035
+BASE,EUR,12,0.02
+SHORT_DOWN,EUR,12,-0.004
+SHORT_DOWN,EUR,60,0.012
+BASE,USD,24,0.045
+BASE,USD,120,0.04

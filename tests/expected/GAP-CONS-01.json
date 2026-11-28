@@ -1,0 +1,114 @@
+{
+  "case": "GAP-CONS-01",
+  "provenance": {
+    "tool": "hand computation",
+    "steps": "Identity on hand-built cash flows. Two pools with their outstanding balance at the as-of date (outstanding.csv): MTG_FIX EUR 1,000 and MTG_RST USD 800, each projected for CONTRACT, BASE, the six supervisory scenarios and the user shock USER_UP_300. MTG_FIX EUR principal falls in months 1 (bucket 2), 12 (bucket 6), 120 (bucket 16) and 300 (bucket 19, over 20 years); MTG_RST USD in months 6 (bucket 4), 24 (bucket 8) and 60, the reset month, as repricing principal (bucket 11), with an interest-only month 36. Each month holds one bucket, so each bucket amount is that month's scheduled + prepaid + repricing principal, written by hand; interest, nonzero in every month, is not principal. Every gap sums to its pool's outstanding balance: e.g. BASE MTG_FIX EUR 50.1234 + 130 + 520 + 299.8766 = 1,000.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 0.005",
+  "outstanding": {
+    "MTG_FIX|EUR": "1000",
+    "MTG_RST|USD": "800"
+  },
+  "gaps": {
+    "CONTRACT|MTG_FIX|EUR": {
+      "6": "100",
+      "16": "400",
+      "19": "500"
+    },
+    "BASE|MTG_FIX|EUR": {
+      "2": "50.1234",
+      "6": "130",
+      "16": "520",
+      "19": "299.8766"
+    },
+    "PAR_UP|MTG_FIX|EUR": {
+      "2": "20",
+      "6": "110",
+      "16": "470",
+      "19": "400"
+    },
+    "PAR_DOWN|MTG_FIX|EUR": {
+      "2": "80",
+      "6": "160",
+      "16": "560",
+      "19": "200"
+    },
+    "STEEPENER|MTG_FIX|EUR": {
+      "2": "30",
+      "6": "120",
+      "16": "490",
+      "19": "360"
+    },
+    "FLATTENER|MTG_FIX|EUR": {
+      "2": "60",
+      "6": "140",
+      "16": "530",
+      "19": "270"
+    },
+    "SHORT_UP|MTG_FIX|EUR": {
+      "2": "25",
+      "6": "115",
+      "16": "500",
+      "19": "360"
+    },
+    "SHORT_DOWN|MTG_FIX|EUR": {
+      "2": "70",
+      "6": "150",
+      "16": "550",
+      "19": "230"
+    },
+    "USER_UP_300|MTG_FIX|EUR": {
+      "2": "10",
+      "6": "105",
+      "16": "450",
+      "19": "435"
+    },
+    "CONTRACT|MTG_RST|USD": {
+      "4": "20",
+      "8": "30",
+      "11": "750"
+    },
+    "BASE|MTG_RST|USD": {
+      "4": "35",
+      "8": "55",
+      "11": "710"
+    },
+    "PAR_UP|MTG_RST|USD": {
+      "4": "25",
+      "8": "40",
+      "11": "735"
+    },
+    "PAR_DOWN|MTG_RST|USD": {
+      "4": "50",
+      "8": "70",
+      "11": "680"
+    },
+    "STEEPENER|MTG_RST|USD": {
+      "4": "30",
+      "8": "45",
+      "11": "725"
+    },
+    "FLATTENER|MTG_RST|USD": {
+      "4": "40",
+      "8": "60",
+      "11": "700"
+    },
+    "SHORT_UP|MTG_RST|USD": {
+      "4": "28",
+      "8": "42",
+      "11": "730"
+    },
+    "SHORT_DOWN|MTG_RST|USD": {
+      "4": "45",
+      "8": "65",
+      "11": "690"
+    },
+    "USER_UP_300|MTG_RST|USD": {
+      "4": "22",
+      "8": "34",
+      "11": "744"
+    }
+  }
+}

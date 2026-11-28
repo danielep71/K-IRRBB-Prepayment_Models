@@ -1,0 +1,164 @@
+{
+  "case": "EVE-RATIO-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Hand construction on present_values.csv. Worst dEVE: INTERNAL EUR PAR_UP 9,850 - 10,000 = -150; STANDARDISED EUR PAR_UP 9,849.9999 - 10,000 = -150.0001; INTERNAL USD PAR_UP 4,700 - 5,000 = -300; INTERNAL GBP STEEPENER +5 (gains only). ratio = -worst / Tier1, exact in rationals, per layer, only for the Tier 1 currency; indicator raised when ratio > 0.15. Tier 1 EUR 1,000: 150 / 1,000 = 0.15 exactly, not raised; 150.0001 / 1,000 just above, raised. Tier 1 EUR 999.9999, one step of the fourth decimal lower: 150 / 999.9999 just above 0.15, raised. Tier 1 USD 2,000.0000: 300 / 2,000 = 0.15, not raised, and no EUR or GBP ratio. Tier 1 GBP 100: -5 / 100 = -0.05, not raised. Ratio not requested: Tier 1 may be missing and no ratio is computed. Every invalid Tier 1 setting (D10: amount a decimal of up to 4 places > 0, currency ISO 4217 in the allowlist EUR, USD, GBP) stops the run before any calculation, with no output. Each ratio is a double-precision-safe point: computing -worst / Tier1 in binary floating point gives the same indicator.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "currency_allowlist": [
+    "EUR",
+    "USD",
+    "GBP"
+  ],
+  "worst": {
+    "INTERNAL|EUR": "-150",
+    "STANDARDISED|EUR": "-150.0001",
+    "INTERNAL|USD": "-300",
+    "INTERNAL|GBP": "5"
+  },
+  "label": "loan-book indicator; not the supervisory outlier test",
+  "variants": {
+    "eur-at-threshold": {
+      "settings": {
+        "ratio_requested": true,
+        "tier1_amount": "1000",
+        "tier1_currency": "EUR"
+      },
+      "ratios": {
+        "INTERNAL|EUR": {
+          "ratio": "3/20",
+          "indicator": false
+        },
+        "STANDARDISED|EUR": {
+          "ratio": "1500001/10000000",
+          "indicator": true
+        },
+        "INTERNAL|USD": null,
+        "INTERNAL|GBP": null
+      }
+    },
+    "eur-tier1-one-step-lower": {
+      "settings": {
+        "ratio_requested": true,
+        "tier1_amount": "999.9999",
+        "tier1_currency": "EUR"
+      },
+      "ratios": {
+        "INTERNAL|EUR": {
+          "ratio": "1500000/9999999",
+          "indicator": true
+        },
+        "STANDARDISED|EUR": {
+          "ratio": "1500001/9999999",
+          "indicator": true
+        },
+        "INTERNAL|USD": null,
+        "INTERNAL|GBP": null
+      }
+    },
+    "usd": {
+      "settings": {
+        "ratio_requested": true,
+        "tier1_amount": "2000.0000",
+        "tier1_currency": "USD"
+      },
+      "ratios": {
+        "INTERNAL|EUR": null,
+        "STANDARDISED|EUR": null,
+        "INTERNAL|USD": {
+          "ratio": "3/20",
+          "indicator": false
+        },
+        "INTERNAL|GBP": null
+      }
+    },
+    "gbp-gain": {
+      "settings": {
+        "ratio_requested": true,
+        "tier1_amount": "100",
+        "tier1_currency": "GBP"
+      },
+      "ratios": {
+        "INTERNAL|EUR": null,
+        "STANDARDISED|EUR": null,
+        "INTERNAL|USD": null,
+        "INTERNAL|GBP": {
+          "ratio": "-1/20",
+          "indicator": false
+        }
+      }
+    },
+    "ratio-not-requested": {
+      "settings": {
+        "ratio_requested": false,
+        "tier1_amount": null,
+        "tier1_currency": null
+      },
+      "ratios": {
+        "INTERNAL|EUR": null,
+        "STANDARDISED|EUR": null,
+        "INTERNAL|USD": null,
+        "INTERNAL|GBP": null
+      }
+    }
+  },
+  "invalid_tier1": [
+    {
+      "tier1_amount": "0",
+      "tier1_currency": "EUR",
+      "reason": "amount not > 0"
+    },
+    {
+      "tier1_amount": "-1000",
+      "tier1_currency": "EUR",
+      "reason": "amount negative"
+    },
+    {
+      "tier1_amount": "1000.00001",
+      "tier1_currency": "EUR",
+      "reason": "five decimal places"
+    },
+    {
+      "tier1_amount": "abc",
+      "tier1_currency": "EUR",
+      "reason": "amount not a decimal"
+    },
+    {
+      "tier1_amount": "",
+      "tier1_currency": "EUR",
+      "reason": "amount empty"
+    },
+    {
+      "tier1_amount": null,
+      "tier1_currency": "EUR",
+      "reason": "amount missing"
+    },
+    {
+      "tier1_amount": "1000",
+      "tier1_currency": "eur",
+      "reason": "currency not upper case"
+    },
+    {
+      "tier1_amount": "1000",
+      "tier1_currency": "EURO",
+      "reason": "currency not three letters"
+    },
+    {
+      "tier1_amount": "1000",
+      "tier1_currency": "",
+      "reason": "currency empty"
+    },
+    {
+      "tier1_amount": "1000",
+      "tier1_currency": null,
+      "reason": "currency missing"
+    },
+    {
+      "tier1_amount": "1000",
+      "tier1_currency": "CHF",
+      "reason": "currency outside the allowlist"
+    }
+  ]
+}
