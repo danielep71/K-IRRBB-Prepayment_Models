@@ -1,0 +1,99 @@
+{
+  "case": "GAP-BUCKET-01",
+  "provenance": {
+    "tool": "hand construction",
+    "steps": "Hand construction from REG-1 Table 3 with t = k/12 years and each upper bound inclusive (M17). CONTRACT MTG_FIX EUR pays scheduled principal of k currency units in month k at every upper bound (k = 1, 3, 6, 9, 12, 18, 24, 36, ..., 120, 180, 240) and the month after it, and at k = 300, with interest of 1 in every month, outside the gap: k = 1 is bucket 2, k = 3 bucket 3 (1/12 < t <= 3/12), k = 240 bucket 18, k = 241 bucket 19. Bucket sums add the two months of each bucket, e.g. bucket 3: 2 + 3 = 5; the total is 2,551, the opening balance. Bucket 1 (overnight) is empty on the monthly grid. CONTRACT MTG_RST EUR: a RESET loan in its fixed period, scheduled 5 at k = 12 and k = 24, fixed until month 30 and maturing in month 300, places its balance of 490 as repricing principal in the bucket of month 30 (bucket 9, 2 < t <= 3), not in the maturity bucket 19. CONTRACT MTG_FLT EUR: a FLOAT loan with its next reset in month 3, an upper bound, maturing in month 180, places 300 in bucket 3, not bucket 17. BASE MTG_FIX EUR: prepaid principal 100 in month 9 (bucket 5) and scheduled 900 in month 240 (bucket 18).",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "placements": {
+    "1": 2,
+    "2": 3,
+    "3": 3,
+    "4": 4,
+    "6": 4,
+    "7": 5,
+    "9": 5,
+    "10": 6,
+    "12": 6,
+    "13": 7,
+    "18": 7,
+    "19": 8,
+    "24": 8,
+    "25": 9,
+    "36": 9,
+    "37": 10,
+    "48": 10,
+    "49": 11,
+    "60": 11,
+    "61": 12,
+    "72": 12,
+    "73": 13,
+    "84": 13,
+    "85": 14,
+    "96": 14,
+    "97": 15,
+    "108": 15,
+    "109": 16,
+    "120": 16,
+    "121": 17,
+    "180": 17,
+    "181": 18,
+    "240": 18,
+    "241": 19,
+    "300": 19
+  },
+  "gaps": {
+    "CONTRACT|MTG_FIX|EUR": {
+      "2": "1",
+      "3": "5",
+      "4": "10",
+      "5": "16",
+      "6": "22",
+      "7": "31",
+      "8": "43",
+      "9": "61",
+      "10": "85",
+      "11": "109",
+      "12": "133",
+      "13": "157",
+      "14": "181",
+      "15": "205",
+      "16": "229",
+      "17": "301",
+      "18": "421",
+      "19": "541"
+    },
+    "CONTRACT|MTG_RST|EUR": {
+      "6": "5",
+      "8": "5",
+      "9": "490"
+    },
+    "CONTRACT|MTG_FLT|EUR": {
+      "3": "300"
+    },
+    "BASE|MTG_FIX|EUR": {
+      "5": "100",
+      "18": "900"
+    }
+  },
+  "resets": {
+    "CONTRACT|MTG_RST|EUR": {
+      "rate_type": "RESET",
+      "reset_month": 30,
+      "maturity_month": 300,
+      "balance": "490",
+      "reset_bucket": 9,
+      "maturity_bucket": 19
+    },
+    "CONTRACT|MTG_FLT|EUR": {
+      "rate_type": "FLOAT",
+      "reset_month": 3,
+      "maturity_month": 180,
+      "balance": "300",
+      "reset_bucket": 3,
+      "maturity_bucket": 17
+    }
+  }
+}

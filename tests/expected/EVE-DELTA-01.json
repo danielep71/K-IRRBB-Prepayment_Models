@@ -1,0 +1,84 @@
+{
+  "case": "EVE-DELTA-01",
+  "provenance": {
+    "tool": "hand computation",
+    "steps": "Hand computation on present_values.csv: PVs in total per currency for EUR, USD and GBP; BASE and CONTRACT carry no layer, because BASE uses CPR_BASE in both layers and CONTRACT has SMM = 0 (M15), so both layers subtract the same PV_BASE. dEVE_s = PV_s - PV_BASE, negative a loss, for every scenario of each layer and currency, user shocks included. INTERNAL EUR: the worst of the six supervisory scenarios is PAR_UP, 950,000.0034 - 1,000,000.1234 = -50,000.12; CONTRACT (-99,999.6234) and USER_UP_300 (-80,000.1234) are lower but excluded; the largest absolute change is the gain PAR_DOWN +60,000.3333. STANDARDISED EUR: STEEPENER -60,000.1234, lower than every INTERNAL supervisory dEVE, so a worst case over both layers would differ. USD: PAR_DOWN -10,000 (INTERNAL) and -12,000 (STANDARDISED); adding EUR and USD by scenario would give an INTERNAL worst of -45,000.12. GBP has only the INTERNAL layer, no CONTRACT PV and only gains: the worst is SHORT_UP +100, never clamped to 0.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "rel 1e-12",
+  "results": {
+    "INTERNAL|EUR": {
+      "pv_base": "1000000.1234",
+      "pv_contract": "900000.5",
+      "delta": {
+        "PAR_UP": "-50000.12",
+        "PAR_DOWN": "60000.3333",
+        "STEEPENER": "-20000.1234",
+        "FLATTENER": "9999.8766",
+        "SHORT_UP": "-30000.0234",
+        "SHORT_DOWN": "19999.8766",
+        "USER_UP_300": "-80000.1234",
+        "USER_RAMP_DOWN": "29999.8766"
+      },
+      "worst": "-50000.12",
+      "worst_scenario": "PAR_UP"
+    },
+    "STANDARDISED|EUR": {
+      "pv_base": "1000000.1234",
+      "pv_contract": "900000.5",
+      "delta": {
+        "PAR_UP": "-45000.1234",
+        "PAR_DOWN": "49999.8766",
+        "STEEPENER": "-60000.1234",
+        "FLATTENER": "4999.8766",
+        "SHORT_UP": "-25000.1234",
+        "SHORT_DOWN": "14999.8766"
+      },
+      "worst": "-60000.1234",
+      "worst_scenario": "STEEPENER"
+    },
+    "INTERNAL|USD": {
+      "pv_base": "500000",
+      "pv_contract": "480000",
+      "delta": {
+        "PAR_UP": "5000",
+        "PAR_DOWN": "-10000",
+        "STEEPENER": "1000",
+        "FLATTENER": "-4000",
+        "SHORT_UP": "3000",
+        "SHORT_DOWN": "-7499.5"
+      },
+      "worst": "-10000",
+      "worst_scenario": "PAR_DOWN"
+    },
+    "STANDARDISED|USD": {
+      "pv_base": "500000",
+      "pv_contract": "480000",
+      "delta": {
+        "PAR_UP": "6000",
+        "PAR_DOWN": "-12000",
+        "STEEPENER": "2000",
+        "FLATTENER": "-5000",
+        "SHORT_UP": "4000",
+        "SHORT_DOWN": "-9000"
+      },
+      "worst": "-12000",
+      "worst_scenario": "PAR_DOWN"
+    },
+    "INTERNAL|GBP": {
+      "pv_base": "200000",
+      "pv_contract": null,
+      "delta": {
+        "PAR_UP": "500",
+        "PAR_DOWN": "1000",
+        "STEEPENER": "250",
+        "FLATTENER": "750",
+        "SHORT_UP": "100",
+        "SHORT_DOWN": "900"
+      },
+      "worst": "100",
+      "worst_scenario": "SHORT_UP"
+    }
+  }
+}

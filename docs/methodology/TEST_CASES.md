@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -92,12 +92,12 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `EVE-PV-01` | PV of hand-built cash flows on a two-tenor zero curve: linear interpolation, flat extrapolation, `k/12` grid | Independent script | `rel 1e-12` | Registered |
-| `EVE-DELTA-01` | ΔEVE sign, worst over the six supervisory scenarios, `CONTRACT` and user shocks excluded, currencies never added; internal-model and standardised-multiplier layers reported separately with the same `PV_BASE` | Hand computation | `rel 1e-12` | Registered |
-| `EVE-RATIO-01` | Ratio and indicator at exactly 0.15 (not raised) and just above (raised); Tier 1 in another currency gives no ratio; invalid Tier 1 stops the run | Hand construction | `exact` | Registered |
-| `GAP-BUCKET-01` | Cash flows at each bucket's upper bound fall in that bucket; reset balances fall in the bucket of the next reset | Hand construction | `exact` | Registered |
-| `GAP-CONS-01` | Sum over buckets equals the outstanding balance at the as-of date for `CONTRACT`, `BASE` and every scenario | Identity | `abs 0.005` | Registered |
-| `MEAS-01` | Weighted average repricing time (with `RESET` and `FLOAT` loans repricing at the next reset), effective duration and projected CPR over 12 months and over the projection, including a final month with zero exposure that is excluded from `n` | Hand computation | `abs 1e-12` | Registered |
+| `EVE-PV-01` | PV of hand-built cash flows on a two-tenor zero curve: linear interpolation, flat extrapolation, `k/12` grid | Independent script | `rel 1e-12` | Built (Python) |
+| `EVE-DELTA-01` | ΔEVE sign, worst over the six supervisory scenarios, `CONTRACT` and user shocks excluded, currencies never added; internal-model and standardised-multiplier layers reported separately with the same `PV_BASE` | Hand computation | `rel 1e-12` | Built (Python) |
+| `EVE-RATIO-01` | Ratio and indicator at exactly 0.15 (not raised) and just above (raised); Tier 1 in another currency gives no ratio; invalid Tier 1 stops the run | Hand construction | `exact` | Built (Python) |
+| `GAP-BUCKET-01` | Cash flows at each bucket's upper bound fall in that bucket; reset balances fall in the bucket of the next reset | Hand construction | `exact` | Built (Python) |
+| `GAP-CONS-01` | Sum over buckets equals the outstanding balance at the as-of date for `CONTRACT`, `BASE` and every scenario | Identity | `abs 0.005` | Built (Python) |
+| `MEAS-01` | Weighted average repricing time (with `RESET` and `FLOAT` loans repricing at the next reset), effective duration and projected CPR over 12 months and over the projection, including a final month with zero exposure that is excluded from `n` | Hand computation | `abs 1e-12` | Built (Python) |
 
 ### Common
 
