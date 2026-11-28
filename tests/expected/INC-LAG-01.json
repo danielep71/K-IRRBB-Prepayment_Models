@@ -1,0 +1,46 @@
+{
+  "case": "INC-LAG-01",
+  "provenance": {
+    "tool": "property test; hand assignment of rate dates",
+    "steps": "Market rates hand-constructed by a rule: eight month ends 2023-11-30 to 2024-06-30 (i = 0 to 7); EUR_SWAP_12M 0.030 + 0.001 i, EUR_SWAP_60M 0.025 + 0.0015 i, EUR_SWAP_120M 0.028 - 0.0005 i, the unconfigured EUR_OIS_36M 0.020 + 0.002 i, USD_SWAP_24M 0.045 - 0.001 i, USD_SWAP_120M 0.040 + 0.0005 i. With L = 1 (M4), the loan-month ending at t reads the curve at the previous month end (rate_dates, by hand). For each loan-month and each of the trials, every market row dated after t - L is dropped with probability drop_probability or given a rate drawn uniformly from [rate_low, rate_high] and rounded to 8 places, and rows for every series are added at each added month end; the incentive must be identical (==). Negative controls: shifting the configured rows at t - L by control_shift changes the incentive, and the same perturbation read with lag 0 changes it in at least one trial. Draws use one Python random.Random(seed): loan-months in fixture order; per trial, a drop draw then, if kept, a rate draw for each market row in fixture order, then one rate draw per added row, month ends in order and series sorted by (rate_id, currency, tenor_months). The property holds for any compounding convention of R, so no incentive value is asserted.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact",
+  "settings": {
+    "lag_months": 1,
+    "refi_curve_series": [
+      "EUR_SWAP_12M",
+      "EUR_SWAP_60M",
+      "EUR_SWAP_120M",
+      "USD_SWAP_24M",
+      "USD_SWAP_120M"
+    ],
+    "margins": {
+      "MTG_FIX": "0.005",
+      "MTG_RST": "0.0075",
+      "CON_FIX": "0.012",
+      "SME_FIX": "0.01"
+    }
+  },
+  "perturbation": {
+    "seed": 20261128,
+    "trials": 40,
+    "drop_probability": "0.2",
+    "rate_low": "-0.05",
+    "rate_high": "0.25",
+    "added_month_ends": [
+      "2024-07-31",
+      "2024-08-31"
+    ],
+    "control_shift": "0.0001"
+  },
+  "rate_dates": {
+    "L1|2023-12-31": "2023-11-30",
+    "L2|2024-02-29": "2024-01-31",
+    "L3|2024-03-31": "2024-02-29",
+    "L4|2024-04-30": "2024-03-31",
+    "L5|2024-06-30": "2024-05-31",
+    "L6|2024-05-31": "2024-04-30"
+  }
+}

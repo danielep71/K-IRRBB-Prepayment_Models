@@ -1,0 +1,97 @@
+{
+  "case": "SCN-GAMMA-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_inc_scn.py (Python 3.13 standard library: csv, fractions, decimal)",
+    "steps": "CPR_s = min(1, gamma_s x CPR_BASE), gamma 0.8 for PAR_UP, STEEPENER and SHORT_UP and 1.2 for PAR_DOWN, FLATTENER and SHORT_DOWN; BASE keeps CPR_BASE (M15). Times 0.8: 0, 0.04, 0.16, 0.4, 0.64, 0.664, 0.672, 0.72, 0.8. Times 1.2: 0, 0.06, 0.24, 0.6, 0.96, 0.996, then 1.008, 1.08 and 1.2 capped at 1. The script recomputes every value exactly.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "gamma": {
+    "PAR_UP": "0.8",
+    "STEEPENER": "0.8",
+    "SHORT_UP": "0.8",
+    "PAR_DOWN": "1.2",
+    "FLATTENER": "1.2",
+    "SHORT_DOWN": "1.2"
+  },
+  "cpr": {
+    "PAR_UP": {
+      "C1": "0",
+      "C2": "0.04",
+      "C3": "0.16",
+      "C4": "0.4",
+      "C5": "0.64",
+      "C6": "0.664",
+      "C7": "0.672",
+      "C8": "0.72",
+      "C9": "0.8"
+    },
+    "STEEPENER": {
+      "C1": "0",
+      "C2": "0.04",
+      "C3": "0.16",
+      "C4": "0.4",
+      "C5": "0.64",
+      "C6": "0.664",
+      "C7": "0.672",
+      "C8": "0.72",
+      "C9": "0.8"
+    },
+    "SHORT_UP": {
+      "C1": "0",
+      "C2": "0.04",
+      "C3": "0.16",
+      "C4": "0.4",
+      "C5": "0.64",
+      "C6": "0.664",
+      "C7": "0.672",
+      "C8": "0.72",
+      "C9": "0.8"
+    },
+    "PAR_DOWN": {
+      "C1": "0",
+      "C2": "0.06",
+      "C3": "0.24",
+      "C4": "0.6",
+      "C5": "0.96",
+      "C6": "0.996",
+      "C7": "1",
+      "C8": "1",
+      "C9": "1"
+    },
+    "FLATTENER": {
+      "C1": "0",
+      "C2": "0.06",
+      "C3": "0.24",
+      "C4": "0.6",
+      "C5": "0.96",
+      "C6": "0.996",
+      "C7": "1",
+      "C8": "1",
+      "C9": "1"
+    },
+    "SHORT_DOWN": {
+      "C1": "0",
+      "C2": "0.06",
+      "C3": "0.24",
+      "C4": "0.6",
+      "C5": "0.96",
+      "C6": "0.996",
+      "C7": "1",
+      "C8": "1",
+      "C9": "1"
+    },
+    "BASE": {
+      "C1": "0",
+      "C2": "0.05",
+      "C3": "0.2",
+      "C4": "0.5",
+      "C5": "0.8",
+      "C6": "0.83",
+      "C7": "0.84",
+      "C8": "0.9",
+      "C9": "1"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "case": "SCN-FLOOR-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_inc_scn.py (Python 3.13 standard library: csv, fractions, decimal)",
+    "steps": "floor(m) = min(observed, min(0, -0.0150 + 0.0003 m)); floored = max(shocked, floor(m)). Shocked rates are synthetic. P01 m = 1: floor min(0.01, -0.0147) = -0.0147 binds on -0.02. P02: -0.01 above it, kept. P03, P04 m = 5: floor -0.0135; positive shocked 0.032 (up) and 0.01 (down) kept. P05 m = 0: observed -0.017 is below -0.015, so floor = observed and binds on -0.037. P06 m = 60: line +0.003 capped at 0, floor min(0.02, 0) = 0 binds on -0.005. P07 m = 50: line exactly 0, binds on -0.001. P08 m = 2.5: line -0.01425 binds. P09, P10 m = 10, observed -0.004: floor -0.012, not binding on -0.006, binding on -0.014. P11 m = 20: shocked equal to the floor -0.009. P12 m = 0.25: -0.014925 binds. P13 m = 45: line -0.0015, observed -0.003 is the floor and binds on -0.004. The script recomputes every value exactly.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "points": {
+    "P01": {
+      "floor": "-0.0147",
+      "floored": "-0.0147"
+    },
+    "P02": {
+      "floor": "-0.0147",
+      "floored": "-0.01"
+    },
+    "P03": {
+      "floor": "-0.0135",
+      "floored": "0.032"
+    },
+    "P04": {
+      "floor": "-0.0135",
+      "floored": "0.01"
+    },
+    "P05": {
+      "floor": "-0.017",
+      "floored": "-0.017"
+    },
+    "P06": {
+      "floor": "0",
+      "floored": "0"
+    },
+    "P07": {
+      "floor": "0",
+      "floored": "0"
+    },
+    "P08": {
+      "floor": "-0.01425",
+      "floored": "-0.01425"
+    },
+    "P09": {
+      "floor": "-0.012",
+      "floored": "-0.006"
+    },
+    "P10": {
+      "floor": "-0.012",
+      "floored": "-0.012"
+    },
+    "P11": {
+      "floor": "-0.009",
+      "floored": "-0.009"
+    },
+    "P12": {
+      "floor": "-0.014925",
+      "floored": "-0.014925"
+    },
+    "P13": {
+      "floor": "-0.003",
+      "floored": "-0.003"
+    }
+  }
+}
