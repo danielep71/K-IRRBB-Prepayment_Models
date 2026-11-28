@@ -223,6 +223,30 @@ class PM1FailCases(Checks):
         self.assertEqual((result.estimated, result.reason, result.curve), (False, models.NON_FINITE, None))
 
 
+    def test_a_non_finite_trial_point_stops_the_search(self) -> None:
+        """A NaN or infinity at any evaluation (start simplex, reflection, expansion, contraction or shrink)
+        stops the search as non-finite (reference choice, as above); it is never discarded as merely worse."""
+        def bowl(x: list[float]) -> float:
+            return math.fsum((v - 2.0) ** 2 for v in x)
+
+        calls: list[int] = []
+
+        def counted(x: list[float]) -> float:
+            calls.append(1)
+            return bowl(x)
+        clean = models.nelder_mead(counted, [0.0, 0.0], [1.0, 1.0], 1e-12, 1e-8, 1000)
+        self.assertEqual((clean.converged, clean.non_finite), (True, False))
+        for bad in (math.nan, math.inf):
+            for n in range(1, len(calls) + 1):
+                seen: list[int] = []
+
+                def target(x: list[float], bad: float = bad, n: int = n, seen: list[int] = seen) -> float:
+                    seen.append(1)
+                    return bad if len(seen) == n else bowl(x)
+                with self.subTest(bad=bad, evaluation=n):
+                    result = models.nelder_mead(target, [0.0, 0.0], [1.0, 1.0], 1e-12, 1e-8, 1000)
+                    self.assertEqual((result.converged, result.non_finite), (False, True))
+
 class PM1MinCases(Checks):
     def loan_months(self) -> list[rates.LoanMonth]:
         out = []

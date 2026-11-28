@@ -307,6 +307,8 @@ def nelder_mead(f: Callable[[list[float]], float], start: Sequence[float], steps
         if fr < values[0]:
             expanded = toward(-2.0)
             fe = f(expanded)
+            if not math.isfinite(fe):
+                return Search(best, math.nan, iterations, False, True)
             simplex[-1], values[-1] = (expanded, fe) if fe < fr else (reflected, fr)
             continue
         if fr < values[-2]:
@@ -314,6 +316,8 @@ def nelder_mead(f: Callable[[list[float]], float], start: Sequence[float], steps
             continue
         contracted = toward(-0.5) if fr < values[-1] else toward(0.5)
         fc = f(contracted)
+        if not math.isfinite(fc):
+            return Search(best, math.nan, iterations, False, True)
         if fc < min(fr, values[-1]):
             simplex[-1], values[-1] = contracted, fc
             continue
