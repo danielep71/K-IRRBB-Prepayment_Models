@@ -1,0 +1,39 @@
+{
+  "case": "INC-CURVE-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_inc_scn.py (Python 3.13 standard library: csv, fractions, decimal)",
+    "steps": "R(s, T): the configured series of the currency at month end s, at tenor_months / 12 years, interpolated linearly in rate and held flat outside them. EUR_OIS_36M is not configured and must not enter (0.09). At 2024-02-29, EUR nodes 1y -0.002, 2y 0.001, 5y 0.0185, 10y 0.0245: Q01-Q03 (T = 0, 0.25, 1) -0.002, flat below and at the shortest node; Q04 (1.5y) midpoint -0.0005; Q05 node 0.001; Q06 (3y) 0.001 + 0.0175 x 12/36 = 41/6000; Q07 (4.25y) 0.001 + 0.0175 x 27/36 = 0.014125; Q08 node 0.0185; Q09 (6.1y = 73.2 months) 0.0185 + 0.006 x 13.2/60 = 0.01982; Q10 (7.5y) midpoint 0.0215; Q11 node and Q12 (30y, flat above) 0.0245. USD nodes 1y 0.05, 10y 0.04: Q13 (0.5y) 0.05; Q14 (5.5y) 0.05 - 0.01 x 54/108 = 0.045; Q15 (12y) 0.04. At 2024-01-31, EUR nodes 0.01, 0.012, 0.02, 0.03: Q16 (1.5y) 0.011; Q17 (3y) 0.012 + 0.008 x 12/36 = 11/750. The script recomputes every value exactly by bracketing T x 12 months between the configured tenors. Not covered: the compounding of R (decision M3 against the prototype zero rate of the Rate incentive section); R is the interpolated series value as stored.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "settings": {
+    "refi_curve_series": [
+      "EUR_SWAP_120M",
+      "EUR_SWAP_12M",
+      "EUR_SWAP_60M",
+      "EUR_SWAP_24M",
+      "USD_SWAP_120M",
+      "USD_SWAP_12M"
+    ]
+  },
+  "rates": {
+    "Q01": "-0.002",
+    "Q02": "-0.002",
+    "Q03": "-0.002",
+    "Q04": "-0.0005",
+    "Q05": "0.001",
+    "Q06": "41/6000",
+    "Q07": "0.014125",
+    "Q08": "0.0185",
+    "Q09": "0.01982",
+    "Q10": "0.0215",
+    "Q11": "0.0245",
+    "Q12": "0.0245",
+    "Q13": "0.05",
+    "Q14": "0.045",
+    "Q15": "0.04",
+    "Q16": "0.011",
+    "Q17": "11/750"
+  }
+}

@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -54,9 +54,9 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `INC-CALC-01` | Incentive with lag, margin and each penalty type; remaining term below one year uses `max(T, 1)` | Hand computation | `abs 1e-12` | Registered |
-| `INC-CURVE-01` | Linear interpolation between curve tenors, flat extrapolation, compounding per decision M3 | Hand computation | `abs 1e-12` | Registered |
-| `INC-LAG-01` | Changing market rates after `t - L` leaves the incentive at `t` unchanged | Property test | `exact` | Registered |
+| `INC-CALC-01` | Incentive with lag, margin and each penalty type; remaining term below one year uses `max(T, 1)` | Hand computation, with `T` given in years and every configured rate 0 at `t - L`, because the year fraction and the compounding of `R` are not yet decided | `abs 1e-12` | Built (Python) |
+| `INC-CURVE-01` | Linear interpolation between curve tenors, flat extrapolation, compounding per decision M3 | Hand computation; interpolation and extrapolation have a fixture and expected file, the compounding awaits a decision on M3 | `abs 1e-12` | Registered |
+| `INC-LAG-01` | Changing market rates after `t - L` leaves the incentive at `t` unchanged | Property test | `exact` | Built (Python) |
 
 ### Models
 
@@ -84,8 +84,8 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 | --- | --- | --- | --- | --- |
 | `SCN-BASE-01` | A zero shock reproduces `BASE` cash flows exactly | Property test | `exact` | Registered |
 | `SCN-MONO-01` | Parallel up gives CPR no higher than `BASE` at every month; parallel down no lower | Property test on a synthetic book | `exact` (sign) | Registered |
-| `SCN-FLOOR-01` | Post-shock floor as a lower bound, `max(shocked, min(observed, min(0, -150bp + 3bp x m)))`: binding and non-binding cases, a positive shocked rate left unchanged | Hand computation with synthetic shock sizes | `abs 1e-12` | Registered |
-| `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)` (`REG-1` SRP31.119, Table 5) | Hand computation | `abs 1e-12` | Registered |
+| `SCN-FLOOR-01` | Post-shock floor as a lower bound, `max(shocked, min(observed, min(0, -150bp + 3bp x m)))`: binding and non-binding cases, a positive shocked rate left unchanged | Hand computation with synthetic shock sizes | `abs 1e-12` | Built (Python) |
+| `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)` (`REG-1` SRP31.119, Table 5) | Hand computation | `abs 1e-12` | Built (Python) |
 | `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |
 
 ### EVE sensitivity and repricing gap (#72)

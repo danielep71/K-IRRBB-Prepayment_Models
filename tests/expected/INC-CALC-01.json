@@ -1,0 +1,97 @@
+{
+  "case": "INC-CALC-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_inc_scn.py (Python 3.13 standard library: csv, fractions, decimal)",
+    "steps": "I = client_rate(t-1) - (R(t-L, T) + m) - penalty, with L = 1 (M4), so the curve is read at the month end before t: 2024-02-29 for t = 2024-03-31 and 2024-04-30 for t = 2024-05-31. At both dates every configured EUR series (EUR_SWAP_12M, _60M, _120M) is 0, so R = 0 for every T and under any compounding convention; at 2024-01-31, 2024-03-31 and 2024-05-31 they are not 0, nor are the unconfigured EUR_OIS_24M and the USD series at any date, so a wrong lag, a wrong series or a wrong currency changes I. T is supplied in years (term_years). Margins m: MTG_FIX 0.005, MTG_RST 0.0075, CON_FIX 0.012. Penalty: PCT value / max(T, 1); MONTHS_INTEREST value x client_rate / 12 / max(T, 1); NONE 0. A1: 0.04 - 0.005 = 0.035. A2: 0.02 / 4 = 0.005, I = 0.03. A3 (T = 0.5) and A4 (T = 1): 0.02 / 1 = 0.02, I = 0.015. B1: 3 x 0.036 / 12 / 2.5 = 0.0036, I = 0.036 - 0.0075 - 0.0036 = 0.0249. B2 (T = 0.25): 6 x 0.06 / 12 / 1 = 0.03, I = 0.06 - 0.012 - 0.03 = 0.018. B3: -0.002 - 0.005 = -0.007. B4: 0.015 / 1.5 = 0.01, I = 0.055 - 0.012 - 0.01 = 0.033. B5 (T = 0.75): 2 x 0.03 / 12 / 1 = 0.005, I = 0.03 - 0.0075 - 0.005 = 0.0175. The script recomputes every value exactly in rationals and checks that the configured curve is 0 at each rate date. Term ends, by hand at t-1 = 2024-02-29: F1 FIXED ends at maturity_date; R1 RESET in its fixed period ends at fixed_until; R2 RESET past fixed_until has no incentive; R3 RESET whose fixed_until falls inside month t is still in its fixed period at t-1; V1 FLOAT has no incentive. The year fraction from these dates to T is not stated by the contract and is not tested.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "settings": {
+    "lag_months": 1,
+    "refi_curve_series": [
+      "EUR_SWAP_120M",
+      "EUR_SWAP_12M",
+      "EUR_SWAP_60M",
+      "USD_SWAP_36M",
+      "USD_SWAP_84M"
+    ],
+    "margins": {
+      "MTG_FIX": "0.005",
+      "MTG_RST": "0.0075",
+      "CON_FIX": "0.012"
+    }
+  },
+  "incentives": {
+    "A1|2024-03-31": {
+      "rate_date": "2024-02-29",
+      "refinancing_rate": "0",
+      "margin": "0.005",
+      "penalty": "0",
+      "incentive": "0.035"
+    },
+    "A2|2024-03-31": {
+      "rate_date": "2024-02-29",
+      "refinancing_rate": "0",
+      "margin": "0.005",
+      "penalty": "0.005",
+      "incentive": "0.03"
+    },
+    "A3|2024-03-31": {
+      "rate_date": "2024-02-29",
+      "refinancing_rate": "0",
+      "margin": "0.005",
+      "penalty": "0.02",
+      "incentive": "0.015"
+    },
+    "A4|2024-03-31": {
+      "rate_date": "2024-02-29",
+      "refinancing_rate": "0",
+      "margin": "0.005",
+      "penalty": "0.02",
+      "incentive": "0.015"
+    },
+    "B1|2024-05-31": {
+      "rate_date": "2024-04-30",
+      "refinancing_rate": "0",
+      "margin": "0.0075",
+      "penalty": "0.0036",
+      "incentive": "0.0249"
+    },
+    "B2|2024-05-31": {
+      "rate_date": "2024-04-30",
+      "refinancing_rate": "0",
+      "margin": "0.012",
+      "penalty": "0.03",
+      "incentive": "0.018"
+    },
+    "B3|2024-05-31": {
+      "rate_date": "2024-04-30",
+      "refinancing_rate": "0",
+      "margin": "0.005",
+      "penalty": "0",
+      "incentive": "-0.007"
+    },
+    "B4|2024-05-31": {
+      "rate_date": "2024-04-30",
+      "refinancing_rate": "0",
+      "margin": "0.012",
+      "penalty": "0.01",
+      "incentive": "0.033"
+    },
+    "B5|2024-05-31": {
+      "rate_date": "2024-04-30",
+      "refinancing_rate": "0",
+      "margin": "0.0075",
+      "penalty": "0.005",
+      "incentive": "0.0175"
+    }
+  },
+  "term_ends": {
+    "F1": "2034-01-15",
+    "R1": "2027-06-30",
+    "R2": null,
+    "R3": "2024-03-15",
+    "V1": null
+  }
+}
