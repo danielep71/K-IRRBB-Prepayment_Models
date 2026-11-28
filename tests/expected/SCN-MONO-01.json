@@ -1,0 +1,30 @@
+{
+  "case": "SCN-MONO-01",
+  "provenance": {
+    "tool": "property test; tests/reference/derive_cashflows.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "Fixture: the SCN-BASE-01 book and settings. views: loans B1 and B7 under parallel shocks of -200bp, 0 and +200bp: for B1 incentive 0.03, 0.01 and -0.01, so k (I - x0) = 2, 0 and -2; for B7 0.075, 0.055 and 0.035, so 6.5, 4.5 and 2.5; CPR = (0.02 + 0.28 logistic) x Ramp(age) x Season(month), exp in decimal at 60 digits. Property: in each trial PM1 parameters and margin are drawn from the seeded generator and a shock of 1 to max_shock_bp basis points; every shocked rate stays at or above 0, so the post-shock floor, which is at most 0, cannot bind. For every loan and projected month CPR(up) <= CPR(BASE) <= CPR(down). The property is checked loan by loan: a pool CPR weights loans by balances that differ between scenarios. Negative control: with up and down exchanged the comparison fails in every trial.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "exact (sign)",
+  "view_tolerance": "rel 1e-12",
+  "fixture": "SCN-BASE-01",
+  "seed": 20261129,
+  "trials": 100,
+  "max_shock_bp": 300,
+  "view_shock": "0.02",
+  "views": {
+    "B1": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31"],
+      "PAR_DOWN": ["0.139977170462748719276780183771", "0.17774878788920472289114943971", "0.219964125012890844577797431641", "0.266623181833807084336724159565"],
+      "BASE": ["0.084", "0.106666666666666666666666666667", "0.132", "0.16"],
+      "PAR_UP": ["0.0280228295372512807232198162285", "0.0355845454441286104421838936236", "0.0440358749871091554222025683591", "0.0533768181661929156632758404353"]
+    },
+    "B7": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31", "2024-06-30", "2024-07-31"],
+      "PAR_DOWN": ["0.269621702071302278133466766731", "0.299579668968113642370518629702", "0.329537635864925006607570492672", "0.359495602761736370844622355642", "0.329537635864925006607570492672", "0.299579668968113642370518629702"],
+      "BASE": ["0.267231290457090518630263884619", "0.296923656063433909589182094021", "0.326616021669777300548100303423", "0.356308387276120691507018512825", "0.326616021669777300548100303423", "0.296923656063433909589182094021"],
+      "PAR_UP": ["0.250883738634646625099286843485", "0.278759709594051805665874270539", "0.306635680553456986232461697593", "0.334511651512862166799049124647", "0.306635680553456986232461697593", "0.278759709594051805665874270539"]
+    }
+  }
+}

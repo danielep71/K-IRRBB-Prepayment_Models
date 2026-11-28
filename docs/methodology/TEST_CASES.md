@@ -1,6 +1,6 @@
 # Numerical test cases
 
-Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
+Status: **accepted on 2026-10-21 (issue #15). Every `DATA-*` case is `Built (Python)` (#41, #42), and every one of them except `DATA-PIT-02`, a property test of the point-in-time view, is also built in VBA, `Built (Python, VBA)` (#42), `DATA-REJECT-01` through the import adapter; every `RATE-*` case is `Built (Python)` (#41), and `RATE-CONV-01` and `RATE-CONV-02` are also built in VBA, `Built (Python, VBA)` (#42); `INC-CALC-01`, `INC-LAG-01`, `SCN-FLOOR-01` and `SCN-GAMMA-01` are `Built (Python)` (#41); every EVE, repricing-gap and measure case is `Built (Python)` (#41); `CF-PREPAY-01`, `CF-CONS-01` and `SCN-BASE-01` are `Built (Python)` (#41); every other case is `Registered`. No case has run in Excel.** Cases under [EVE sensitivity and repricing gap](#eve-sensitivity-and-repricing-gap-72) test decisions accepted on 2026-10-21 (#72). `DATA-RENEG-01` tests decision D11, accepted on 2026-10-26 (#49).
 
 This register is authoritative for which numerical cases test the prepayment contracts, where their expected values must come from, and how closely an implementation must match them. The evidence protocol and status vocabulary are in the [validation plan](VALIDATION_PLAN.md); the specifications under test are the [data contract](DATA_CONTRACT.md) and [model contracts](MODEL_CONTRACTS.md).
 
@@ -73,17 +73,17 @@ Tolerances cover numerical-method differences only, never sampling error. Whethe
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `CF-SCHED-01` | Annuity, linear and bullet schedules for each payment frequency, including rate near zero | Independent script | `abs 1e-8` | Registered |
-| `CF-PREPAY-01` | After a partial prepayment an annuity keeps its maturity and its instalment falls | Hand computation | `abs 1e-8` | Registered |
-| `CF-RESET-01` | `RESET` and `FLOAT` balances leave as repricing cash flows at the next reset | Hand computation | `abs 1e-8` | Registered |
-| `CF-CONS-01` | `opening = scheduled + prepaid + repricing + closing` every month; lifetime principal equals the opening balance | Identity on every projected month | `abs 0.005` | Registered |
+| `CF-SCHED-01` | Annuity, linear and bullet schedules for each payment frequency, including rate near zero | Independent script; monthly annuities (including rates near zero), linear and bullet schedules have a fixture; an annuity paid every 3, 6 or 12 months awaits a periodic-rate convention | `abs 1e-8` | Registered |
+| `CF-PREPAY-01` | After a partial prepayment an annuity keeps its maturity and its instalment falls | Hand computation | `abs 1e-8` | Built (Python) |
+| `CF-RESET-01` | `RESET` and `FLOAT` balances leave as repricing cash flows at the next reset | Hand computation; reset placement has a fixture for loans whose reset month has no amortisation or prepayment; the treatment of the reset month itself awaits a decision | `abs 1e-8` | Registered |
+| `CF-CONS-01` | `opening = scheduled + prepaid + repricing + closing` every month; lifetime principal equals the opening balance | Identity on every projected month | `abs 0.005` | Built (Python) |
 
 ### Scenarios and overlay
 
 | ID | Checks | Reference | Tolerance | Status |
 | --- | --- | --- | --- | --- |
-| `SCN-BASE-01` | A zero shock reproduces `BASE` cash flows exactly | Property test | `exact` | Registered |
-| `SCN-MONO-01` | Parallel up gives CPR no higher than `BASE` at every month; parallel down no lower | Property test on a synthetic book | `exact` (sign) | Registered |
+| `SCN-BASE-01` | A zero shock reproduces `BASE` cash flows exactly | Property test | `exact` | Built (Python) |
+| `SCN-MONO-01` | Parallel up gives CPR no higher than `BASE` at every month; parallel down no lower | Property test on a synthetic book; holds per loan and has a fixture; whether it is required per pool, where balances weight loans differently by scenario and a counterexample exists, awaits a decision | `exact` (sign) | Registered |
 | `SCN-FLOOR-01` | Post-shock floor as a lower bound, `max(shocked, min(observed, min(0, -150bp + 3bp x m)))`: binding and non-binding cases, a positive shocked rate left unchanged | Hand computation with synthetic shock sizes | `abs 1e-12` | Built (Python) |
 | `SCN-GAMMA-01` | Multiplier overlay `min(1, gamma x CPR_BASE)` (`REG-1` SRP31.119, Table 5) | Hand computation | `abs 1e-12` | Built (Python) |
 | `SCN-LAYER-01` | Overlays change no fitted parameter, and every output is labelled with its layer | Property test | `exact` | Registered |

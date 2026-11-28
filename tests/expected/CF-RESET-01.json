@@ -1,0 +1,67 @@
+{
+  "case": "CF-RESET-01",
+  "provenance": {
+    "tool": "hand computation; tests/reference/derive_cashflows.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "Hand construction; values exact in rationals by the derivation. R1: RESET until 2024-06-15, linear every 3 months: scheduled 108,000 / 36 = 3,000 in April 2024, prepayments 0.05 x 105,000 = 5,250 (April) and 0.1 x 99,750 = 9,975 (May) on the balance after scheduled principal, and the remaining 89,775 leaves as repricing principal in June 2024, the month of the reset; nothing is projected after it. R2: FLOAT bullet resetting every 3 months from origination (2023-01-15): the reset of 2024-01-15 falls before the as-of date and has happened, so the next reset is April 2024 and 50,000 x 0.95 x 0.9 = 42,750 reprices then. R3: RESET past its fixed_until (2023-11-15), resetting every 12 months: next reset November 2024; scheduled 80,000 / 32 = 2,500 in July (linear, every 6 months); prepayments in July, August and October; repricing in November. R4: FLOAT whose next reset (June 2024) falls after its maturity (April 2024): final repayment at maturity, no repricing. R5: RESET whose fixed period ended on 2024-01-10, inside the as-of month and before the as-of date: that reset has happened, so the next is July 2024 (every 6 months) and 30,000 x 0.9 = 27,000 reprices then. R6: FLOAT originated 2022-11-15, resetting every 3 months from origination (February, May, August, November): the next reset is February 2024 and the whole 40,000 reprices in the first projected month; counting resets from the as-of date or from calendar quarters would give April 2024. Interest at client_rate / 12 on the opening balance in every projected month, the reset month included. No reset month is an amortising payment month and each has CPR 0, so the values do not depend on the open question of whether scheduled principal and prepayment are projected in the reset month before the balance reprices. FLOAT resets are counted from origination, the only date the register gives for them, and RESET resets from fixed_until.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-8",
+  "fixture": "CF-RESET-01",
+  "loans": {
+    "R1": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31", "2024-06-30"],
+      "opening": ["108000", "108000", "108000", "99750", "89775"],
+      "interest": ["315", "315", "315", "290.9375", "261.84375"],
+      "scheduled": ["0", "0", "3000", "0", "0"],
+      "prepaid": ["0", "0", "5250", "9975", "0"],
+      "repricing": ["0", "0", "0", "0", "89775"],
+      "closing": ["108000", "108000", "99750", "89775", "0"]
+    },
+    "R2": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30"],
+      "opening": ["50000", "47500", "42750"],
+      "interest": ["170.833333333333333333333333333", "162.291666666666666666666666667", "146.0625"],
+      "scheduled": ["0", "0", "0"],
+      "prepaid": ["2500", "4750", "0"],
+      "repricing": ["0", "0", "42750"],
+      "closing": ["47500", "42750", "0"]
+    },
+    "R3": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31", "2024-06-30", "2024-07-31", "2024-08-31", "2024-09-30", "2024-10-31", "2024-11-30"],
+      "opening": ["80000", "80000", "80000", "80000", "80000", "80000", "75950", "75190.5", "75190.5", "71430.975"],
+      "interest": ["186.666666666666666666666666667", "186.666666666666666666666666667", "186.666666666666666666666666667", "186.666666666666666666666666667", "186.666666666666666666666666667", "186.666666666666666666666666667", "177.216666666666666666666666667", "175.4445", "175.4445", "166.672275"],
+      "scheduled": ["0", "0", "0", "0", "0", "2500", "0", "0", "0", "0"],
+      "prepaid": ["0", "0", "0", "0", "0", "1550", "759.5", "0", "3759.525", "0"],
+      "repricing": ["0", "0", "0", "0", "0", "0", "0", "0", "0", "71430.975"],
+      "closing": ["80000", "80000", "80000", "80000", "80000", "75950", "75190.5", "75190.5", "71430.975", "0"]
+    },
+    "R4": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30"],
+      "opening": ["20000", "18000", "18000"],
+      "interest": ["83.3333333333333333333333333333", "75", "75"],
+      "scheduled": ["0", "0", "18000"],
+      "prepaid": ["2000", "0", "0"],
+      "repricing": ["0", "0", "0"],
+      "closing": ["18000", "18000", "0"]
+    },
+    "R5": {
+      "months": ["2024-02-29", "2024-03-31", "2024-04-30", "2024-05-31", "2024-06-30", "2024-07-31"],
+      "opening": ["30000", "30000", "27000", "27000", "27000", "27000"],
+      "interest": ["97.5", "97.5", "87.75", "87.75", "87.75", "87.75"],
+      "scheduled": ["0", "0", "0", "0", "0", "0"],
+      "prepaid": ["0", "3000", "0", "0", "0", "0"],
+      "repricing": ["0", "0", "0", "0", "0", "27000"],
+      "closing": ["30000", "27000", "27000", "27000", "27000", "0"]
+    },
+    "R6": {
+      "months": ["2024-02-29"],
+      "opening": ["40000"],
+      "interest": ["150"],
+      "scheduled": ["0"],
+      "prepaid": ["0"],
+      "repricing": ["40000"],
+      "closing": ["0"]
+    }
+  }
+}
