@@ -8,12 +8,15 @@ import unittest
 from collections import Counter
 from datetime import date
 from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tests' / 'reference'))
 import data_reader as reader  # noqa: E402
+import derive_rates  # noqa: E402
+import rates  # noqa: E402
 
 FIXTURES = ROOT / 'tests' / 'fixtures'
 CODE_SETS = {'rate_type': reader.RATE_TYPES, 'event': reader.EVENTS, 'payment_months': reader.PAYMENT_MONTHS,
@@ -292,6 +295,109 @@ class Fingerprints(unittest.TestCase):
             self.assertEqual(digest, item['sha256'])
         result = reader.read_import(FIXTURES / spec['fixture'], date(2024, 1, 31), date(2024, 3, 31), {'EUR'})
         self.assertEqual(result.fingerprints, spec['files'])
+
+
+def within(value: float | Decimal | Fraction, reference: str, tolerance: str) -> bool:
+    """The register's tolerance rule: ``abs e`` or ``rel e`` against a decimal or a fraction."""
+    kind, size = tolerance.split()
+    ref, bound = Fraction(reference), Fraction(size)
+    if kind == 'rel':
+        bound *= max(Fraction(1), abs(ref))
+    return abs(Fraction(value) - ref) <= bound
+
+
+class RateCases(unittest.TestCase):
+    def assert_near(self, value: float | Decimal | Fraction, reference: str, tolerance: str, label: str) -> None:
+        self.assertTrue(within(value, reference, tolerance), f'{label}: {value!r} against {reference}')
+
+    def assert_pools(self, case: str, months: list[rates.LoanMonth], include_reneg: bool,
+                     want: dict[str, Any], tolerance: str) -> None:
+        pools = {'|'.join(key): pool for key, pool in rates.pool_rates(months, include_reneg).items()}
+        self.assertEqual(sorted(pools), sorted(want))
+        for key, w in want.items():
+            pool = pools[key]
+            for measure in ('available', 'partial', 'full', 'reneg', 'prepaid'):
+                self.assertEqual(getattr(pool, measure), Decimal(w[measure]), f'{case} {key} {measure}')
+            self.assertEqual(pool.loan_months, w['loan_months'], f'{case} {key}')
+            for measure in ('smm', 'smm_partial', 'smm_full', 'smm_reneg'):
+                if measure in w:
+                    self.assert_near(getattr(pool, measure), w[measure], tolerance, f'{case} {key} {measure}')
+            parts = pool.smm_partial + pool.smm_full + pool.smm_reneg
+            self.assert_near(parts, w['smm'], tolerance, f'{case} {key} SMM = sum of its parts')
+            if 'mean_of_loan_smms' in w:
+                self.assertFalse(within(pool.smm, w['mean_of_loan_smms'], tolerance), 'pool SMM is not a mean')
+
+    def test_rate_conv_01(self) -> None:
+        spec = expected('RATE-CONV-01')
+        tol = spec['tolerance']
+        for item in spec['smm_to_cpr']:
+            smm = float(item['smm'])
+            cpr = rates.cpr_from_smm(smm)
+            self.assert_near(cpr, item['cpr'], tol, f'CPR at SMM {item["smm"]}')
+            if item['round_trip']:
+                self.assert_near(rates.smm_from_cpr(cpr), item['smm'], tol, f'SMM round trip {item["smm"]}')
+            else:
+                self.assertEqual(cpr, 1.0, f'CPR at SMM {item["smm"]} is 1 in double precision')
+        for item in spec['cpr_to_smm']:
+            smm = rates.smm_from_cpr(float(item['cpr']))
+            self.assert_near(smm, item['smm'], tol, f'SMM at CPR {item["cpr"]}')
+            self.assertTrue(item['round_trip'])
+            self.assert_near(rates.cpr_from_smm(smm), item['cpr'], tol, f'CPR round trip {item["cpr"]}')
+
+    def test_rate_conv_02(self) -> None:
+        spec = expected('RATE-CONV-02')
+        tol = spec['tolerance']
+        months = rates.read_loan_months(FIXTURES / 'RATE-CONV-02' / 'loan_months.csv')
+        self.assert_pools('RATE-CONV-02', months, False, spec['pools'], tol)
+        smm = rates.pool_rates(months)[('MTG_FIX', 'EUR', '2024-02-29')].smm
+        cpr = rates.cpr_from_smm(float(smm))
+        self.assert_near(cpr, spec['cpr'], tol, 'CPR')
+        self.assert_near(rates.smm_from_cpr(float(Decimal(spec['cpr']))), '2/99', tol, 'SMM from CPR')
+        self.assert_near(cpr / 12, spec['cpr_over_12'], tol, 'CPR / 12')
+        self.assertLess(Decimal(spec['cpr_over_12']), smm, 'CPR / 12 understates the monthly rate')
+        printed = spec['contract_rounded']
+        for name, value in (('smm', Decimal(2) / 99), ('cpr', Decimal(spec['cpr'])),
+                            ('cpr_over_12', Decimal(spec['cpr_over_12']))):
+            self.assertEqual(value.quantize(Decimal('1e-8')), Decimal(printed[name]), name)
+
+    def test_rate_pool_01_and_02(self) -> None:
+        for case in ('RATE-POOL-01', 'RATE-POOL-02'):
+            spec = expected(case)
+            months = rates.read_loan_months(FIXTURES / case / 'loan_months.csv')
+            for variant, want in spec['variants'].items():
+                with self.subTest(case=case, variant=variant):
+                    self.assert_pools(case, months, want['include_reneg'], want['pools'], spec['tolerance'])
+
+    def test_rate_period_01(self) -> None:
+        spec = expected('RATE-PERIOD-01')
+        tol = spec['tolerance']
+        path = FIXTURES / 'RATE-PERIOD-01' / 'monthly_smm.csv'
+        smms = [float(line.split(',')[1]) for line in path.read_text(encoding='utf-8').splitlines()[1:]]
+        for window in spec['windows'].values():
+            n = window['months']
+            self.assert_near(rates.realised_cpr(smms[:n]), window['realised_cpr'], tol, f'{n} months')
+            average = sum(rates.cpr_from_smm(s) for s in smms[:n]) / n
+            self.assert_near(average, window['average_of_monthly_cprs'], tol, f'{n}-month average')
+            self.assertFalse(within(average, window['realised_cpr'], tol), 'an average of CPRs is not realised')
+
+    def test_rates_outside_the_unit_interval_are_refused(self) -> None:
+        for convert in (rates.cpr_from_smm, rates.smm_from_cpr):
+            for value in (-1e-12, 1.0 + 1e-12, float('nan')):
+                with self.assertRaises(ValueError):
+                    convert(value)
+        with self.assertRaises(ValueError):
+            rates.realised_cpr([])
+
+    def test_expected_values_equal_their_derivation(self) -> None:
+        derived = derive_rates.derive()
+        conv = expected('RATE-CONV-01')
+        self.assertEqual({i['smm']: i['cpr'] for i in conv['smm_to_cpr']}, derived['RATE-CONV-01']['smm_to_cpr'])
+        self.assertEqual({i['cpr']: i['smm'] for i in conv['cpr_to_smm']}, derived['RATE-CONV-01']['cpr_to_smm'])
+        worked = expected('RATE-CONV-02')
+        self.assertEqual({'cpr': worked['cpr'], 'cpr_over_12': worked['cpr_over_12']}, derived['RATE-CONV-02'])
+        period = expected('RATE-PERIOD-01')['windows']
+        self.assertEqual({n: {k: v for k, v in w.items() if k != 'months'} for n, w in period.items()},
+                         derived['RATE-PERIOD-01']['windows'])
 
 
 if __name__ == '__main__':

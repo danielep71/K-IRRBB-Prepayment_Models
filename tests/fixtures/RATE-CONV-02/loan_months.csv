@@ -1,0 +1,2 @@
+loan_id,segment,currency,as_of_date,opening_balance,scheduled_principal,other_change,prepaid_principal,event
+L1,MTG_FIX,EUR,2024-02-29,100000,1000,0,2000,PARTIAL

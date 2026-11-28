@@ -1,0 +1,74 @@
+{
+  "case": "RATE-CONV-01",
+  "provenance": {
+    "tool": "tests/reference/derive_rates.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "CPR = 1 - (1 - SMM)^12 computed exactly in rationals for each grid point; SMM = 1 - (1 - CPR)^(1/12) computed in decimal at 60 significant digits; both rounded to 40 significant digits. At SMM 0.999999 the exact CPR is 1 - 1e-72, which rounds to 1 at 40 digits and in double precision, so that point has no SMM round trip and checks CPR = 1 exactly in double precision.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "rel 1e-12",
+  "smm_to_cpr": [
+    {
+      "smm": "0",
+      "cpr": "0",
+      "round_trip": true
+    },
+    {
+      "smm": "1e-8",
+      "cpr": "0.0000001199999934000002199999950500000791999991",
+      "round_trip": true
+    },
+    {
+      "smm": "0.02",
+      "cpr": "0.215283276265199966613504",
+      "round_trip": true
+    },
+    {
+      "smm": "0.5",
+      "cpr": "0.999755859375",
+      "round_trip": true
+    },
+    {
+      "smm": "0.999999",
+      "cpr": "1.000000000000000000000000000000000000000",
+      "round_trip": false
+    },
+    {
+      "smm": "1",
+      "cpr": "1",
+      "round_trip": true
+    }
+  ],
+  "cpr_to_smm": [
+    {
+      "cpr": "0",
+      "smm": "0",
+      "round_trip": true
+    },
+    {
+      "cpr": "1e-8",
+      "smm": "0.0000000008333333371527778021797841285485803547005",
+      "round_trip": true
+    },
+    {
+      "cpr": "0.02",
+      "smm": "0.001682142552739534400815853519658207952196",
+      "round_trip": true
+    },
+    {
+      "cpr": "0.5",
+      "smm": "0.05612568731830650335808684333246562399243",
+      "round_trip": true
+    },
+    {
+      "cpr": "0.999999",
+      "smm": "0.6837722339831620668001106455567281466280",
+      "round_trip": true
+    },
+    {
+      "cpr": "1",
+      "smm": "1",
+      "round_trip": true
+    }
+  ]
+}

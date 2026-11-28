@@ -1,0 +1,22 @@
+{
+  "case": "RATE-PERIOD-01",
+  "provenance": {
+    "tool": "tests/reference/derive_rates.py (Python 3.13 standard library: fractions, decimal)",
+    "steps": "Monthly SMMs of monthly_smm.csv, chosen by hand. Over the first n months (n = 3 and 12) the realised CPR is 1 - (prod (1 - SMM))^(12/n), computed exactly in rationals (exponent 4 and 1); the average of the n monthly CPRs, 1 - (1 - SMM)^12 each, is computed the same way as the wrong figure the case rules out. Both rounded to 40 significant digits.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "windows": {
+    "3": {
+      "months": 3,
+      "realised_cpr": "0.215610054345716907749104",
+      "average_of_monthly_cprs": "0.2116853478512108952198873333333333333333"
+    },
+    "12": {
+      "months": 12,
+      "realised_cpr": "0.22816445621596643116",
+      "average_of_monthly_cprs": "0.2169407600860797481074649719441731770833"
+    }
+  }
+}

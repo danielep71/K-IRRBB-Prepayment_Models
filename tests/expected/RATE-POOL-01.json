@@ -1,0 +1,40 @@
+{
+  "case": "RATE-POOL-01",
+  "provenance": {
+    "tool": "hand computation",
+    "steps": "Pool MTG_FIX|EUR|2024-02-29. L1: A = 100,000 - 1,000 = 99,000, PARTIAL 2,000. L2: A = 50,000 - 500 + 10,000 = 59,500 (the drawdown counts as exposure), PARTIAL 5,000. L3: A = 20,000 - 200 = 19,800, FULL 19,800. L4: final scheduled repayment, MATURITY with A = 0. L5: A = 80,000 - 800 = 79,200 (the negative other_change -1,000 does not reduce A), NONE. L7: MATURITY with a prepayment of 400 in the maturity month, so A = 1,000 - 600 = 400 > 0; MATURITY enters neither sum whatever A is. Valid NONE, PARTIAL and FULL rows always have A > 0, so the exclusion of A <= 0 is observable only on a zero-residual RENEG (RATE-POOL-02, M6). Sum A = 257,500; sum P = 26,800 = 7,000 PARTIAL + 19,800 FULL, over 4 loan-months. SMM = 26,800 / 257,500; the mean of the four loan SMMs, (2/99 + 10/119 + 1 + 0) / 4 = 13,009 / 47,124, is a different number. L6 is in USD and forms its own pool: A = 9,900, P = 990.",
+    "date": "2026-11-28",
+    "producer": "Daniele Penza"
+  },
+  "tolerance": "abs 1e-12",
+  "variants": {
+    "default": {
+      "include_reneg": false,
+      "pools": {
+        "MTG_FIX|EUR|2024-02-29": {
+          "available": "257500",
+          "prepaid": "26800",
+          "partial": "7000",
+          "full": "19800",
+          "reneg": "0",
+          "loan_months": 4,
+          "smm": "26800/257500",
+          "smm_partial": "7000/257500",
+          "smm_full": "19800/257500",
+          "mean_of_loan_smms": "13009/47124"
+        },
+        "MTG_FIX|USD|2024-02-29": {
+          "available": "9900",
+          "prepaid": "990",
+          "partial": "990",
+          "full": "0",
+          "reneg": "0",
+          "loan_months": 1,
+          "smm": "990/9900",
+          "smm_partial": "990/9900",
+          "smm_full": "0"
+        }
+      }
+    }
+  }
+}
